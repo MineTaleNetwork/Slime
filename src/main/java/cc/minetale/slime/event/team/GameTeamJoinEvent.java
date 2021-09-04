@@ -1,23 +1,29 @@
-package cc.minetale.slime.events;
+package cc.minetale.slime.event.team;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
+import lombok.Setter;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class GameJoinEvent<G extends Game<G,P,?>, P extends GamePlayer<P,?,G>> implements PlayerEvent, CancellableEvent {
+public class GameTeamJoinEvent implements PlayerEvent, CancellableEvent {
 
     private boolean cancelled;
 
-    @Getter private G game;
-    @Getter private P gamePlayer;
+    @Getter private Game game;
+    @Getter private GamePlayer gamePlayer;
 
-    public GameJoinEvent(@NotNull G game, @NotNull P gamePlayer) {
+    @Getter @Setter private GameTeam team;
+
+    public GameTeamJoinEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer, @NotNull GameTeam team) {
         this.game = game;
         this.gamePlayer = gamePlayer;
+
+        this.team = team;
     }
 
     @Override public @NotNull Player getPlayer() {

@@ -1,4 +1,4 @@
-package cc.minetale.slime.events;
+package cc.minetale.slime.event.player;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
@@ -7,12 +7,12 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class GameLeaveEvent<G extends Game<G,P,?>, P extends GamePlayer<P,?,G>> implements PlayerEvent {
+public class GamePlayerLeaveEvent implements PlayerEvent {
 
-    @Getter private G game;
-    @Getter private P gamePlayer;
+    @Getter private Game game;
+    @Getter private GamePlayer gamePlayer;
 
-    public GameLeaveEvent(@NotNull G game, @NotNull P gamePlayer) {
+    public GamePlayerLeaveEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer) {
         this.game = game;
         this.gamePlayer = gamePlayer;
     }

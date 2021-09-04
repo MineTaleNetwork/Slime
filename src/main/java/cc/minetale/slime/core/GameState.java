@@ -1,20 +1,20 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.slime.events.GameChangeStateEvent;
+import cc.minetale.slime.event.GameStateChangeEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.EventDispatcher;
 
-public class GameState<S extends GameState<S,P,G>, P extends GamePlayer<P,S,G>, G extends Game<G,P,S>> {
+public class GameState {
 
     @Getter @Setter(AccessLevel.PACKAGE)
-    private G game;
+    private Game game;
 
     @Getter protected State baseState = State.IN_LOBBY;
 
     public void setBaseState(State state) {
-        var event = new GameChangeStateEvent<>(game, this.baseState, state);
+        var event = new GameStateChangeEvent(game, this.baseState, state);
         EventDispatcher.call(event);
 
         this.baseState = event.getNewState();

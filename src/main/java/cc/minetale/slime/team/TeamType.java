@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.team;
 
 import cc.minetale.commonlib.util.MC;
 import lombok.AllArgsConstructor;
@@ -245,7 +245,7 @@ public enum TeamType {
     private Material teamItem;
     private Material teamBlock;
 
-    public static <T extends GameTeam<?,?,?>> List<T> getRequiredTeams(int amount, Supplier<T> teamSupplier) {
+    public static <T extends GameTeam> List<T> getRequiredTeams(int amount, Supplier<T> teamSupplier) {
         final var values = values();
 
         List<T> teams = new ArrayList<>();

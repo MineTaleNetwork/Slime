@@ -1,5 +1,6 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,22 +8,20 @@ import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class GamePlayer<P extends GamePlayer<P,S,G>, S extends GameState<S,P,G>, G extends Game<G,P,S>> {
+public class GamePlayer {
 
     @Setter(AccessLevel.PACKAGE)
-    private G game;
+    private Game game;
 
     @Setter(AccessLevel.PACKAGE)
     private Player handle;
 
-    @Nullable private GameLobby<G,P,S> lobby;
+    @Nullable @Setter(AccessLevel.PACKAGE)
+    private GameLobby lobby;
 
-    @Getter @Setter protected int lives = 1;
-    @Getter @Setter protected boolean canLoseLives = true;
+    @Setter protected int lives = 1;
+    @Setter protected boolean canLoseLives = true;
 
-    @SuppressWarnings("unchecked")
-    public P get() {
-        return (P) this;
-    }
+    @Setter GameTeam team;
 
 }
