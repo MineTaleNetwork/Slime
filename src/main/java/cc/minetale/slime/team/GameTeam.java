@@ -22,7 +22,7 @@ public class GameTeam {
     private Team handle;
 
     @Getter @Setter int size;
-    @Getter @Setter TeamType type;
+    @Getter @Setter ITeamType type;
 
     @Getter List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
 

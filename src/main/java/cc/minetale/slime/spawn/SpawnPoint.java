@@ -1,4 +1,4 @@
-package cc.minetale.slime.core.spawn;
+package cc.minetale.slime.spawn;
 
 import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;

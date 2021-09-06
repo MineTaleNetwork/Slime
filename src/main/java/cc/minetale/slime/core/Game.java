@@ -1,6 +1,6 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.slime.core.spawn.SpawnManager;
+import cc.minetale.slime.spawn.SpawnManager;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Getter @AllArgsConstructor
-public enum TeamType {
+public enum ColorTeam implements ITeamType {
     RED(MC.CC.RED, "Red", "R",
             Material.RED_WOOL,
             Material.RED_TERRACOTTA,

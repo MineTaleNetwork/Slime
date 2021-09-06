@@ -2,7 +2,7 @@ package cc.minetale.slime.event.player;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
-import cc.minetale.slime.core.spawn.SpawnPoint;
+import cc.minetale.slime.spawn.SpawnPoint;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.entity.Player;

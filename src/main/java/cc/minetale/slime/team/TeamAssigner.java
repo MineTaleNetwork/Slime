@@ -32,7 +32,7 @@ public abstract class TeamAssigner {
                 var teamsAmount = (int) Math.ceil((double) players.size() / teamSize);
                 Map<T, Set<P>> assignedTeams = new HashMap<>();
 
-                List<T> availableTeams = TeamType.getRequiredTeams(teamsAmount, teamSupplier);
+                List<T> availableTeams = ColorTeam.getRequiredTeams(teamsAmount, teamSupplier);
                 for(T team : availableTeams) {
                     team.setSize(teamSize);
 
