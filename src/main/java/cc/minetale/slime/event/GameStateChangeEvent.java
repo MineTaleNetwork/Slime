@@ -2,11 +2,12 @@ package cc.minetale.slime.event;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GameState.State;
+import cc.minetale.slime.event.trait.GameEvent;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.trait.CancellableEvent;
 
-public class GameStateChangeEvent implements CancellableEvent {
+public class GameStateChangeEvent implements GameEvent, CancellableEvent {
 
     private boolean cancelled;
 

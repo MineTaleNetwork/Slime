@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class GameManager {
@@ -19,11 +20,11 @@ public final class GameManager {
     @Getter private final List<Game> games = Collections.synchronizedList(new ArrayList<>());
 
     private final Supplier<Game> gameSupplier;
-    private Supplier<GameLobby> lobbySupplier = GameLobby::new;
+    private Function<Game, GameLobby> lobbySupplier = GameLobby::new;
 
     public GameManager(int maxGames, int maxPlayers,
                        @NotNull Supplier<Game> gameSupplier,
-                       @Nullable Supplier<GameLobby> lobbySupplier) {
+                       @Nullable Function<Game, GameLobby> lobbySupplier) {
 
         this.maxGames = maxGames;
         this.maxPlayers = maxPlayers;
@@ -46,9 +47,9 @@ public final class GameManager {
     }
 
     private Game addNewGame0() {
-        Game game = this.gameSupplier.get();
+        var game = this.gameSupplier.get();
 
-        var lobby = this.lobbySupplier.get();
+        var lobby = this.lobbySupplier.apply(game);
         game.setLobby(lobby);
 
         this.games.add(game);

@@ -2,23 +2,24 @@ package cc.minetale.slime.event.team;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.event.trait.GamePlayerEvent;
+import cc.minetale.slime.event.trait.GameTeamEvent;
+import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
-import net.minestom.server.entity.Player;
-import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class GameTeamLeaveEvent implements PlayerEvent {
+public class GameTeamLeaveEvent implements GamePlayerEvent, GameTeamEvent {
 
     @Getter private Game game;
     @Getter private GamePlayer gamePlayer;
 
-    public GameTeamLeaveEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer) {
+    @Getter private GameTeam team;
+
+    public GameTeamLeaveEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer, @NotNull GameTeam team) {
         this.game = game;
         this.gamePlayer = gamePlayer;
-    }
 
-    @Override public @NotNull Player getPlayer() {
-        return this.gamePlayer.getHandle();
+        this.team = team;
     }
 
 }

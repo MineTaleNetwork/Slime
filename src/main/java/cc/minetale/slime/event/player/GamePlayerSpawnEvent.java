@@ -2,15 +2,14 @@ package cc.minetale.slime.event.player;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.event.trait.GamePlayerEvent;
 import cc.minetale.slime.spawn.SpawnPoint;
 import lombok.Getter;
 import lombok.Setter;
-import net.minestom.server.entity.Player;
-import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class GamePlayerSpawnEvent implements PlayerEvent {
+public class GamePlayerSpawnEvent implements GamePlayerEvent {
 
     private Game game;
     private GamePlayer gamePlayer;
@@ -22,10 +21,6 @@ public class GamePlayerSpawnEvent implements PlayerEvent {
         this.gamePlayer = gamePlayer;
 
         this.spawnPoint = spawnPoint;
-    }
-
-    @Override public @NotNull Player getPlayer() {
-        return this.gamePlayer.getHandle();
     }
 
 }

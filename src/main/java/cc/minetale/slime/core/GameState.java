@@ -20,6 +20,10 @@ public class GameState {
         this.baseState = event.getNewState();
     }
 
+    public boolean isJoinable() {
+        return this.baseState == State.IN_LOBBY || this.baseState == State.STARTING;
+    }
+
     public enum State {
         IN_LOBBY,   //Gathering players in a lobby
         STARTING,   //Enough players, starting the game

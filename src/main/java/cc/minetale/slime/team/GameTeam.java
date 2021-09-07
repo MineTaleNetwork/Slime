@@ -6,6 +6,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.scoreboard.Team;
+import net.minestom.server.tag.Tag;
+import net.minestom.server.tag.TagReadable;
+import net.minestom.server.tag.TagWritable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class GameTeam {
+public class GameTeam implements TagReadable, TagWritable {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
@@ -44,6 +50,17 @@ public class GameTeam {
 
     boolean canFitPlayers(int amount) {
         return this.size - this.players.size() > amount;
+    }
+
+    //Tags
+    private final NBTCompound nbtCompound = new NBTCompound();
+
+    @Override public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
+        return tag.read(this.nbtCompound);
+    }
+
+    @Override public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
+        tag.write(this.nbtCompound, value);
     }
 
 }
