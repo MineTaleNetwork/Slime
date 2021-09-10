@@ -2,7 +2,7 @@ package cc.minetale.slime;
 
 import net.minestom.server.extensions.Extension;
 
-public class Slime extends Extension {
+public final class Slime extends Extension {
 
     @Override public void initialize() { }
 

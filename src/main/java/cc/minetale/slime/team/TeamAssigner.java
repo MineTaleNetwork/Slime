@@ -20,20 +20,23 @@ public abstract class TeamAssigner {
      * actually assigning them, usually through {@linkplain TeamAssigner#assignTeams(Map)}.
      */
     public abstract <T extends GameTeam, P extends GamePlayer> Map<T, Set<P>> assign(Game game,
+                                                                                     List<ITeamType> availableTeams,
                                                                                      Supplier<T> teamSupplier,
                                                                                      List<P> players);
 
     public static TeamAssigner simple(int teamSize) {
         return new TeamAssigner() {
             @Override public <T extends GameTeam, P extends GamePlayer> Map<T, Set<P>> assign(Game game,
+                                                                                              List<ITeamType> availableTeams,
                                                                                               Supplier<T> teamSupplier,
                                                                                               List<P> players) {
 
-                var teamsAmount = (int) Math.ceil((double) players.size() / teamSize);
                 Map<T, Set<P>> assignedTeams = new HashMap<>();
 
-                List<T> availableTeams = ColorTeam.getRequiredTeams(teamsAmount, teamSupplier);
-                for(T team : availableTeams) {
+                for(ITeamType teamType : availableTeams) {
+                    var team = teamSupplier.get();
+
+                    team.setType(teamType);
                     team.setSize(teamSize);
 
                     Set<P> teamPlayers = new HashSet<>();

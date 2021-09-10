@@ -1,7 +1,7 @@
-package cc.minetale.slime.event;
+package cc.minetale.slime.event.game;
 
 import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.GameState.State;
+import cc.minetale.slime.core.IBaseState;
 import cc.minetale.slime.event.trait.GameEvent;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +12,10 @@ public class GameStateChangeEvent implements GameEvent, CancellableEvent {
     private boolean cancelled;
 
     @Getter private final Game game;
-    @Getter private final State previousState;
-    @Getter @Setter private State newState;
+    @Getter private final IBaseState previousState;
+    @Getter @Setter private IBaseState newState;
 
-    public GameStateChangeEvent(Game game, State previousState, State newState) {
+    public GameStateChangeEvent(Game game, IBaseState previousState, IBaseState newState) {
         this.game = game;
         this.previousState = previousState;
         this.newState = newState;

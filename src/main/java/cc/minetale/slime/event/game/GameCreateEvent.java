@@ -1,7 +1,6 @@
-package cc.minetale.slime.event;
+package cc.minetale.slime.event.game;
 
 import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.GameState.State;
 import cc.minetale.slime.event.trait.GameEvent;
 import lombok.Getter;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -12,7 +11,7 @@ public class GameCreateEvent implements GameEvent, CancellableEvent {
 
     @Getter private final Game game;
 
-    public GameCreateEvent(Game game, State previousState, State newState) {
+    public GameCreateEvent(Game game) {
         this.game = game;
     }
 

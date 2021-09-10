@@ -1,5 +1,7 @@
 package cc.minetale.slime.team;
 
+import cc.minetale.slime.attribute.Attribute;
+import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
 import lombok.AccessLevel;
@@ -19,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class GameTeam implements TagReadable, TagWritable {
+public class GameTeam implements IAttributeWritable, TagReadable, TagWritable {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
@@ -52,15 +54,22 @@ public class GameTeam implements TagReadable, TagWritable {
         return this.size - this.players.size() > amount;
     }
 
+    //Attributes
+    @Override
+    public void setAttribute(Attribute attr, Object value) {
+        this.players.forEach(player -> player.setAttribute(attr, value));
+    }
+
     //Tags
     private final NBTCompound nbtCompound = new NBTCompound();
 
-    @Override public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
+    @Override
+    public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
         return tag.read(this.nbtCompound);
     }
 
-    @Override public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
+    @Override
+    public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
         tag.write(this.nbtCompound, value);
     }
-
 }

@@ -14,11 +14,13 @@ public class LoadoutReplaceEvent implements PlayerEvent, CancellableEvent {
     private boolean cancelled;
 
     @Getter private Player player;
+
     @Getter @Nullable private Loadout previousLoadout;
     @Getter @Setter @NotNull private Loadout newLoadout;
 
     public LoadoutReplaceEvent(@NotNull Player player, @Nullable Loadout previousLoadout, @NotNull Loadout newLoadout) {
         this.player = player;
+
         this.previousLoadout = previousLoadout;
         this.newLoadout = newLoadout;
     }

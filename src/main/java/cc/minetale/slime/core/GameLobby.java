@@ -1,7 +1,10 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.slime.loadout.DefaultLoadouts;
+import cc.minetale.slime.loadout.Loadout;
 import lombok.Getter;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -32,13 +35,23 @@ public class GameLobby {
     public boolean addPlayer(GamePlayer player) {
         if(player.getLobby() != null) { return false; }
         player.setLobby(this);
+
+        applyLoadout(player.getHandle());
+
         return this.waiters.add(player);
     }
 
     public boolean removePlayer(GamePlayer player) {
         if(player.getLobby() != this) { return false; }
         player.setLobby(null);
+
+        Loadout.removeIfAny(player.getHandle());
+
         return this.waiters.remove(player);
+    }
+
+    private void applyLoadout(Player player) {
+        DefaultLoadouts.LOBBY.forceApplyFor(player);
     }
 
 }

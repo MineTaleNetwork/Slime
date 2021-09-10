@@ -2,11 +2,12 @@ package cc.minetale.slime.event.player;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-public class GamePlayerLeaveEvent implements GamePlayerEvent {
+public class GamePlayerLeaveEvent implements GameEvent, GamePlayerEvent {
 
     @Getter private Game game;
     @Getter private GamePlayer gamePlayer;
