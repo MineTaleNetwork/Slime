@@ -1,19 +1,32 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.slime.attribute.Attribute;
-import net.minestom.server.event.EventFilter;
+import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
-import net.minestom.server.event.trait.PlayerEvent;
+import net.minestom.server.event.player.PlayerRespawnEvent;
+
+import static cc.minetale.slime.core.PlayerState.SPECTATE;
 
 public final class MainListener {
 
     static void registerEvents(GameManager gameManager) {
-        EventNode<PlayerEvent> slimeNode = EventNode.type("slime", EventFilter.PLAYER);
+        var mainNode = EventNode.all("slime");
+        registerDefaultEvents(mainNode, gameManager);
 
-        slimeNode.addListener(PlayerLoginEvent.class, event -> {
+        var global = MinecraftServer.getGlobalEventHandler();
+        global.addChild(mainNode);
+    }
+
+    private static void registerDefaultEvents(EventNode<Event> mainNode, GameManager gameManager) {
+        var node = EventNode.all("default");
+
+        node.addListener(PlayerLoginEvent.class, event -> {
             var player = event.getPlayer();
 
             Game game = gameManager.findGameOrCreate();
@@ -25,9 +38,11 @@ public final class MainListener {
             var gamePlayer = game.createPlayer(player);
 
             game.addPlayer(gamePlayer);
+
+            event.setSpawningInstance(game.getSpawnInstance(gamePlayer));
         });
 
-        slimeNode.addListener(PlayerDisconnectEvent.class, event -> {
+        node.addListener(PlayerDisconnectEvent.class, event -> {
             var handle = event.getPlayer();
 
             var gamePlayer = GamePlayer.getWrapper(handle);
@@ -39,7 +54,15 @@ public final class MainListener {
             game.removePlayer(gamePlayer);
         });
 
-        slimeNode.addListener(PlayerDeathEvent.class, event -> {
+        node.addListener(PlayerRespawnEvent.class, event -> {
+            var player = event.getPlayer();
+            var gamePlayer = GamePlayer.getWrapper(player);
+
+            event.getPlayer().setRespawnPoint(new Pos(0, 64, 0));
+//            event.getPlayer().scheduleNextTick(futurePlayer -> futurePlayer.teleport());
+        });
+
+        node.addListener(PlayerDeathEvent.class, event -> {
             var handle = event.getPlayer();
 
             var gamePlayer = GamePlayer.getWrapper(handle);
@@ -48,11 +71,40 @@ public final class MainListener {
             var game = gamePlayer.getGame();
             if(game == null) { return; }
 
-            if(gamePlayer.<Integer>getAttribute(Attribute.RESPAWN_TIME) == 0) { return; }
+            if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_LOSE_LIVES))
+                gamePlayer.setLives(gamePlayer.getLives() - 1);
 
-            gamePlayer.setState(PlayerState.SPECTATE);
+            var hasDied = gamePlayer.getLives() < 0;
+
+            if(gamePlayer.<Integer>getAttribute(Attribute.RESPAWN_TIME) == 0) {
+                if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_DEATH_SPECTATOR))
+                    //TODO Automatic death spectator
+
+                return;
+            }
+
+            if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_DEATH_SPECTATOR))
+                gamePlayer.setState(SPECTATE);
         });
 
+        mainNode.addChild(node);
+    }
+
+    private static void registerGamePlayerEvents(EventNode<Event> mainNode, GameManager gameManager) {
+        var node = EventNode.all("gamePlayer");
+
+        node.addListener(GamePlayerStateChangeEvent.class, event -> {
+            var player = event.getPlayer();
+
+            var gamePlayer = event.getGamePlayer();
+            var newState = event.getNewState();
+
+            if(SPECTATE.equals(newState)) {
+                //TODO Set spectator
+            }
+        });
+
+        mainNode.addChild(node);
     }
 
 }

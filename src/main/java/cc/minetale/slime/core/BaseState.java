@@ -13,7 +13,7 @@ public enum BaseState implements IBaseState {
     /** The game is preparing like explaining the gamemode and counting down. **/
     PRE_GAME,
     /** The game is ongoing, this includes the grace period or anything similar. **/
-    GAME,
+    IN_GAME,
     /** The game has ended, display the scoreboard, play win effects. **/
     POST_GAME
 }

@@ -4,6 +4,7 @@ import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeReadable;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
+import cc.minetale.slime.spawn.SpawnPoint;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -36,18 +37,25 @@ public class GamePlayer implements IAttributeReadable, IAttributeWritable, TagRe
     @Nullable @Setter(AccessLevel.PACKAGE)
     private GameLobby lobby;
 
-    private final Map<Attribute, Object> attributes = Collections.synchronizedMap(new EnumMap<>(Attribute.class));
+    private final Map<Attribute, Object> attributes;
 
     @Setter protected int lives = 0; //If the player dies when they have 0 lives, they cannot respawn.
     @Setter protected int score = 0;
 
     private IPlayerState state;
 
+    @Setter protected SpawnPoint currentSpawn; //Spawnpoint this player spawned from last
     @Setter protected GameTeam team;
 
     protected GamePlayer(Player player) {
         WRAPPERS.put(player, this);
         this.handle = player;
+
+        EnumMap<Attribute, Object> attributes = new EnumMap<>(Attribute.class);
+        for(Attribute attribute : Attribute.values()) {
+            attributes.put(attribute, attribute.getDefaultValue());
+        }
+        this.attributes = Collections.synchronizedMap(attributes);
     }
 
     public final void setState(IPlayerState state) {

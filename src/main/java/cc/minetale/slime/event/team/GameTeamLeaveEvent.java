@@ -9,10 +9,6 @@ import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * This event, unlike {@linkplain GameTeamAssignEvent} gets called whenever a player joins a team post initial assignment. <br>
- * Almost always when a player joins the game after it has started, after {@linkplain GamePlayerJoinEvent}.
- */
 public class GameTeamLeaveEvent implements GameEvent, GamePlayerEvent, GameTeamEvent {
 
     @Getter private Game game;

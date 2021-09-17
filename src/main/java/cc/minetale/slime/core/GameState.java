@@ -20,7 +20,7 @@ public class GameState {
         this.baseState = event.getNewState();
     }
 
-    public boolean isJoinable() {
+    public boolean inLobby() {
         return this.baseState == BaseState.IN_LOBBY || this.baseState == BaseState.STARTING;
     }
 

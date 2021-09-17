@@ -21,7 +21,7 @@ public final class DefaultLoadouts {
 
     static {
         //LOBBY
-        List<ItemStack> items = new ArrayList<>(PlayerInventory.INVENTORY_SIZE);
+        List<ItemStack> items = new ArrayList<>(Collections.nCopies(PlayerInventory.INVENTORY_SIZE, ItemStack.AIR));
         items.set(3, ItemStack.of(Material.EMERALD));
         items.set(4, ItemStack.of(Material.NOTE_BLOCK));
         items.set(5, ItemStack.of(Material.FIREWORK_STAR).withMeta(FireworkEffectMeta.class, meta -> {
@@ -39,11 +39,11 @@ public final class DefaultLoadouts {
         LOBBY = Loadout.builder()
                 .id("lobby")
                 .items(items)
-                .onApply(player -> {}) //TOOD Set inventory conditions
-                .onRemove(player -> {}) //TOOD Remove inventory conditions
+                .onApply(player -> {}) //TODO Set inventory conditions
+                .onRemove(player -> {}) //TODO Remove inventory conditions
                 .build();
 
-        items.clear();
+        items = new ArrayList<>(Collections.nCopies(PlayerInventory.INVENTORY_SIZE, ItemStack.AIR));
 
         //SPECTATOR
         items.set(0, ItemStack.of(Material.COMPASS));

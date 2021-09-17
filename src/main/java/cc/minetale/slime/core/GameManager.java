@@ -22,18 +22,18 @@ public final class GameManager {
 
     @Getter private final List<Game> games = Collections.synchronizedList(new ArrayList<>());
 
-    private final Supplier<Game> gameSupplier;
-    private Function<Game, GameLobby> lobbySupplier = GameLobby::new;
+    private final Supplier<Game> gameProvider;
+    private Function<Game, GameLobby> lobbyProvider = GameLobby::new;
 
     public GameManager(int maxGames, int maxPlayers,
-                       @NotNull Supplier<Game> gameSupplier,
-                       @Nullable Function<Game, GameLobby> lobbySupplier) {
+                       @NotNull Supplier<Game> gameProvider,
+                       @Nullable Function<Game, GameLobby> lobbyProvider) {
 
         this.maxGames = maxGames;
         this.maxPlayers = maxPlayers;
 
-        this.gameSupplier = gameSupplier;
-        this.lobbySupplier = Objects.requireNonNullElse(lobbySupplier, this.lobbySupplier);
+        this.gameProvider = gameProvider;
+        this.lobbyProvider = Objects.requireNonNullElse(lobbyProvider, this.lobbyProvider);
 
         MainListener.registerEvents(this);
     }
@@ -49,8 +49,8 @@ public final class GameManager {
     public Game addNewGame() {
         if(!canFitNewGame()) { return null; }
 
-        var game = this.gameSupplier.get();
-        var lobby = this.lobbySupplier.apply(game);
+        var game = this.gameProvider.get();
+        var lobby = this.lobbyProvider.apply(game);
 
         game.setLobby(lobby);
 

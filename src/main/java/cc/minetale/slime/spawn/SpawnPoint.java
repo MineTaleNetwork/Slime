@@ -3,7 +3,8 @@ package cc.minetale.slime.spawn;
 import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
 import lombok.Setter;
-import net.minestom.server.coordinate.Vec;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.instance.Instance;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,7 +14,8 @@ import java.util.Set;
 public class SpawnPoint {
 
     private final Set<GameTeam> owners;
-    @Setter private Vec position;
+    @Setter private Pos position;
+    @Setter private Instance instance;
 
     public SpawnPoint() {
         this.owners = Collections.synchronizedSet(new HashSet<>());

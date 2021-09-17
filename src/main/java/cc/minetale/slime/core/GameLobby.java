@@ -1,13 +1,15 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
+import cc.minetale.slime.utils.sequence.SequenceBuilder;
 import lombok.Getter;
-import net.minestom.server.MinecraftServer;
+import net.kyori.adventure.text.Component;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,26 +21,32 @@ import java.util.Set;
  */
 public class GameLobby {
 
-    public static final InstanceManager INSTANCE_MANAGER = MinecraftServer.getInstanceManager();
-    public static final InstanceContainer PARENT_INSTANCE = INSTANCE_MANAGER.createInstanceContainer();
+    public static InstanceContainer PARENT_INSTANCE;
 
     @Getter private final Instance instance;
     @Getter private final Game game;
 
-    protected Set<GamePlayer> waiters = Collections.synchronizedSet(new HashSet<>());
+    protected Set<GamePlayer> players = Collections.synchronizedSet(new HashSet<>());
 
     public GameLobby(Game game) {
-        this.instance = INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
+        this.instance = Slime.INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
         this.game = game;
     }
 
     public boolean addPlayer(GamePlayer player) {
-        if(player.getLobby() != null) { return false; }
+        if(player.getLobby() != null || isPlayerInLobby(player)) { return false; }
+
+        if(!this.players.add(player)) { return false; }
+
         player.setLobby(this);
 
         applyLoadout(player.getHandle());
 
-        return this.waiters.add(player);
+        startCountdown();
+
+        player.getHandle().setRespawnPoint(new Pos(0, 64, 0)); //TODO Use GameMap's spawnpoint
+
+        return true;
     }
 
     public boolean removePlayer(GamePlayer player) {
@@ -47,7 +55,36 @@ public class GameLobby {
 
         Loadout.removeIfAny(player.getHandle());
 
-        return this.waiters.remove(player);
+        return this.players.remove(player);
+    }
+
+    protected boolean startCountdown() {
+        //TODO Add back
+//        if(!(this.players.size() >= this.game.getMaxPlayers())) { return false; }
+
+        var sequence = new SequenceBuilder(10000)
+                .setExperienceBar(true)
+                .chatRepeat(1000, Component.text("Starting game in: %d!"))
+                .onFinish(involved -> {
+                    involved.forEach(obj -> {
+                        if(!(obj instanceof Player)) { return; }
+                        Player player = (Player) obj;
+                        player.sendMessage(Component.text("Starting!!!"));
+                    });
+                    //TODO Start the game
+                })
+                .build();
+
+        //TODO Switch to using the GamePlayer when (or if) we make it extend Player
+        this.players.forEach(gamePlayer -> sequence.addInvolved(gamePlayer.getHandle()));
+
+        sequence.start();
+
+        return true;
+    }
+
+    public boolean isPlayerInLobby(GamePlayer player) {
+        return this.players.contains(player);
     }
 
     private void applyLoadout(Player player) {

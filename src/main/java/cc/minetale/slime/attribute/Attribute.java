@@ -1,7 +1,10 @@
 package cc.minetale.slime.attribute;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.minestom.server.utils.time.TimeUnit;
 
+@AllArgsConstructor
 public enum Attribute {
 
     /**
@@ -9,10 +12,10 @@ public enum Attribute {
      * <br>
      * Sets the time in ticks it takes for the player to respawn. <br>
      * By default used in conjunction with {@linkplain Attribute#AUTO_SPECTATOR}, <br>
-     * and is tre
-     * and should be used by custom behaviours if {@linkplain Attribute#AUTO_SPECTATOR} is disabled.
+     * and is immediate/disabled if this is set to 0. <br>
+     * Should be used by custom behaviours if {@linkplain Attribute#AUTO_SPECTATOR} is disabled.
      */
-    RESPAWN_TIME,
+    RESPAWN_TIME(0),
 
     /**
      * {@linkplain Boolean} <br>
@@ -20,7 +23,7 @@ public enum Attribute {
      * If enabled, players will automatically lose lives. <br>
      * Disable if you want to handle lives yourself or don't want to deal with this system.
      */
-    AUTO_LOSE_LIVES,
+    AUTO_LOSE_LIVES(true),
 
     /**
      * {@linkplain Boolean} <br>
@@ -28,7 +31,7 @@ public enum Attribute {
      * If enabled, players that died with will be a temporary spectator. <br>
      * See also {@linkplain Attribute#AUTO_DEATH_SPECTATOR} and {@linkplain Attribute#RESPAWN_TIME}.
      */
-    AUTO_SPECTATOR,
+    AUTO_SPECTATOR(true),
 
     /**
      * {@linkplain Boolean} <br>
@@ -37,6 +40,8 @@ public enum Attribute {
      * Otherwise it is in your hands how to handle the player after death.
      * See also {@linkplain Attribute#AUTO_SPECTATOR}.
      */
-    AUTO_DEATH_SPECTATOR
+    AUTO_DEATH_SPECTATOR(true);
+
+    @Getter private final Object defaultValue;
 
 }

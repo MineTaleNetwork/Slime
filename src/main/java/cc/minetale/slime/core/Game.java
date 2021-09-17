@@ -6,6 +6,7 @@ import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.team.GameTeamAssignEvent;
 import cc.minetale.slime.spawn.SpawnManager;
+import cc.minetale.slime.spawn.SpawnPoint;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import static cc.minetale.slime.core.GameLobby.INSTANCE_MANAGER;
+import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
 public abstract class Game implements IAttributeWritable, TagReadable, TagWritable {
 
@@ -42,32 +43,44 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
+    @Getter @Setter protected Instance mainInstance;
     @Getter protected final Map<String, Instance> instances = new ConcurrentHashMap<>();
 
     @Getter protected final List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
-    protected Function<Player, GamePlayer> playerSupplier = GamePlayer::new;
+    protected Function<Player, GamePlayer> playerProvider = GamePlayer::new;
 
     @Getter protected List<GameTeam> teams;
 
     @Getter protected final SpawnManager spawnManager = new SpawnManager();
 
     protected Game(int maxPlayers, @NotNull GameState state,
-                   @Nullable Function<Player, GamePlayer> playerSupplier) {
+                   @Nullable Function<Player, GamePlayer> playerProvider) {
 
         this.maxPlayers = maxPlayers;
-        this.playerSupplier = Objects.requireNonNullElse(playerSupplier, this.playerSupplier);
+        this.playerProvider = Objects.requireNonNullElse(playerProvider, this.playerProvider);
 
         state.setGame(this);
         this.state = state;
+
+        this.mainInstance = INSTANCE_MANAGER.createInstanceContainer();
     }
 
     boolean canFitPlayer() {
         return this.maxPlayers - this.players.size() > 0;
     }
 
+    public Instance getSpawnInstance(GamePlayer player) {
+        if(this.state.inLobby())
+            return this.lobby.getInstance();
+
+        SpawnPoint spawnPoint = this.spawnManager.findSpawnPoint(player);
+        player.setCurrentSpawn(spawnPoint);
+        return Objects.requireNonNullElse(spawnPoint.getInstance(), this.mainInstance);
+    }
+
     public boolean addPlayer(@NotNull GamePlayer player) {
         if(player.getGame() != null || player.getLobby() != null) { return false; }
-        if(!canFitPlayer() || !this.state.isJoinable()) { return false; }
+        if(!canFitPlayer() || !this.state.inLobby()) { return false; }
 
         return forceAddPlayer(player);
     }
@@ -77,8 +90,16 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         EventDispatcher.call(event);
         if(event.isCancelled()) { return false; }
 
-        player.setGame(this);
-        return this.lobby.addPlayer(player);
+        if(!this.state.inLobby()) {
+            Game otherGame = player.getGame();
+            if(otherGame != null)
+                otherGame.removePlayer0(player);
+
+            player.setGame(this);
+            return this.players.add(player);
+        } else {
+            return this.lobby.addPlayer(player);
+        }
     }
 
     public boolean removePlayer(GamePlayer player) {
@@ -92,15 +113,19 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
     private boolean removePlayer0(GamePlayer player) {
         player.setGame(null);
-        this.players.remove(player);
-        return this.lobby.removePlayer(player);
+        if(!this.state.inLobby()) {
+            return this.players.remove(player);
+        } else {
+            return this.lobby.removePlayer(player);
+        }
+    }
+
+    public boolean isPlayerInGame(GamePlayer player) {
+        return this.players.contains(player) || this.lobby.isPlayerInLobby(player);
     }
 
     protected GamePlayer createPlayer(Player player) {
-        GamePlayer gamePlayer = this.playerSupplier.apply(player);
-        gamePlayer.setGame(this);
-
-        return gamePlayer;
+        return this.playerProvider.apply(player);
     }
 
     final void assignTeams() {
