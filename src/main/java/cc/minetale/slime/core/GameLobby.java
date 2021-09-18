@@ -5,8 +5,10 @@ import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
+import cc.minetale.slime.utils.sequence.Sequence;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
@@ -28,6 +30,8 @@ public class GameLobby {
     @Getter private final Game game;
 
     protected Set<GamePlayer> players = Collections.synchronizedSet(new HashSet<>());
+
+    private Sequence countdown;
 
     public GameLobby(Game game) {
         this.instance = Slime.INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
@@ -60,26 +64,36 @@ public class GameLobby {
     }
 
     protected boolean startCountdown() {
-        //TODO Add back
         if(this.players.size() < this.game.getMaxPlayers()) { return false; }
 
-        var sequence = DefaultSequences.LOBBY_SEQUENCE
-                .onFinish(involved -> {
-                    involved.forEach(obj -> {
-                        if(!(obj instanceof Player)) { return; }
-                        Player player = (Player) obj;
-                        player.sendMessage(Component.text("yo", MC.CC.YELLOW.getTextColor()));
-                    });
-                    //TODO Start the game
-                })
+        var state = this.game.getState();
+
+        state.setBaseState(BaseState.STARTING);
+        countdown = DefaultSequences.LOBBY_SEQUENCE
+                .onFinish(involved -> this.game.start())
                 .build();
 
         //TODO Switch to using the GamePlayer when (or if) we make it extend Player
-        this.players.forEach(gamePlayer -> sequence.addInvolved(gamePlayer.getHandle()));
+        this.players.forEach(gamePlayer -> countdown.addInvolved(gamePlayer.getHandle()));
 
-        sequence.start();
+        countdown.start();
 
         return true;
+    }
+
+    public void pauseCountdown() {
+        countdown.pause();
+        countdown.getInvolved().forEach(obj -> {
+            if(!(obj instanceof Player)) { return; }
+            var player = (Player) obj;
+            player.sendMessage(
+                    Component.text("» ", MC.CC.WHITE.getTextColor(), TextDecoration.BOLD)
+                            .append(Component.text("Stopping the countdown, because there aren't enough players!", MC.CC.RED.getTextColor())));
+        });
+    }
+
+    public void resumeCountdown() {
+        countdown.resume();
     }
 
     public boolean isPlayerInLobby(GamePlayer player) {
