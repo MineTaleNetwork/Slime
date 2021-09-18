@@ -17,20 +17,18 @@ import java.util.function.Supplier;
 
 public final class GameManager {
 
-    @Getter @Setter private int maxGames;
-    @Getter @Setter private int maxPlayers;
+    @Getter @Setter private GameExtension extension;
 
     @Getter private final List<Game> games = Collections.synchronizedList(new ArrayList<>());
 
     private final Supplier<Game> gameProvider;
     private Function<Game, GameLobby> lobbyProvider = GameLobby::new;
 
-    public GameManager(int maxGames, int maxPlayers,
+    public GameManager(GameExtension extension,
                        @NotNull Supplier<Game> gameProvider,
                        @Nullable Function<Game, GameLobby> lobbyProvider) {
 
-        this.maxGames = maxGames;
-        this.maxPlayers = maxPlayers;
+        this.extension = extension;
 
         this.gameProvider = gameProvider;
         this.lobbyProvider = Objects.requireNonNullElse(lobbyProvider, this.lobbyProvider);
@@ -74,7 +72,7 @@ public final class GameManager {
     }
 
     private boolean canFitNewGame() {
-        return this.maxGames - this.games.size() > 0;
+        return this.extension.getMaxGames() - this.games.size() > 0;
     }
 
 }

@@ -1,9 +1,10 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
-import cc.minetale.slime.utils.sequence.SequenceBuilder;
+import cc.minetale.slime.utils.sequence.DefaultSequences;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
@@ -60,16 +61,14 @@ public class GameLobby {
 
     protected boolean startCountdown() {
         //TODO Add back
-//        if(!(this.players.size() >= this.game.getMaxPlayers())) { return false; }
+        if(this.players.size() < this.game.getMaxPlayers()) { return false; }
 
-        var sequence = new SequenceBuilder(10000)
-                .setExperienceBar(true)
-                .chatRepeat(1000, Component.text("Starting game in: %d!"))
+        var sequence = DefaultSequences.LOBBY_SEQUENCE
                 .onFinish(involved -> {
                     involved.forEach(obj -> {
                         if(!(obj instanceof Player)) { return; }
                         Player player = (Player) obj;
-                        player.sendMessage(Component.text("Starting!!!"));
+                        player.sendMessage(Component.text("yo", MC.CC.YELLOW.getTextColor()));
                     });
                     //TODO Start the game
                 })
