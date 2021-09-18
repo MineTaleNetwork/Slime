@@ -1,5 +1,6 @@
 package cc.minetale.slime.utils.sequence;
 
+import cc.minetale.mlib.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,19 +11,21 @@ import net.kyori.adventure.title.Title;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.MathUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SequenceBuilder {
 
     @Getter private long totalTime;
-    @Getter private long stepInterval = 200;
 
-    @Getter private boolean experienceBar = false;
+    private boolean expBar = false;
+    private long expBarInterval = 200;
 
-    private final SortedMap<Long, Executor> executors = new TreeMap<>(Collections.reverseOrder());
-    private final SortedMap<Long, List<Repeater>> repeaters = new TreeMap<>(Collections.reverseOrder());
+    private final NavigableMap<Long, Executor> executors = new TreeMap<>(Collections.reverseOrder());
 
     private Consumer<List<?>> onFinish;
 
@@ -35,14 +38,23 @@ public class SequenceBuilder {
         return this;
     }
 
-    public SequenceBuilder setStepInterval(long stepInterval) {
-        this.stepInterval = stepInterval;
+    public SequenceBuilder animateExperienceBar(boolean isAnimated, long updateInterval) {
+        this.expBar = isAnimated;
+        this.expBarInterval = updateInterval;
         return this;
     }
 
-    public SequenceBuilder setExperienceBar(boolean experienceBar) {
-        this.experienceBar = experienceBar;
+    public SequenceBuilder animateExperienceBar(boolean isAnimated) {
+        this.expBar = isAnimated;
         return this;
+    }
+
+    public boolean isExperienceBarAnimated() {
+        return this.expBar;
+    }
+
+    public long getExperienceBarInterval() {
+        return this.expBarInterval;
     }
 
     public SequenceBuilder chat(long timeLeft, Component component) {
@@ -71,7 +83,7 @@ public class SequenceBuilder {
             var player = (Player) obj;
             var config = TextReplacementConfig.builder()
                     .matchLiteral("%d")
-                    .replacement(String.valueOf(timeLeft / (double)1000))
+                    .replacement(String.valueOf((int) Math.ceil(timeLeft / (double) 1000)))
                     .build();
 
             var newComponent = component.replaceText(config);
@@ -106,12 +118,13 @@ public class SequenceBuilder {
             var player = (Player) obj;
             var config = TextReplacementConfig.builder()
                     .matchLiteral("%d")
-                    .replacement(String.valueOf(timeLeft))
+                    .replacement(String.valueOf((int) Math.ceil(timeLeft / (double) 1000)))
                     .build();
 
             var newTitle = title.title().replaceText(config);
             var newSubtitle = title.subtitle().replaceText(config);
 
+            player.showTitle(Title.title(Component.empty(), Component.empty()));
             player.showTitle(Title.title(newTitle, newSubtitle, title.times()));
         }
     }
@@ -142,7 +155,7 @@ public class SequenceBuilder {
             var player = (Player) obj;
             var config = TextReplacementConfig.builder()
                     .matchLiteral("%d")
-                    .replacement(String.valueOf(timeLeft))
+                    .replacement(String.valueOf((int) Math.ceil(timeLeft / (double) 1000)))
                     .build();
 
             player.sendActionBar(component.replaceText(config));
@@ -181,18 +194,17 @@ public class SequenceBuilder {
     }
 
     private void addRepeat(long timeLeft, long stopTime, long interval, BiConsumer<Long, List<?>> consumer) {
-        this.repeaters.compute(timeLeft, (key, value) -> {
-            if(value == null)
-                value = new ArrayList<>();
-
-            value.add(new Repeater(interval, stopTime, consumer));
-            return value;
-        });
+        timeLeft = MathUtil.clamp(timeLeft, 0, this.totalTime);
+        stopTime = MathUtil.clamp(stopTime, 0, timeLeft);
+        interval = MathUtil.clamp(interval, 50, this.totalTime);
+        for(long executorTime = timeLeft; executorTime >= stopTime; executorTime -= interval) {
+            execute(executorTime, consumer);
+        }
     }
 
     public Sequence build() {
-        if(this.experienceBar) {
-            repeat(0, (timeLeft, involved) -> {
+        if(this.expBar) {
+            repeat(this.expBarInterval, (timeLeft, involved) -> {
                 involved.forEach(obj -> {
                     if(!(obj instanceof Player)) { return; }
                     Player player = (Player) obj;
@@ -203,13 +215,9 @@ public class SequenceBuilder {
 
         return new Sequence(
                 this.totalTime,
-                this.stepInterval,
-
-                this.experienceBar,
-
+                this.expBar,
                 this.executors,
-                this.repeaters,
-
+//                this.repeaters,
                 this.onFinish);
     }
 
