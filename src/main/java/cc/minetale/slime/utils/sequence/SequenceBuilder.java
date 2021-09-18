@@ -3,7 +3,6 @@ package cc.minetale.slime.utils.sequence;
 import cc.minetale.mlib.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -28,6 +27,7 @@ public class SequenceBuilder {
     private final NavigableMap<Long, Executor> executors = new TreeMap<>(Collections.reverseOrder());
 
     private Consumer<List<?>> onFinish;
+    private BiConsumer<Long, List<?>> onCancel;
 
     public SequenceBuilder(long totalTime) {
         this.totalTime = totalTime;
@@ -167,6 +167,11 @@ public class SequenceBuilder {
         return this;
     }
 
+    public SequenceBuilder onCancel(BiConsumer<Long, List<?>> onCancel) {
+        this.onCancel = onCancel;
+        return this;
+    }
+
     public SequenceBuilder execute(long timeLeft, BiConsumer<Long, List<?>> consumer) {
         var otherExecutor = this.executors.get(timeLeft);
         if(otherExecutor != null) {
@@ -215,10 +220,11 @@ public class SequenceBuilder {
 
         return new Sequence(
                 this.totalTime,
-                this.expBar,
+
                 this.executors,
-//                this.repeaters,
-                this.onFinish);
+
+                this.onFinish,
+                this.onCancel);
     }
 
     @Getter @AllArgsConstructor
@@ -227,32 +233,6 @@ public class SequenceBuilder {
 
         public void execute(long timeLeft, List<?> involved) {
             this.consumer.accept(timeLeft, involved);
-        }
-    }
-
-    @Getter
-    static class Repeater {
-        private long interval; //Interval between executions
-        private long stopTime; //Timeleft of the cooldown when this should stop repeating
-
-        @Setter private long lastExecution = Long.MAX_VALUE;
-
-        private BiConsumer<Long, List<?>> consumer;
-
-        public Repeater(long interval, long stopTime, BiConsumer<Long, List<?>> consumer) {
-            this.interval = interval;
-            this.stopTime = stopTime;
-
-            this.consumer = consumer;
-        }
-
-        public void execute(long timeLeft, List<?> involved) {
-            this.consumer.accept(timeLeft, involved);
-            this.lastExecution = timeLeft;
-        }
-
-        public long getNextExecutionTime() {
-            return this.lastExecution - this.interval;
         }
     }
 

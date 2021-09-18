@@ -12,60 +12,63 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Sequence {
 
-    public static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
+    private static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
 
-    @Getter private final long countdownTime;
-    private final boolean experienceBar;
+    @Getter private final long totalTime;
 
     @Getter private long currentInterval;
-
     @Getter private long currentExecutorTime;
 
-    private NavigableMap<Long, Executor> queuedExecutors;
+    private NavigableMap<Long, Executor> executors;
 
     private final Consumer<List<?>> onFinish;
+    private final BiConsumer<Long, List<?>> onCancel;
 
     @Getter private Task task;
 
-    @Getter private long startTime;
+    @Getter private long startedAt;
+    @Getter private long lastTaskScheduledAt;
+
+    @Getter private boolean isPaused;
+    @Getter private long pausedAt;
 
     @Getter private List<Object> involved = new ArrayList<>();
 
-
-    public Sequence(long countdownTime, boolean experienceBar, NavigableMap<Long, Executor> queuedExecutors, Consumer<List<?>> onFinish) {
-        this.countdownTime = countdownTime;
-        this.experienceBar = experienceBar;
-        this.queuedExecutors = queuedExecutors;
+    public Sequence(long totalTime, NavigableMap<Long, Executor> executors, Consumer<List<?>> onFinish, BiConsumer<Long, List<?>> onCancel) {
+        this.totalTime = totalTime;
+        this.executors = executors;
         this.onFinish = onFinish;
+        this.onCancel = onCancel;
     }
 
     public boolean start() {
         if(this.task != null) { return false; }
 
-        this.startTime = System.currentTimeMillis();
+        this.startedAt = System.currentTimeMillis();
 
         //Find the first executor and execute it if it's an instant one
-        if(!this.queuedExecutors.isEmpty()) {
-            var executorTime = this.queuedExecutors.firstKey();
-            var executor = this.queuedExecutors.get(executorTime);
+        if(!this.executors.isEmpty()) {
+            var executorTime = this.executors.firstKey();
+            var executor = this.executors.get(executorTime);
 
-            this.currentInterval = this.countdownTime - executorTime;
+            this.currentInterval = this.totalTime - executorTime;
 
-            if(executorTime >= this.countdownTime) {
+            if(executorTime >= this.totalTime) {
                 try {
-                    executor.execute(this.countdownTime, this.involved);
+                    executor.execute(this.totalTime, this.involved);
                 } catch(Exception e) {
                     MinecraftServer.getExceptionManager().handleException(e);
                 }
-                this.queuedExecutors.remove(executorTime);
+                this.executors.remove(executorTime);
 
-                this.currentExecutorTime = this.queuedExecutors.firstKey();
-                this.currentInterval = this.countdownTime - this.currentExecutorTime;
+                this.currentExecutorTime = this.executors.firstKey();
+                this.currentInterval = this.totalTime - this.currentExecutorTime;
             }
         }
 
@@ -74,22 +77,57 @@ public class Sequence {
         return true;
     }
 
+    public boolean pause() {
+        if(this.isPaused) { return false; }
+
+        this.task.cancel();
+
+        this.isPaused = true;
+        this.pausedAt = this.executors.higherKey(this.currentExecutorTime) + (System.currentTimeMillis() - this.lastTaskScheduledAt);
+
+        return true;
+    }
+
+    public boolean resume() {
+        if(!this.isPaused) { return false; }
+
+        this.task.cancel();
+
+        this.isPaused = false;
+        this.currentInterval = this.currentExecutorTime - this.pausedAt;
+
+        startTask();
+
+        return true;
+    }
+
+    public boolean cancel() {
+        if(this.task == null) { return false; }
+
+        this.task.cancel();
+
+        long timeLeft = this.executors.higherKey(this.currentExecutorTime) + (System.currentTimeMillis() - this.lastTaskScheduledAt);
+        this.onCancel.accept(timeLeft, this.involved);
+
+        return true;
+    }
+
     private void startTask() {
         this.task = SCHEDULER_MANAGER.buildTask(() -> {
 
             //Execute queued executor
-            if(!this.queuedExecutors.isEmpty()) {
-                var executorTime = this.queuedExecutors.firstKey();
-                var executor = this.queuedExecutors.get(executorTime);
+            if(!this.executors.isEmpty()) {
+                var executorTime = this.executors.firstKey();
+                var executor = this.executors.get(executorTime);
                 try {
                     executor.execute(executorTime, this.involved);
                 } catch(Exception e) {
                     MinecraftServer.getExceptionManager().handleException(e);
                 }
-                this.queuedExecutors.remove(executorTime);
+                this.executors.remove(executorTime);
 
-                if(!this.queuedExecutors.isEmpty()) {
-                    this.currentExecutorTime = this.queuedExecutors.firstKey();
+                if(!this.executors.isEmpty()) {
+                    this.currentExecutorTime = this.executors.firstKey();
                 } else {
                     this.currentExecutorTime = 0;
                 }
@@ -101,7 +139,11 @@ public class Sequence {
 
             startTask();
 
-        }).delay(this.currentInterval, ChronoUnit.MILLIS).schedule();
+        }).delay(this.currentInterval, ChronoUnit.MILLIS).build();
+
+        this.lastTaskScheduledAt = System.currentTimeMillis();
+
+        this.task.schedule();
     }
 
     public boolean addInvolved(Object obj) {
@@ -109,7 +151,7 @@ public class Sequence {
     }
 
     public long getFinishTime() {
-        return this.startTime + this.countdownTime;
+        return this.startedAt + this.totalTime;
     }
 
     public long getTimeLeft(long currentTime) {
