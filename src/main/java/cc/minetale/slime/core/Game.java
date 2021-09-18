@@ -65,19 +65,28 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         this.mainInstance = INSTANCE_MANAGER.createInstanceContainer();
     }
 
+    /**
+     * Called after the countdown ends during {@linkplain BaseState#STARTING} while in the lobby.
+     */
+    public void start() {
+        this.players.addAll(this.lobby.players);
+        this.lobby = null;
+
+        //TODO Assign teams
+        //TODO Respawn using spawnpoints
+
+        this.state.setBaseState(BaseState.PRE_GAME);
+    }
+
     boolean canFitPlayer() {
         return this.maxPlayers - this.players.size() > 0;
     }
 
-    public Instance getSpawnInstance(GamePlayer player) {
-        if(this.state.inLobby())
-            return this.lobby.getInstance();
-
-        SpawnPoint spawnPoint = this.spawnManager.findSpawnPoint(player);
-        player.setCurrentSpawn(spawnPoint);
-        return Objects.requireNonNullElse(spawnPoint.getInstance(), this.mainInstance);
-    }
-
+    /**
+     * Adds a {@linkplain GamePlayer} to this game (or lobby if still not started) and there is enough space.
+     * @param player The player to add
+     * @return If successfully added the player
+     */
     public boolean addPlayer(@NotNull GamePlayer player) {
         if(player.getGame() != null || player.getLobby() != null) { return false; }
         if(!canFitPlayer() || !this.state.inLobby()) { return false; }
@@ -85,21 +94,37 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         return forceAddPlayer(player);
     }
 
+    /**
+     * Adds a {@linkplain GamePlayer} to this game (or lobby if still not started) ignoring the size limit. <br>
+     * See also {@linkplain Game#addPlayer(GamePlayer)} if you want to add a player only if there's enough space.
+     * @param player The player to add
+     * @return If successfully added the player
+     */
     public boolean forceAddPlayer(@NotNull GamePlayer player) {
         var event = new GamePlayerJoinEvent(this, player);
         EventDispatcher.call(event);
         if(event.isCancelled()) { return false; }
 
         if(!this.state.inLobby()) {
-            Game otherGame = player.getGame();
-            if(otherGame != null)
-                otherGame.removePlayer0(player);
-
-            player.setGame(this);
-            return this.players.add(player);
+            return forceAddPlayer0(player);
         } else {
             return this.lobby.addPlayer(player);
         }
+    }
+
+    /**
+     * Adds a {@linkplain GamePlayer} to this game ignoring all checks. <br>
+     * See also {@linkplain Game#addPlayer(GamePlayer)} or {@linkplain Game#forceAddPlayer(GamePlayer)}.
+     * @param player The player to add
+     * @return If successfully added the player
+     */
+    boolean forceAddPlayer0(@NotNull GamePlayer player) {
+        Game otherGame = player.getGame();
+        if(otherGame != null)
+            otherGame.removePlayer0(player);
+
+        player.setGame(this);
+        return this.players.add(player);
     }
 
     public boolean removePlayer(GamePlayer player) {
@@ -128,6 +153,15 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         return this.playerProvider.apply(player);
     }
 
+    public Instance getSpawnInstance(GamePlayer player) {
+        if(this.state.inLobby())
+            return this.lobby.getInstance();
+
+        SpawnPoint spawnPoint = this.spawnManager.findSpawnPoint(player);
+        player.setCurrentSpawn(spawnPoint);
+        return Objects.requireNonNullElse(spawnPoint.getInstance(), this.mainInstance);
+    }
+
     final void assignTeams() {
         var event = new GameTeamAssignEvent(this, this.players);
         EventDispatcher.call(event);
@@ -137,10 +171,15 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
     final void remove() {
         this.players.forEach(this::removePlayer);
+        unregisterInstance(this.mainInstance);
         this.instances.forEach((key, instance) -> {
-            instance.getPlayers().forEach(Player::remove);
-            INSTANCE_MANAGER.unregisterInstance(instance);
+            unregisterInstance(instance);
         });
+    }
+
+    private static void unregisterInstance(Instance instance) {
+        instance.getPlayers().forEach(Player::remove);
+        INSTANCE_MANAGER.unregisterInstance(instance);
     }
 
     //Attributes
