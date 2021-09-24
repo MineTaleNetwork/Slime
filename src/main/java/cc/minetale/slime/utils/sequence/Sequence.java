@@ -10,6 +10,7 @@ import net.minestom.server.timer.Task;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.function.BiConsumer;
@@ -148,6 +149,10 @@ public class Sequence {
 
     public boolean addInvolved(Object obj) {
         return this.involved.add(obj);
+    }
+
+    public boolean addInvolved(Collection<Object> objs) {
+        return this.involved.addAll(objs);
     }
 
     public long getFinishTime() {
