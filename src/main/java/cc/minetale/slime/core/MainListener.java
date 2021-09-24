@@ -27,7 +27,7 @@ public final class MainListener {
         var node = EventNode.all("default");
 
         node.addListener(PlayerLoginEvent.class, event -> {
-            var player = event.getPlayer();
+            var player = (GamePlayer) event.getPlayer();
 
             Game game = gameManager.findGameOrCreate();
             if(game == null) {
@@ -35,56 +35,48 @@ public final class MainListener {
                 return;
             }
 
-            var gamePlayer = game.createPlayer(player);
+            game.addPlayer(player);
 
-            game.addPlayer(gamePlayer);
-
-            event.setSpawningInstance(game.getSpawnInstance(gamePlayer));
+            event.setSpawningInstance(game.getSpawnInstance(player));
         });
 
         node.addListener(PlayerDisconnectEvent.class, event -> {
-            var handle = event.getPlayer();
+            var player = (GamePlayer) event.getPlayer();
 
-            var gamePlayer = GamePlayer.getWrapper(handle);
-            if(gamePlayer == null) { return; }
-
-            var game = gamePlayer.getGame();
+            var game = player.getGame();
             if(game == null) { return; }
 
-            game.removePlayer(gamePlayer);
+            game.removePlayer(player);
         });
 
         node.addListener(PlayerRespawnEvent.class, event -> {
             var player = event.getPlayer();
-            var gamePlayer = GamePlayer.getWrapper(player);
 
-            event.getPlayer().setRespawnPoint(new Pos(0, 64, 0));
-//            event.getPlayer().scheduleNextTick(futurePlayer -> futurePlayer.teleport());
+            player.setRespawnPoint(new Pos(0, 64, 0));
+//            event.getPlayer().scheduleNextTick(futurePlayer -> futurePlayer.teleport()); TODO
         });
 
         node.addListener(PlayerDeathEvent.class, event -> {
-            var handle = event.getPlayer();
+            var player = (GamePlayer) event.getPlayer();
 
-            var gamePlayer = GamePlayer.getWrapper(handle);
-            if(gamePlayer == null) { return; }
-
-            var game = gamePlayer.getGame();
+            var game = player.getGame();
             if(game == null) { return; }
 
-            if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_LOSE_LIVES))
-                gamePlayer.setLives(gamePlayer.getLives() - 1);
+            if(player.<Boolean>getAttribute(Attribute.AUTO_LOSE_LIVES))
+                player.setLives(player.getLives() - 1);
 
-            var hasDied = gamePlayer.getLives() < 0;
+            //After this event the player will be dead
+            var willDie = player.getLives() == 0;
 
-            if(gamePlayer.<Integer>getAttribute(Attribute.RESPAWN_TIME) == 0) {
-                if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_DEATH_SPECTATOR))
+            if(player.<Integer>getAttribute(Attribute.RESPAWN_TIME) == 0) {
+                if(player.<Boolean>getAttribute(Attribute.AUTO_TEMP_SPECTATOR))
                     //TODO Automatic death spectator
 
                 return;
             }
 
-            if(gamePlayer.<Boolean>getAttribute(Attribute.AUTO_DEATH_SPECTATOR))
-                gamePlayer.setState(SPECTATE);
+            if(player.<Boolean>getAttribute(Attribute.AUTO_PERM_SPECTATOR))
+                player.setState(SPECTATE);
         });
 
         mainNode.addChild(node);
@@ -94,7 +86,7 @@ public final class MainListener {
         var node = EventNode.all("gamePlayer");
 
         node.addListener(GamePlayerStateChangeEvent.class, event -> {
-            var player = event.getPlayer();
+            var player = event.getGamePlayer();
 
             var gamePlayer = event.getGamePlayer();
             var newState = event.getNewState();

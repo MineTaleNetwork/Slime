@@ -24,7 +24,6 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
@@ -47,17 +46,14 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
     @Getter protected final Map<String, Instance> instances = new ConcurrentHashMap<>();
 
     @Getter protected final List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
-    protected Function<Player, GamePlayer> playerProvider = GamePlayer::new;
 
     @Getter protected List<GameTeam> teams;
 
     @Getter protected final SpawnManager spawnManager = new SpawnManager();
 
-    protected Game(int maxPlayers, @NotNull GameState state,
-                   @Nullable Function<Player, GamePlayer> playerProvider) {
+    protected Game(int maxPlayers, @NotNull GameState state) {
 
         this.maxPlayers = maxPlayers;
-        this.playerProvider = Objects.requireNonNullElse(playerProvider, this.playerProvider);
 
         state.setGame(this);
         this.state = state;
@@ -70,6 +66,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
      */
     public void start() {
         this.players.addAll(this.lobby.players);
+        this.lobby.remove();
         this.lobby = null;
 
         //TODO Assign teams
@@ -147,10 +144,6 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
     public boolean isPlayerInGame(GamePlayer player) {
         return this.players.contains(player) || this.lobby.isPlayerInLobby(player);
-    }
-
-    protected GamePlayer createPlayer(Player player) {
-        return this.playerProvider.apply(player);
     }
 
     public Instance getSpawnInstance(GamePlayer player) {

@@ -45,7 +45,7 @@ public class GameTeam implements IAttributeWritable, TagReadable, TagWritable {
 
     public boolean addPlayer(GamePlayer player) {
         if(!canFitPlayers(1)) { return false; }
-        player.setTeam(this);
+        player.setGameTeam(this);
         this.players.add(player);
         return true;
     }

@@ -11,9 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.tag.Tag;
-import net.minestom.server.tag.TagReadable;
-import net.minestom.server.tag.TagWritable;
+import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -21,35 +19,30 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
 @Getter
-public class GamePlayer implements IAttributeReadable, IAttributeWritable, TagReadable, TagWritable {
-
-    private static final Map<Player, GamePlayer> WRAPPERS = new ConcurrentHashMap<>();
+public class GamePlayer extends Player implements IAttributeReadable, IAttributeWritable {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
-
-    @Setter(AccessLevel.PACKAGE)
-    private Player handle;
 
     @Nullable @Setter(AccessLevel.PACKAGE)
     private GameLobby lobby;
 
     private final Map<Attribute, Object> attributes;
 
-    @Setter protected int lives = 0; //If the player dies when they have 0 lives, they cannot respawn.
+    /** If the player dies when they have 0 lives, they cannot respawn. Anything below 0 means the player is dead. */
+    @Setter protected int lives = 0;
     @Setter protected int score = 0;
 
     private IPlayerState state;
 
     @Setter protected SpawnPoint currentSpawn; //Spawnpoint this player spawned from last
-    @Setter protected GameTeam team;
+    @Setter protected GameTeam gameTeam;
 
-    protected GamePlayer(Player player) {
-        WRAPPERS.put(player, this);
-        this.handle = player;
+    public GamePlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
+        super(uuid, username, playerConnection);
 
         EnumMap<Attribute, Object> attributes = new EnumMap<>(Attribute.class);
         for(Attribute attribute : Attribute.values()) {
@@ -65,24 +58,15 @@ public class GamePlayer implements IAttributeReadable, IAttributeWritable, TagRe
         state = event.getNewState();
 
         this.state = state;
-        this.handle.setGameMode(state.getGamemode());
+        setGameMode(state.getGamemode());
     }
 
     public final void spawn() {
-        this.handle.respawn(); //TODO Set state and force spectator if attribute is enabled
+        respawn(); //TODO Set state and force spectator if attribute is enabled
     }
 
-    public static void registerWrapper(GamePlayer gamePlayer) {
-        WRAPPERS.put(gamePlayer.handle, gamePlayer);
-    }
-
-    public static void unregisterWrapper(GamePlayer gamePlayer) {
-        WRAPPERS.remove(gamePlayer.handle);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends GamePlayer> @Nullable T getWrapper(Player player) {
-        return (T) WRAPPERS.get(player);
+    public final boolean isAlive() {
+        return this.lives < 0;
     }
 
     //Attributes
@@ -100,13 +84,4 @@ public class GamePlayer implements IAttributeReadable, IAttributeWritable, TagRe
     //Tags
     private final NBTCompound nbtCompound = new NBTCompound();
 
-    @Override
-    public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
-        return tag.read(this.nbtCompound);
-    }
-
-    @Override
-    public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
-        tag.write(this.nbtCompound, value);
-    }
 }

@@ -1,7 +1,6 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.commonlib.util.MC;
-import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
@@ -17,6 +16,8 @@ import net.minestom.server.instance.InstanceContainer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
 /**
  * As to avoid confusion. There is only one instance of {@linkplain GameLobby}, <br>
@@ -34,7 +35,7 @@ public class GameLobby {
     private Sequence countdown;
 
     public GameLobby(Game game) {
-        this.instance = Slime.INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
+        this.instance = INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
         this.game = game;
     }
 
@@ -45,11 +46,11 @@ public class GameLobby {
 
         player.setLobby(this);
 
-        applyLoadout(player.getHandle());
+        applyLoadout(player);
 
         startCountdown();
 
-        player.getHandle().setRespawnPoint(new Pos(0, 64, 0)); //TODO Use GameMap's spawnpoint
+        player.setRespawnPoint(new Pos(0, 64, 0)); //TODO Use GameMap's spawnpoint
 
         return true;
     }
@@ -58,7 +59,7 @@ public class GameLobby {
         if(player.getLobby() != this) { return false; }
         player.setLobby(null);
 
-        Loadout.removeIfAny(player.getHandle());
+        Loadout.removeIfAny(player);
 
         return this.players.remove(player);
     }
@@ -74,7 +75,7 @@ public class GameLobby {
                 .build();
 
         //TODO Switch to using the GamePlayer when (or if) we make it extend Player
-        this.players.forEach(gamePlayer -> countdown.addInvolved(gamePlayer.getHandle()));
+        this.players.forEach(player -> countdown.addInvolved(player));
 
         countdown.start();
 
@@ -100,8 +101,18 @@ public class GameLobby {
         return this.players.contains(player);
     }
 
+    public void kickAll() {
+        this.players.forEach(Player::remove);
+    }
+
     private void applyLoadout(Player player) {
         DefaultLoadouts.LOBBY.forceApplyFor(player);
+    }
+
+    final void remove() {
+        //TODO Unregister instance
+
+        INSTANCE_MANAGER.unregisterInstance(this.instance);
     }
 
 }

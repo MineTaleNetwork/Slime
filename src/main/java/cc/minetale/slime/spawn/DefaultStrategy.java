@@ -29,7 +29,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
         var random = new Random();
 
         RANDOM.supplier = (manager, player) -> {
-            var team = player.getTeam();
+            var team = player.getGameTeam();
             Map<GameTeam, List<SpawnPoint>> spawnPoints = manager.getSpawnPoints();
             List<SpawnPoint> teamSpawnPoints = spawnPoints.get(team);
 
@@ -41,7 +41,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
 
         ORDERED.supplier = (manager, player) -> {
             synchronized(lastSpawnPointIndexes) {
-                var team = player.getTeam();
+                var team = player.getGameTeam();
                 Map<GameTeam, List<SpawnPoint>> spawnPoints = manager.getSpawnPoints();
                 List<SpawnPoint> teamSpawnPoints = spawnPoints.get(team);
 
