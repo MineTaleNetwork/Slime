@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.state;
 
 public interface IBaseState {
 }

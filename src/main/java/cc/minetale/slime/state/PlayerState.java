@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.state;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

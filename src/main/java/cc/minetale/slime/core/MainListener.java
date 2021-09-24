@@ -11,7 +11,7 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerRespawnEvent;
 
-import static cc.minetale.slime.core.PlayerState.SPECTATE;
+import static cc.minetale.slime.state.PlayerState.SPECTATE;
 
 public final class MainListener {
 

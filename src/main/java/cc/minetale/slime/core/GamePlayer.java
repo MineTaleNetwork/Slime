@@ -5,6 +5,7 @@ import cc.minetale.slime.attribute.IAttributeReadable;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.spawn.SpawnPoint;
+import cc.minetale.slime.state.IPlayerState;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;

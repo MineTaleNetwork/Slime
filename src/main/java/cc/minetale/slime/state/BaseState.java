@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.state;
 
 /**
  * The default implementation for the {@linkplain IBaseState}. <br>

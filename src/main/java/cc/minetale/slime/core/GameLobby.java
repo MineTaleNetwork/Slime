@@ -3,6 +3,7 @@ package cc.minetale.slime.core;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
+import cc.minetale.slime.state.BaseState;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
 import lombok.Getter;

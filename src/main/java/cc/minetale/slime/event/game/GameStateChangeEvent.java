@@ -1,7 +1,7 @@
 package cc.minetale.slime.event.game;
 
 import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.IBaseState;
+import cc.minetale.slime.state.IBaseState;
 import cc.minetale.slime.event.trait.GameEvent;
 import lombok.Getter;
 import lombok.Setter;

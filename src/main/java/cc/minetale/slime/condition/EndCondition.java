@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.condition;
 
 public enum EndCondition implements IEndCondition {
     //Auto (The end condition either doesn't need to or can't be checked for manually)

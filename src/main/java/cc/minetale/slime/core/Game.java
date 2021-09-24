@@ -2,11 +2,14 @@ package cc.minetale.slime.core;
 
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeWritable;
+import cc.minetale.slime.condition.EndCondition;
+import cc.minetale.slime.condition.IEndCondition;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.team.GameTeamAssignEvent;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.spawn.SpawnPoint;
+import cc.minetale.slime.state.BaseState;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -2,7 +2,7 @@ package cc.minetale.slime.event.player;
 
 import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
-import cc.minetale.slime.core.IPlayerState;
+import cc.minetale.slime.state.IPlayerState;
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
 import lombok.Getter;

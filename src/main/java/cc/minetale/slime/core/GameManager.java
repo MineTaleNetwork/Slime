@@ -2,6 +2,7 @@ package cc.minetale.slime.core;
 
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
+import cc.minetale.slime.state.BaseState;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.EventDispatcher;
