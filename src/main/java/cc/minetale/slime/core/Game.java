@@ -63,6 +63,25 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
      */
     public void start() {
         this.players.addAll(this.lobby.players);
+
+        //Assign players to their teams
+        var teamAssignEvent = new GameTeamAssignEvent(this, this.players);
+        EventDispatcher.call(teamAssignEvent);
+
+        teamAssignEvent.getAssigned().forEach((team, assigned) -> {
+            team.addPlayers(assigned);
+            this.teams.add(team);
+        });
+
+        this.players.forEach(player -> {
+            var spawnEvent = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawnPoint(player));
+            EventDispatcher.call(spawnEvent);
+
+            var spawnPoint = spawnEvent.getSpawnPoint();
+            player.setCurrentSpawn(spawnPoint);
+            player.respawn();
+        });
+
         this.lobby.remove();
         this.lobby = null;
 

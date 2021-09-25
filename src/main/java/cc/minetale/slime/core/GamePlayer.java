@@ -39,7 +39,7 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
 
     private IPlayerState state;
 
-    @Setter protected SpawnPoint currentSpawn; //Spawnpoint this player spawned from last
+    protected SpawnPoint currentSpawn; //Spawnpoint this player spawned from last
     @Setter protected GameTeam gameTeam;
 
     public GamePlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
@@ -62,8 +62,9 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
         setGameMode(state.getGamemode());
     }
 
-    public final void spawn() {
-        respawn(); //TODO Set state and force spectator if attribute is enabled
+    public final void setCurrentSpawn(SpawnPoint spawnPoint) {
+        this.currentSpawn = spawnPoint;
+        setRespawnPoint(this.currentSpawn.getPosition());
     }
 
     public final boolean isAlive() {
