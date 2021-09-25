@@ -26,6 +26,7 @@ public abstract class TeamAssigner {
             @Override public <P extends GamePlayer> Map<GameTeam, Set<P>> assign(Game game,
                                                                                  List<ITeamType> availableTeams,
                                                                                  List<P> players) {
+                
                 Map<GameTeam, Set<P>> assignedTeams = new HashMap<>();
 
                 players = new ArrayList<>(players);
@@ -38,6 +39,12 @@ public abstract class TeamAssigner {
 
                     Set<P> teamPlayers = new HashSet<>();
                     for(int i = 0; i < teamSize; i++) {
+                        if(players.isEmpty()) {
+                            //Add the team we're currently processing and exit
+                            assignedTeams.put(team, teamPlayers);
+                            return assignedTeams;
+                        }
+
                         var player = players.remove(0);
                         teamPlayers.add(player);
                     }
