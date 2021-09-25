@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Called whenever a {@linkplain Game} wants to assign {@linkplain GamePlayer}s to {@linkplain GameTeam}s. <br>
@@ -22,7 +23,7 @@ public class GameTeamAssignEvent implements GameEvent {
     @Getter @NotNull private Game game;
 
     @Getter private List<GamePlayer> players;
-    @Getter @Setter private Map<GameTeam, List<GamePlayer>> assigned;
+    @Getter @Setter private Map<GameTeam, Set<GamePlayer>> assigned;
 
     public GameTeamAssignEvent(@NotNull Game game, @NotNull List<GamePlayer> players) {
         this.game = game;

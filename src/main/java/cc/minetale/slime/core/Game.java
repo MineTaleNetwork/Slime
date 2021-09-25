@@ -171,7 +171,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         var event = new GameTeamAssignEvent(this, this.players);
         EventDispatcher.call(event);
 
-        Map<GameTeam, List<GamePlayer>> assignedTeams = event.getAssigned();
+        Map<GameTeam, Set<GamePlayer>> assignedTeams = event.getAssigned();
         if(assignedTeams == null)
             throw new NullPointerException("Assigned teams is null. Set them through GameTeamAssignEvent and use TeamAssigner or set an empty Map for no teams.");
 
@@ -186,9 +186,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
     final void remove() {
         this.players.forEach(this::removePlayer);
         unregisterInstance(this.mainInstance);
-        this.instances.forEach((key, instance) -> {
-            unregisterInstance(instance);
-        });
+        this.instances.forEach((key, instance) -> unregisterInstance(instance));
     }
 
     private static void unregisterInstance(Instance instance) {
