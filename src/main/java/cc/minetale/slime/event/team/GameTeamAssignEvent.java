@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,14 +19,14 @@ import java.util.Map;
  */
 public class GameTeamAssignEvent implements GameEvent {
 
-    @Getter private Game game;
+    @Getter @NotNull private Game game;
 
     @Getter private List<GamePlayer> players;
     @Getter @Setter private Map<GameTeam, List<GamePlayer>> assigned;
 
     public GameTeamAssignEvent(@NotNull Game game, @NotNull List<GamePlayer> players) {
         this.game = game;
-        this.players = players;
+        this.players = Collections.unmodifiableList(players);
     }
 
 }

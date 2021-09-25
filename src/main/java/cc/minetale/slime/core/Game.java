@@ -70,10 +70,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         var teamAssignEvent = new GameTeamAssignEvent(this, this.players);
         EventDispatcher.call(teamAssignEvent);
 
-        teamAssignEvent.getAssigned().forEach((team, assigned) -> {
-            team.addPlayers(assigned);
-            this.teams.add(team);
-        });
+        assignTeams();
 
         this.players.forEach(player -> {
             var spawnEvent = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawnPoint(player));
@@ -174,7 +171,16 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         var event = new GameTeamAssignEvent(this, this.players);
         EventDispatcher.call(event);
 
-        this.teams = Collections.synchronizedList(new ArrayList<>(event.getAssigned().keySet()));
+        Map<GameTeam, List<GamePlayer>> assignedTeams = event.getAssigned();
+        if(assignedTeams == null)
+            throw new NullPointerException("Assigned teams is null. Set them through GameTeamAssignEvent and use TeamAssigner or set an empty Map for no teams.");
+
+        assignedTeams.forEach((team, assigned) -> {
+            team.addPlayers(assigned);
+            this.teams.add(team);
+        });
+
+        this.teams = Collections.synchronizedList(new ArrayList<>(assignedTeams.keySet()));
     }
 
     final void remove() {
