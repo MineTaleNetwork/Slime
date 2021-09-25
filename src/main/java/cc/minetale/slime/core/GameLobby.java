@@ -1,6 +1,7 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.state.BaseState;
@@ -45,9 +46,7 @@ public class GameLobby {
         if(player.getLobby() != null || isPlayerInLobby(player)) { return false; }
 
         if(!this.players.add(player)) { return false; }
-
         player.setLobby(this);
-
         applyLoadout(player);
 
         startCountdown();
@@ -59,15 +58,29 @@ public class GameLobby {
 
     public boolean removePlayer(GamePlayer player) {
         if(player.getLobby() != this) { return false; }
-        player.setLobby(null);
 
+        player.setLobby(null);
         Loadout.removeIfAny(player);
+
+        pauseCountdown();
 
         return this.players.remove(player);
     }
 
-    protected boolean startCountdown() {
-        if(this.players.size() < this.game.getMaxPlayers()) { return false; }
+    public boolean isPlayerInLobby(GamePlayer player) {
+        return this.players.contains(player);
+    }
+
+    public void kickAll() {
+        this.players.forEach(Player::remove);
+    }
+
+    public void moveAll(Instance newInstance, Pos pos) {
+        this.players.forEach(player -> player.setInstance(newInstance, pos));
+    }
+
+    protected void startCountdown() {
+        if(this.players.size() < Slime.getActiveGame().getMaxPlayers()) { return; }
 
         var state = this.game.getState();
         if(state.getBaseState() == BaseState.STARTING) { return; }
@@ -82,11 +95,14 @@ public class GameLobby {
         this.countdown.start();
     }
 
+    /** Pauses the countdown, hardcoded the message because that's usually why it happens. */
     public void pauseCountdown() {
-        countdown.pause();
-        countdown.getInvolved().forEach(obj -> {
-            if(!(obj instanceof Player)) { return; }
-            var player = (Player) obj;
+        if(this.players.size() >= Slime.getActiveGame().getMinPlayers() && this.countdown.isPaused()) { return; }
+
+        this.countdown.pause();
+        this.countdown.getInvolved().forEach(obj -> {
+            if(!(obj instanceof GamePlayer)) { return; }
+            var player = (GamePlayer) obj;
             player.sendMessage(
                     Component.text("» ", MC.CC.WHITE.getTextColor(), TextDecoration.BOLD)
                             .append(Component.text("Stopping the countdown, because there aren't enough players!", MC.CC.RED.getTextColor())));
@@ -94,15 +110,7 @@ public class GameLobby {
     }
 
     public void resumeCountdown() {
-        countdown.resume();
-    }
-
-    public boolean isPlayerInLobby(GamePlayer player) {
-        return this.players.contains(player);
-    }
-
-    public void kickAll() {
-        this.players.forEach(Player::remove);
+        this.countdown.resume();
     }
 
     private void applyLoadout(Player player) {

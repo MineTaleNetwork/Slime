@@ -10,7 +10,9 @@ public abstract class GameExtension extends Extension {
 
     public abstract PlayerProvider getPlayerProvider();
 
+    public abstract int getMinPlayers();
     public abstract int getMaxPlayers();
+
     public abstract int getMaxGames();
 
     public abstract long getTimeLimit();
