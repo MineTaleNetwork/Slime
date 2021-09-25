@@ -9,6 +9,7 @@ import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
 import cc.minetale.slime.event.team.GameTeamAssignEvent;
+import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.spawn.SpawnPoint;
 import cc.minetale.slime.state.BaseState;
@@ -81,8 +82,10 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
                 throw new NullPointerException("Couldn't find a spawnpoint for GamePlayer \"" +
                         player.getUsername() + "\" with the \"" + player.getGameTeam().getType().getId() + "\" GameTeam.");
 
+            Loadout.removeIfAny(player);
+
             player.setCurrentSpawn(spawnPoint);
-            player.respawn();
+            player.setInstance(spawnPoint.getInstance(), spawnPoint.getPosition());
         });
 
         this.lobby.remove();
