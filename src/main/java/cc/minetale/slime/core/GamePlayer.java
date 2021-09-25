@@ -15,7 +15,6 @@ import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -82,8 +81,5 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
     public <T> T getAttribute(Attribute attr) {
         return (T) this.attributes.get(attr);
     }
-
-    //Tags
-    private final NBTCompound nbtCompound = new NBTCompound();
 
 }

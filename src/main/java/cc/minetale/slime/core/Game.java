@@ -20,20 +20,15 @@ import lombok.Setter;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.tag.Tag;
-import net.minestom.server.tag.TagReadable;
-import net.minestom.server.tag.TagWritable;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public abstract class Game implements IAttributeWritable, TagReadable, TagWritable {
+public abstract class Game implements IAttributeWritable {
 
     @Getter private final String identifier = "G#" + RandomStringUtils.randomAlphanumeric(6);
 
@@ -201,19 +196,6 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
     @Override
     public final void setAttribute(Attribute attr, Object value) {
         this.teams.forEach(team -> team.setAttribute(attr, value));
-    }
-
-    //Tags
-    private final NBTCompound nbtCompound = new NBTCompound();
-
-    @Override
-    public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
-        return tag.read(this.nbtCompound);
-    }
-
-    @Override
-    public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
-        tag.write(this.nbtCompound, value);
     }
 
 }
