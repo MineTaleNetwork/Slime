@@ -77,6 +77,10 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
             EventDispatcher.call(spawnEvent);
 
             var spawnPoint = spawnEvent.getSpawnPoint();
+            if(spawnPoint == null)
+                throw new NullPointerException("Couldn't find a spawnpoint for GamePlayer \"" +
+                        player.getUsername() + "\" with the \"" + player.getGameTeam().getType().getId() + "\" GameTeam.");
+
             player.setCurrentSpawn(spawnPoint);
             player.respawn();
         });
@@ -175,11 +179,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
         if(assignedTeams == null)
             throw new NullPointerException("Assigned teams is null. Set them through GameTeamAssignEvent and use TeamAssigner or set an empty Map for no teams.");
 
-        assignedTeams.forEach((team, assigned) -> {
-            team.addPlayers(assigned);
-            this.teams.add(team);
-        });
-
+        assignedTeams.forEach(GameTeam::addPlayers);
         this.teams = Collections.synchronizedList(new ArrayList<>(assignedTeams.keySet()));
     }
 

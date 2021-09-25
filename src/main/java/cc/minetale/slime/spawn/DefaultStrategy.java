@@ -4,10 +4,7 @@ import cc.minetale.slime.core.Game;
 import cc.minetale.slime.core.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /**
@@ -33,11 +30,12 @@ public enum DefaultStrategy implements ISpawnStrategy {
 
         RANDOM.supplier = (manager, player) -> {
             var team = player.getGameTeam();
-            Map<GameTeam, List<SpawnPoint>> spawnPoints = manager.getSpawnPoints();
-            List<SpawnPoint> teamSpawnPoints = spawnPoints.get(team);
+
+            List<SpawnPoint> spawnPoints = manager.getSpawnPointsFor(team);
+            if(spawnPoints.isEmpty()) { return null; }
 
             var index = random.nextInt(spawnPoints.size());
-            return teamSpawnPoints.get(index);
+            return spawnPoints.get(index);
         };
 
         Map<Game, Map<GameTeam, Integer>> lastSpawnPointIndexes = new HashMap<>();
@@ -45,19 +43,21 @@ public enum DefaultStrategy implements ISpawnStrategy {
         ORDERED.supplier = (manager, player) -> {
             synchronized(lastSpawnPointIndexes) {
                 var team = player.getGameTeam();
-                Map<GameTeam, List<SpawnPoint>> spawnPoints = manager.getSpawnPoints();
-                List<SpawnPoint> teamSpawnPoints = spawnPoints.get(team);
+
+                List<SpawnPoint> spawnPoints = manager.getSpawnPointsFor(team);
+                if(spawnPoints.isEmpty()) { return null; }
 
                 var game = manager.getGame();
-                lastSpawnPointIndexes.putIfAbsent(game, new HashMap<>());
-                Map<GameTeam, Integer> gameIndexes = lastSpawnPointIndexes.get(game);
+                Map<GameTeam, Integer> gameIndexes = Objects.requireNonNullElse(lastSpawnPointIndexes.get(game), new HashMap<>());
 
-                gameIndexes.putIfAbsent(team, 0);
-                var lastIndex = gameIndexes.get(team);
-                var index = lastIndex + 1 % teamSpawnPoints.size();
+                var lastIndex = gameIndexes.getOrDefault(team, 0);
+                var index = lastIndex + 1 % spawnPoints.size();
 
                 gameIndexes.put(team, index);
-                return teamSpawnPoints.get(index);
+
+                lastSpawnPointIndexes.putIfAbsent(game, gameIndexes);
+
+                return spawnPoints.get(index);
             }
         };
 

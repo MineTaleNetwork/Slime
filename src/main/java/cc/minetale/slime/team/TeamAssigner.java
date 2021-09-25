@@ -26,7 +26,7 @@ public abstract class TeamAssigner {
             @Override public <P extends GamePlayer> Map<GameTeam, Set<P>> assign(Game game,
                                                                                  List<ITeamType> availableTeams,
                                                                                  List<P> players) {
-                
+
                 Map<GameTeam, Set<P>> assignedTeams = new HashMap<>();
 
                 players = new ArrayList<>(players);

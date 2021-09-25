@@ -62,7 +62,7 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
         setGameMode(state.getGamemode());
     }
 
-    public final void setCurrentSpawn(SpawnPoint spawnPoint) {
+    public final void setCurrentSpawn(@NotNull SpawnPoint spawnPoint) {
         this.currentSpawn = spawnPoint;
         setRespawnPoint(this.currentSpawn.getPosition());
     }

@@ -8,16 +8,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class SpawnManager {
+public final class SpawnManager {
 
     @Getter @Setter(AccessLevel.PACKAGE)
     private Game game;
 
     @Getter @Setter private ISpawnStrategy strategy = DefaultStrategy.RANDOM;
 
-    @Getter private Map<GameTeam, List<SpawnPoint>> spawnPoints = new ConcurrentHashMap<>();
+    @Getter private Map<GameTeam, List<SpawnPoint>> spawnPoints = Collections.synchronizedMap(new HashMap<>());
+
+    public List<SpawnPoint> getSpawnPointsFor(GameTeam team) {
+        return this.spawnPoints.computeIfAbsent(team, key -> Collections.synchronizedList(new ArrayList<>()));
+    }
 
     public void addSpawnPoint(GameTeam team, SpawnPoint spawnpoint) {
         spawnpoint.getOwners().add(team);

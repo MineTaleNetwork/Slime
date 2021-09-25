@@ -11,6 +11,8 @@ import net.minestom.server.item.Material;
 public interface ITeamType {
     MC.CC getColor();
 
+    String getId();
+
     String getFullName();
     default String getShortName() { return null; }
 
