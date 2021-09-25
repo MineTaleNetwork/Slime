@@ -18,6 +18,7 @@ public final class MainListener {
     static void registerEvents(GameManager gameManager) {
         var mainNode = EventNode.all("slime");
         registerDefaultEvents(mainNode, gameManager);
+        registerGamePlayerEvents(mainNode, gameManager);
 
         var global = MinecraftServer.getGlobalEventHandler();
         global.addChild(mainNode);
