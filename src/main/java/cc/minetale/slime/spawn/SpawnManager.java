@@ -41,8 +41,7 @@ public class SpawnManager {
     }
 
     public SpawnPoint findSpawnPoint(GamePlayer player) {
-        var spawnPoint = this.strategy.find(this, player);
-        return spawnPoint;
+        return this.strategy.find(this, player);
     }
 
 }

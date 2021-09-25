@@ -69,18 +69,16 @@ public class GameLobby {
         if(this.players.size() < this.game.getMaxPlayers()) { return false; }
 
         var state = this.game.getState();
+        if(state.getBaseState() == BaseState.STARTING) { return; }
 
         state.setBaseState(BaseState.STARTING);
-        countdown = DefaultSequences.LOBBY_SEQUENCE
+
+        this.countdown = DefaultSequences.LOBBY_SEQUENCE
                 .onFinish(involved -> this.game.start())
                 .build();
 
-        //TODO Switch to using the GamePlayer when (or if) we make it extend Player
-        this.players.forEach(player -> countdown.addInvolved(player));
-
-        countdown.start();
-
-        return true;
+        this.countdown.addInvolved(this.players);
+        this.countdown.start();
     }
 
     public void pauseCountdown() {

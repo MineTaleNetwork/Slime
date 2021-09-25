@@ -40,9 +40,6 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
     @Getter @Setter(AccessLevel.PACKAGE)
     private GameState state;
 
-    @Getter @Setter(AccessLevel.PACKAGE)
-    protected int maxPlayers;
-
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
     @Getter @Setter protected Instance mainInstance;
@@ -54,10 +51,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
     @Getter protected final SpawnManager spawnManager = new SpawnManager();
 
-    protected Game(int maxPlayers, @NotNull GameState state) {
-
-        this.maxPlayers = maxPlayers;
-
+    protected Game(@NotNull GameState state) {
         state.setGame(this);
         this.state = state;
 
@@ -79,7 +73,7 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
     }
 
     boolean canFitPlayer() {
-        return this.maxPlayers - this.players.size() > 0;
+        return Slime.getActiveGame().getMaxGames() - this.players.size() > 0;
     }
 
     /**

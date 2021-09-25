@@ -15,7 +15,9 @@ public final class Slime extends Extension {
     public static final InstanceManager INSTANCE_MANAGER = MinecraftServer.getInstanceManager();
     public static final ConnectionManager CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
 
-    @Getter @Setter private static GameExtension activeGame; //TODO Make the setter its own method and safely switch games
+    //TODO Make the setter its own method and safely switch games
+    //TODO Figure out a reasonable way to shorten any calls to this, now for example you have to do Slime.getActiveGame().getMaxGames()
+    @Getter @Setter private static GameExtension activeGame;
 
     @Override public void initialize() {
         GameLobby.PARENT_INSTANCE = INSTANCE_MANAGER.createInstanceContainer();

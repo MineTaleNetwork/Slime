@@ -37,7 +37,7 @@ public enum Attribute {
      * {@linkplain Boolean} <br>
      * <br>
      * If enabled, players that died with 0 lives left will be a spectator. <br>
-     * Otherwise it is in your hands how to handle the player after death.
+     * Otherwise it is in your hands how to handle the player after death. <br>
      * See also {@linkplain Attribute#AUTO_TEMP_SPECTATOR}.
      */
     AUTO_PERM_SPECTATOR(true);

@@ -151,7 +151,7 @@ public class Sequence {
         return this.involved.add(obj);
     }
 
-    public boolean addInvolved(Collection<Object> objs) {
+    public boolean addInvolved(Collection<?> objs) {
         return this.involved.addAll(objs);
     }
 
