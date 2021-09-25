@@ -1,11 +1,13 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
+import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
 import cc.minetale.slime.event.team.GameTeamAssignEvent;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.spawn.SpawnPoint;
@@ -84,9 +86,6 @@ public abstract class Game implements IAttributeWritable, TagReadable, TagWritab
 
         this.lobby.remove();
         this.lobby = null;
-
-        //TODO Assign teams
-        //TODO Respawn using spawnpoints
 
         this.state.setBaseState(BaseState.PRE_GAME);
     }

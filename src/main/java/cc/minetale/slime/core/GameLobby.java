@@ -4,6 +4,7 @@ import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.state.BaseState;
+import cc.minetale.slime.utils.InstanceUtil;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
 import lombok.Getter;
@@ -110,8 +111,7 @@ public class GameLobby {
 
     final void remove() {
         //TODO Unregister instance
-
-        INSTANCE_MANAGER.unregisterInstance(this.instance);
+        InstanceUtil.unregisterSafe(this.instance);
     }
 
 }
