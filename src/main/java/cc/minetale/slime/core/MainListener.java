@@ -1,7 +1,11 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.commonlib.util.MC;
+import cc.minetale.mlib.util.ProfileUtil;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.event.Event;
@@ -16,7 +20,7 @@ import static cc.minetale.slime.state.PlayerState.SPECTATE;
 public final class MainListener {
 
     static void registerEvents(GameManager gameManager) {
-        var mainNode = EventNode.all("slime");
+        var mainNode = EventNode.all("slime").setPriority(Integer.MAX_VALUE);
         registerDefaultEvents(mainNode, gameManager);
         registerGamePlayerEvents(mainNode, gameManager);
 
@@ -36,7 +40,21 @@ public final class MainListener {
                 return;
             }
 
-            game.addPlayer(player);
+            if(game.addPlayer(player)) {
+                var profile = ProfileUtil.getAssociatedProfile(player).getNow(null);
+                if(profile == null) {
+                    player.kick("Couldn't join the server.");
+                    return;
+                }
+
+                game.sendMessage(Component.text("» ", MC.CC.YELLOW.getTextColor())
+                        .append(profile.api().getChatFormat())
+                        .append(Component.text(" has joined! (", MC.CC.GOLD.getTextColor()))
+                        .append(Component.text(game.getPlayers().size(), MC.CC.YELLOW.getTextColor()))
+                        .append(Component.text("/", MC.CC.GOLD.getTextColor()))
+                        .append(Component.text(Slime.getActiveGame().getMaxPlayers(), MC.CC.YELLOW.getTextColor()))
+                        .append(Component.text(")", MC.CC.GOLD.getTextColor())));
+            }
 
             event.setSpawningInstance(game.getSpawnInstance(player));
         });
@@ -48,6 +66,17 @@ public final class MainListener {
             if(game == null) { return; }
 
             game.removePlayer(player);
+
+            var profile = ProfileUtil.getAssociatedProfile(player).getNow(null);
+            if(profile == null) { return; }
+
+            game.sendMessage(Component.text("» ", MC.CC.YELLOW.getTextColor())
+                    .append(profile.api().getChatFormat())
+                    .append(Component.text(" has left! (", MC.CC.GOLD.getTextColor()))
+                    .append(Component.text(game.getPlayers().size(), MC.CC.YELLOW.getTextColor()))
+                    .append(Component.text("/", MC.CC.GOLD.getTextColor()))
+                    .append(Component.text(Slime.getActiveGame().getMaxPlayers(), MC.CC.YELLOW.getTextColor()))
+                    .append(Component.text(")", MC.CC.GOLD.getTextColor())));
         });
 
         node.addListener(PlayerRespawnEvent.class, event -> {

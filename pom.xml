@@ -28,6 +28,12 @@
         </dependency>
         <dependency>
             <groupId>cc.minetale</groupId>
+            <artifactId>Flame</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cc.minetale</groupId>
             <artifactId>Magma</artifactId>
             <version>1.0</version>
             <scope>provided</scope>
