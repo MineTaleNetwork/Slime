@@ -9,12 +9,15 @@ import cc.minetale.slime.utils.InstanceUtil;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
 import lombok.Getter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,7 +29,7 @@ import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
  * As to avoid confusion. There is only one instance of {@linkplain GameLobby}, <br>
  * but players are separated "logically" into their respective games.
  */
-public class GameLobby {
+public class GameLobby implements ForwardingAudience {
 
     public static InstanceContainer PARENT_INSTANCE;
 
@@ -118,8 +121,12 @@ public class GameLobby {
     }
 
     final void remove() {
-        //TODO Unregister instance
         InstanceUtil.unregisterSafe(this.instance);
     }
 
+    //Audiences
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return this.players;
+    }
 }

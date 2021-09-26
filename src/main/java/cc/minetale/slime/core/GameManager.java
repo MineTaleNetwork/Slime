@@ -5,6 +5,8 @@ import cc.minetale.slime.event.game.GameRemoveEvent;
 import cc.minetale.slime.state.BaseState;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.event.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +18,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class GameManager {
+public final class GameManager implements ForwardingAudience {
 
     @Getter @Setter private GameExtension extension;
 
@@ -74,6 +76,12 @@ public final class GameManager {
 
     private boolean canFitNewGame() {
         return this.extension.getMaxGames() - this.games.size() > 0;
+    }
+
+    //Audiences
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return this.games;
     }
 
 }

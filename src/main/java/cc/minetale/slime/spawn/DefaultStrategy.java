@@ -48,7 +48,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
                 if(spawnPoints.isEmpty()) { return null; }
 
                 var game = manager.getGame();
-                Map<GameTeam, Integer> gameIndexes = Objects.requireNonNullElse(lastSpawnPointIndexes.get(game), new HashMap<>());
+                Map<GameTeam, Integer> gameIndexes = lastSpawnPointIndexes.getOrDefault(game, new HashMap<>());
 
                 var lastIndex = gameIndexes.getOrDefault(team, 0);
                 var index = lastIndex + 1 % spawnPoints.size();

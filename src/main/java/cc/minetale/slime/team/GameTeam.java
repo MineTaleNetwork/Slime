@@ -7,6 +7,8 @@ import cc.minetale.slime.core.GamePlayer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.tag.TagReadable;
@@ -21,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class GameTeam implements IAttributeWritable, TagReadable, TagWritable {
+public class GameTeam implements IAttributeWritable, TagReadable, TagWritable, ForwardingAudience {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
@@ -72,4 +74,11 @@ public class GameTeam implements IAttributeWritable, TagReadable, TagWritable {
     public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
         tag.write(this.nbtCompound, value);
     }
+
+    //Audiences
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return this.players;
+    }
+
 }

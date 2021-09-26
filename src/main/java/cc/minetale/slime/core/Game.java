@@ -17,6 +17,8 @@ import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.instance.Instance;
@@ -28,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public abstract class Game implements IAttributeWritable {
+public abstract class Game implements IAttributeWritable, ForwardingAudience {
 
     @Getter private final String identifier = "G#" + RandomStringUtils.randomAlphanumeric(6);
 
@@ -166,6 +168,7 @@ public abstract class Game implements IAttributeWritable {
 
         SpawnPoint spawnPoint = this.spawnManager.findSpawnPoint(player);
         player.setCurrentSpawn(spawnPoint);
+
         return Objects.requireNonNullElse(spawnPoint.getInstance(), this.mainInstance);
     }
 
@@ -198,4 +201,9 @@ public abstract class Game implements IAttributeWritable {
         this.teams.forEach(team -> team.setAttribute(attr, value));
     }
 
+    //Audiences
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return !this.state.inLobby() ? this.teams : this.lobby.audiences();
+    }
 }
