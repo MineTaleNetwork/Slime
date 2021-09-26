@@ -2,7 +2,6 @@ package cc.minetale.slime.core;
 
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
-import cc.minetale.slime.state.BaseState;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
@@ -41,7 +40,7 @@ public final class GameManager implements ForwardingAudience {
 
     public Game findGameOrCreate() {
         return this.games.stream()
-                .filter(game -> game.getState().getBaseState() == BaseState.IN_LOBBY &&
+                .filter(game -> game.getState().inLobby() &&
                         game.canFitPlayer())
                 .findFirst()
                 .orElseGet(this::addNewGame);

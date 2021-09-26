@@ -92,11 +92,11 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
     }
 
     boolean canFitPlayer() {
-        return Slime.getActiveGame().getMaxGames() - this.players.size() > 0;
+        return Slime.getActiveGame().getMaxPlayers() - this.players.size() > 0;
     }
 
     /**
-     * Adds a {@linkplain GamePlayer} to this game (or lobby if still not started) and there is enough space.
+     * Adds a {@linkplain GamePlayer} to this game (and lobby if still not started) and there is enough space.
      * @param player The player to add
      * @return If successfully added the player
      */
@@ -108,7 +108,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
     }
 
     /**
-     * Adds a {@linkplain GamePlayer} to this game (or lobby if still not started) ignoring the size limit. <br>
+     * Adds a {@linkplain GamePlayer} to this game (and lobby if still not started) ignoring the size limit. <br>
      * See also {@linkplain Game#addPlayer(GamePlayer)} if you want to add a player only if there's enough space.
      * @param player The player to add
      * @return If successfully added the player
@@ -118,15 +118,11 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
         EventDispatcher.call(event);
         if(event.isCancelled()) { return false; }
 
-        if(!this.state.inLobby()) {
-            return forceAddPlayer0(player);
-        } else {
-            return this.lobby.addPlayer(player);
-        }
+        return forceAddPlayer0(player);
     }
 
     /**
-     * Adds a {@linkplain GamePlayer} to this game ignoring all checks. <br>
+     * Adds a {@linkplain GamePlayer} to this game (and lobby if still not started) ignoring all checks. <br>
      * See also {@linkplain Game#addPlayer(GamePlayer)} or {@linkplain Game#forceAddPlayer(GamePlayer)}.
      * @param player The player to add
      * @return If successfully added the player
@@ -137,7 +133,18 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
             otherGame.removePlayer0(player);
 
         player.setGame(this);
-        return this.players.add(player);
+
+        var passed = true;
+        if(this.state.inLobby())
+            passed = this.lobby.addPlayer(player);
+
+        if(!this.players.contains(player)) {
+            this.players.add(player);
+        } else {
+            return false;
+        }
+
+        return passed;
     }
 
     public boolean removePlayer(GamePlayer player) {
@@ -151,11 +158,12 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
 
     private boolean removePlayer0(GamePlayer player) {
         player.setGame(null);
-        if(!this.state.inLobby()) {
-            return this.players.remove(player);
-        } else {
-            return this.lobby.removePlayer(player);
-        }
+
+        var passed = true;
+        if(this.state.inLobby())
+            passed = this.lobby.removePlayer(player);
+
+        return this.players.remove(player) && passed;
     }
 
     public boolean isPlayerInGame(GamePlayer player) {

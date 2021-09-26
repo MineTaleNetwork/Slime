@@ -12,16 +12,15 @@ import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
@@ -36,7 +35,7 @@ public class GameLobby implements ForwardingAudience {
     @Getter private final Instance instance;
     @Getter private final Game game;
 
-    protected Set<GamePlayer> players = Collections.synchronizedSet(new HashSet<>());
+    @Getter protected List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
 
     private Sequence countdown;
 
@@ -48,7 +47,8 @@ public class GameLobby implements ForwardingAudience {
     public boolean addPlayer(GamePlayer player) {
         if(player.getLobby() != null || isPlayerInLobby(player)) { return false; }
 
-        if(!this.players.add(player)) { return false; }
+        if(this.players.contains(player)) { return false; }
+        this.players.add(player);
         player.setLobby(this);
         applyLoadout(player);
 
@@ -65,9 +65,11 @@ public class GameLobby implements ForwardingAudience {
         player.setLobby(null);
         Loadout.removeIfAny(player);
 
+        if(!this.players.remove(player)) { return false; }
+
         pauseCountdown();
 
-        return this.players.remove(player);
+        return true;
     }
 
     public boolean isPlayerInLobby(GamePlayer player) {
@@ -90,6 +92,11 @@ public class GameLobby implements ForwardingAudience {
 
         state.setBaseState(BaseState.STARTING);
 
+        if(this.countdown != null && this.countdown.isPaused()) {
+            this.countdown.resume();
+            return;
+        }
+
         this.countdown = DefaultSequences.LOBBY_SEQUENCE
                 .onFinish(involved -> this.game.start())
                 .build();
@@ -100,16 +107,18 @@ public class GameLobby implements ForwardingAudience {
 
     /** Pauses the countdown, hardcoded the message because that's usually why it happens. */
     public void pauseCountdown() {
-        if(this.players.size() >= Slime.getActiveGame().getMinPlayers() && this.countdown.isPaused()) { return; }
+        if(this.players.size() >= Slime.getActiveGame().getMinPlayers() || this.countdown.isPaused()) { return; }
 
         this.countdown.pause();
         this.countdown.getInvolved().forEach(obj -> {
             if(!(obj instanceof GamePlayer)) { return; }
             var player = (GamePlayer) obj;
             player.sendMessage(
-                    Component.text("» ", MC.CC.WHITE.getTextColor(), TextDecoration.BOLD)
+                    Component.text("» ", MC.CC.WHITE.getTextColor())
                             .append(Component.text("Stopping the countdown, because there aren't enough players!", MC.CC.RED.getTextColor())));
         });
+
+        this.game.getState().setBaseState(BaseState.IN_LOBBY);
     }
 
     public void resumeCountdown() {
