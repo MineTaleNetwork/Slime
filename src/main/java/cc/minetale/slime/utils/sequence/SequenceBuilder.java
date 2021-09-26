@@ -3,12 +3,15 @@ package cc.minetale.slime.utils.sequence;
 import cc.minetale.mlib.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.title.Title;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.MathUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -159,6 +162,45 @@ public class SequenceBuilder {
                     .build();
 
             player.sendActionBar(component.replaceText(config));
+        }
+    }
+
+    public SequenceBuilder sound(long timeLeft, Sound sound, @Nullable Sound.Emitter emitter, @Nullable Vec pos) {
+        execute(timeLeft, (currentTimeLeft, involved) -> sound(sound, emitter, pos, involved));
+        return this;
+    }
+
+    public SequenceBuilder soundRepeat(long interval, Sound sound, @Nullable Sound.Emitter emitter, @Nullable Vec pos) {
+        repeat(interval, (currentTimeLeft, involved) -> sound(sound, emitter, pos, involved));
+        return this;
+    }
+
+    public SequenceBuilder soundRepeat(long timeLeft, long interval,
+                                       Sound sound, @Nullable Sound.Emitter emitter, @Nullable Vec pos) {
+
+        repeat(timeLeft, interval, (currentTimeLeft, involved) -> sound(sound, emitter, pos, involved));
+        return this;
+    }
+
+    public SequenceBuilder soundRepeat(long timeLeft, long stopTime, long interval,
+                                       Sound sound, @Nullable Sound.Emitter emitter, @Nullable Vec pos) {
+
+        repeat(timeLeft, stopTime, interval, (currentTimeLeft, involved) -> sound(sound, emitter, pos, involved));
+        return this;
+    }
+
+    private void sound(Sound sound, @Nullable Sound.Emitter emitter, @Nullable Vec pos, List<?> involved) {
+        for(Object obj : involved) {
+            if(!(obj instanceof Player)) { continue; }
+            var player = (Player) obj;
+
+            if(emitter != null) {
+                player.playSound(sound, emitter);
+            } else if(pos != null) {
+                player.playSound(sound, pos.x(), pos.y(), pos.z());
+            } else {
+                player.playSound(sound);
+            }
         }
     }
 
