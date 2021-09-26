@@ -1,6 +1,8 @@
 package cc.minetale.slime.utils.sequence;
 
 import cc.minetale.commonlib.util.MC;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -23,13 +25,23 @@ public final class DefaultSequences {
             .chatRepeat(5000, 2000, 1000, getCountdownComponent("%d", true))
             .chat(1000, getCountdownComponent("1", false))
 
+            //Dingdingding
+            .soundRepeat(5000, 1000, 1000,
+                    Sound.sound(Key.key("block.note_block.pling"), Sound.Source.RECORD, 1f, 1f), Sound.Emitter.self(), null)
+            .sound(0,
+                    Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.RECORD, 1f, 1f), Sound.Emitter.self(), null)
+
             //Title last 3 seconds countdown
-            .title(3000, Title.title(Component.text("3", MC.CC.RED.getTextColor(), TextDecoration.BOLD), Component.empty(), INSTANT))
-            .title(2000, Title.title(Component.text("2", MC.CC.YELLOW.getTextColor(), TextDecoration.BOLD), Component.empty(), INSTANT))
-            .title(1000, Title.title(Component.text("1", MC.CC.WHITE.getTextColor(), TextDecoration.BOLD), Component.empty(), INSTANT));
+            .title(3000, getCountdownTitle("3"))
+            .title(2000, getCountdownTitle("2"))
+            .title(1000, getCountdownTitle("1"));
+
+    @NotNull private static Title getCountdownTitle(String count) {
+        return Title.title(Component.text(count, MC.CC.GOLD.getTextColor(), TextDecoration.BOLD), Component.empty(), INSTANT);
+    }
 
     @NotNull private static TextComponent getCountdownComponent(String count, boolean plural) {
-        return Component.text("» ", MC.CC.YELLOW.getTextColor(), TextDecoration.BOLD)
+        return Component.text("» ", MC.CC.YELLOW.getTextColor())
                 .append(Component.text("Starting in ", MC.CC.GOLD.getTextColor()))
                 .append(Component.text(count, MC.CC.YELLOW.getTextColor()))
                 .append(Component.text(plural ? " seconds..." : " second...", MC.CC.GOLD.getTextColor()));
