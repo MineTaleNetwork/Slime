@@ -15,7 +15,6 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
  */
 public class GameLobby implements ForwardingAudience {
 
-    public static InstanceContainer PARENT_INSTANCE;
+    public static final GameExtension ACTIVE_GAME = Slime.getActiveGame();
 
     @Getter private final Instance instance;
     @Getter private final Game game;
@@ -40,7 +39,7 @@ public class GameLobby implements ForwardingAudience {
     private Sequence countdown;
 
     public GameLobby(Game game) {
-        this.instance = INSTANCE_MANAGER.createSharedInstance(PARENT_INSTANCE);
+        this.instance = INSTANCE_MANAGER.createSharedInstance(ACTIVE_GAME.getLobbyInstance());
         this.game = game;
     }
 
@@ -139,4 +138,5 @@ public class GameLobby implements ForwardingAudience {
     public @NotNull Iterable<? extends Audience> audiences() {
         return this.players;
     }
+
 }

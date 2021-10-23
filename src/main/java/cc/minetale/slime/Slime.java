@@ -1,8 +1,6 @@
 package cc.minetale.slime;
 
 import cc.minetale.slime.core.GameExtension;
-import cc.minetale.slime.core.GameLobby;
-import cc.minetale.slime.core.GamePlayer;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.MinecraftServer;
@@ -19,10 +17,7 @@ public final class Slime extends Extension {
     //TODO Figure out a reasonable way to shorten any calls to this, now for example you have to do Slime.getActiveGame().getMaxGames()
     @Getter @Setter private static GameExtension activeGame;
 
-    @Override public void initialize() {
-        GameLobby.PARENT_INSTANCE = INSTANCE_MANAGER.createInstanceContainer();
-        CONNECTION_MANAGER.setPlayerProvider(GamePlayer::new);
-    }
+    @Override public void initialize() { }
 
     @Override public void terminate() { }
 
