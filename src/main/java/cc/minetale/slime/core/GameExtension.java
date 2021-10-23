@@ -39,6 +39,8 @@ public abstract class GameExtension extends Extension {
     public final void postInit() {
         this.lobbyInstance = new GameInstance(getLobbyMap());
         Slime.CONNECTION_MANAGER.setPlayerProvider(getPlayerProvider());
+
+        Slime.setActiveGame(this);
     }
 
 }

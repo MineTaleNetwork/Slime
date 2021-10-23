@@ -1,10 +1,10 @@
 package cc.minetale.slime.state;
 
 /**
- * The default implementation for the {@linkplain IBaseState}. <br>
+ * The default implementation for the {@linkplain IStage}. <br>
  * If you wish to have additional states, you are free to do so, but you mustn't replace and still use these. <br>
  */
-public enum BaseState implements IBaseState {
+public enum Stage implements IStage {
     /** Gathering players in a lobby. **/
     IN_LOBBY,
     /** Enough players, starting the game. **/

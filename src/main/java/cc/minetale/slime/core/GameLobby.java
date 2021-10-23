@@ -4,7 +4,7 @@ import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
-import cc.minetale.slime.state.BaseState;
+import cc.minetale.slime.state.Stage;
 import cc.minetale.slime.utils.InstanceUtil;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
@@ -87,9 +87,9 @@ public class GameLobby implements ForwardingAudience {
         if(this.players.size() < Slime.getActiveGame().getMaxPlayers()) { return; }
 
         var state = this.game.getState();
-        if(state.getBaseState() == BaseState.STARTING) { return; }
+        if(state.getStage() == Stage.STARTING) { return; }
 
-        state.setBaseState(BaseState.STARTING);
+        state.setStage(Stage.STARTING);
 
         if(this.countdown != null && this.countdown.isPaused()) {
             this.countdown.resume();
@@ -118,7 +118,7 @@ public class GameLobby implements ForwardingAudience {
                             .append(Component.text("Stopping the countdown, because there aren't enough players!", MC.CC.RED.getTextColor())));
         });
 
-        this.game.getState().setBaseState(BaseState.IN_LOBBY);
+        this.game.getState().setStage(Stage.IN_LOBBY);
     }
 
     public void resumeCountdown() {

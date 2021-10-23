@@ -1,8 +1,8 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.slime.event.game.GameStateChangeEvent;
-import cc.minetale.slime.state.BaseState;
-import cc.minetale.slime.state.IBaseState;
+import cc.minetale.slime.event.game.GameStageChangeEvent;
+import cc.minetale.slime.state.Stage;
+import cc.minetale.slime.state.IStage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,17 +13,17 @@ public class GameState {
     @Getter @Setter(AccessLevel.PACKAGE)
     private Game game;
 
-    @Getter protected IBaseState baseState = BaseState.IN_LOBBY;
+    @Getter protected IStage stage = Stage.IN_LOBBY;
 
-    public void setBaseState(IBaseState state) {
-        var event = new GameStateChangeEvent(game, this.baseState, state);
+    public void setStage(IStage state) {
+        var event = new GameStageChangeEvent(game, this.stage, state);
         EventDispatcher.call(event);
 
-        this.baseState = event.getNewState();
+        this.stage = event.getNewStage();
     }
 
     public boolean inLobby() {
-        return this.baseState == BaseState.IN_LOBBY || this.baseState == BaseState.STARTING;
+        return this.stage == Stage.IN_LOBBY || this.stage == Stage.STARTING;
     }
 
 }

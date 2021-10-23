@@ -12,7 +12,7 @@ import cc.minetale.slime.event.team.GameTeamAssignEvent;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.spawn.SpawnPoint;
-import cc.minetale.slime.state.BaseState;
+import cc.minetale.slime.state.Stage;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,7 +59,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
     }
 
     /**
-     * Called after the countdown ends during {@linkplain BaseState#STARTING} while in the lobby.
+     * Called after the countdown ends during {@linkplain Stage#STARTING} while in the lobby.
      */
     public void start() {
         this.players.addAll(this.lobby.players);
@@ -88,7 +88,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
         this.lobby.remove();
         this.lobby = null;
 
-        this.state.setBaseState(BaseState.PRE_GAME);
+        this.state.setStage(Stage.PRE_GAME);
     }
 
     boolean canFitPlayer() {

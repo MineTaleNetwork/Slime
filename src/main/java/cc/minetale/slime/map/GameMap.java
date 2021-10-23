@@ -34,6 +34,7 @@ public class GameMap {
 
     private GameMap() {}
 
+    //TODO Block usage by setting to private and only allow to load from database through GameMap#
     public GameMap(String id, String gamemode, String dimensionId) {
         this.id = id;
         this.gamemode = gamemode;
