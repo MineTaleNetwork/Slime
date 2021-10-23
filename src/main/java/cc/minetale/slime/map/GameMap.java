@@ -1,39 +1,51 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.map;
 
 import cc.minetale.commonlib.CommonLib;
-import cc.minetale.magma.MagmaReader;
+import cc.minetale.magma.MagmaLoader;
 import cc.minetale.magma.MagmaUtils;
-import cc.minetale.slime.utils.Zone;
+import cc.minetale.slime.Slime;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.world.DimensionType;
 import org.bson.Document;
 
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class GameMap {
 
-    @Getter private static MongoCollection<Document> collection = CommonLib.getCommonLib().getMongoDatabase().getCollection("maps");
+    @Getter private static final MongoCollection<Document> collection = CommonLib.getCommonLib().getMongoDatabase().getCollection("maps");
 
-    @Setter(AccessLevel.PROTECTED) private String name;
+    @Setter(AccessLevel.PROTECTED) private String id;
     @Setter(AccessLevel.PROTECTED) private String gamemode;
+
+    @Setter(AccessLevel.PROTECTED) private String dimensionId;
 
     @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
     @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
 
-    public GameMap(String name, String gamemode) {
-        this.name = name;
+    private GameMap() {}
+
+    public GameMap(String id, String gamemode, String dimensionId) {
+        this.id = id;
         this.gamemode = gamemode;
+
+        this.dimensionId = dimensionId;
     }
 
     protected void fromDocument(Document document) {
-        this.name = document.getString("name");
+        this.id = document.getString("_id");
         this.gamemode = document.getString("gamemode");
+
+        this.dimensionId = document.getString("dimensionId");
 
         for(Map.Entry<String, Object> ent : document.get("zones", Document.class).entrySet()) {
             this.zones.put(ent.getKey(), new Zone((Document) ent.getValue()));
@@ -50,15 +62,16 @@ public class GameMap {
         }
     }
 
-    public void paste(GameExtension game) {
-        MagmaReader.read(game.getDataDirectory().resolve("test." + MagmaUtils.FORMAT_NAME));
+    //TODO Use SeaweedFS in production
+    public CompletableFuture<Void> setForInstance(InstanceContainer instance) {
+        return MagmaLoader.create(Path.of(this.id + "." + MagmaUtils.FORMAT_NAME)).thenAccept(instance::setChunkLoader);
     }
 
-    public static GameMap load(GameExtension game, String name, Supplier<GameMap> mapProvider) {
+    public static GameMap load(String name, Supplier<GameMap> mapProvider) {
         var map = mapProvider.get();
 
         var document = collection.find(Filters.and(
-                Filters.eq("gamemode", game.getId()),
+                Filters.eq("gamemode", Slime.getActiveGame().getId()),
                 Filters.eq("name", name))).first();
 
         if(document == null) { return null; }
@@ -67,8 +80,13 @@ public class GameMap {
         return map;
     }
 
-    public static GameMap load(GameExtension game, String name) {
-        return load(game, name, () -> new GameMap(game.getId(), name));
+    public static GameMap load(String name) {
+        return load(name, GameMap::new);
+    }
+
+    //TODO Make functional with our own Dimension registry
+    public DimensionType getDimension() {
+        return DimensionType.OVERWORLD;
     }
 
 }

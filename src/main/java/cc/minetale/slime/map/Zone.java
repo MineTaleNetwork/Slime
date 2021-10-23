@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils;
+package cc.minetale.slime.map;
 
 import lombok.Getter;
 import lombok.Setter;

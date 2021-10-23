@@ -107,6 +107,7 @@ public class GameLobby implements ForwardingAudience {
 
     /** Pauses the countdown, hardcoded the message because that's usually why it happens. */
     public void pauseCountdown() {
+        if(this.countdown == null) { return; }
         if(this.players.size() >= Slime.getActiveGame().getMinPlayers() || this.countdown.isPaused()) { return; }
 
         this.countdown.pause();
