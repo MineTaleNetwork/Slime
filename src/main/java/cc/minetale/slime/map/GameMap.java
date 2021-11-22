@@ -1,5 +1,7 @@
 package cc.minetale.slime.map;
 
+import cc.minetale.buildingtools.Selection;
+import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaLoader;
 import cc.minetale.magma.MagmaUtils;
@@ -11,11 +13,14 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -24,29 +29,93 @@ public class GameMap {
 
     @Getter private static final MongoCollection<Document> collection = CommonLib.getCommonLib().getMongoDatabase().getCollection("maps");
 
-    @Setter(AccessLevel.PROTECTED) private String id;
-    @Setter(AccessLevel.PROTECTED) private String gamemode;
+    @Getter @Setter(AccessLevel.PROTECTED) protected String id;
 
-    @Setter(AccessLevel.PROTECTED) private String dimensionId;
+    @Getter @Setter(AccessLevel.PROTECTED) protected String name;
+    @Getter @Setter(AccessLevel.PROTECTED) protected String gamemode;
+
+    @Setter(AccessLevel.PROTECTED) protected NamespaceID dimension;
+
+    @Getter @Setter(AccessLevel.PROTECTED) protected Selection playArea;
 
     @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
     @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
 
-    private GameMap() {}
+    protected GameMap() {}
 
     //TODO Block usage by setting to private and only allow to load from database through GameMap#
-    public GameMap(String id, String gamemode, String dimensionId) {
+    public GameMap(String id, String name, String gamemode, NamespaceID dimension, Selection playArea) {
         this.id = id;
+
+        this.name = name;
         this.gamemode = gamemode;
 
-        this.dimensionId = dimensionId;
+        this.dimension = dimension;
+
+        this.playArea = playArea;
     }
 
-    protected void fromDocument(Document document) {
+    public static <T extends GameMap> T fromDocument(Document document, Supplier<T> mapProvider) {
+        var map = mapProvider.get();
+        map.load(document);
+        return map;
+    }
+
+    public static GameMap fromDocument(Document document) {
+        return GameMap.fromDocument(document, GameMap::new);
+    }
+
+    public static <T extends GameMap> T fromBoth(String gamemode, String id, Supplier<T> mapProvider) {
+        var map = mapProvider.get();
+
+        var document = collection.find(GameMap.getFilter(gamemode, id)).first();
+
+        if(document == null) { return null; }
+        map.load(document);
+
+        return map;
+    }
+
+    public static GameMap fromBoth(String gamemode, String id) {
+        return fromBoth(gamemode, id, GameMap::new);
+    }
+
+    public static <T extends GameMap> T fromActiveGame(String id, Supplier<T> mapProvider) {
+        return fromBoth(Slime.getActiveGame().getId(), id, mapProvider);
+    }
+
+    public static GameMap fromActiveGame(String id) {
+        return fromActiveGame(id, GameMap::new);
+    }
+
+    //TODO Use SeaweedFS in production
+    public CompletableFuture<Void> setForInstance(InstanceContainer instance) {
+        return MagmaLoader.create(getFilePath()).thenAccept(instance::setChunkLoader);
+    }
+
+    //TODO Use SeaweedFS in production
+    public Path getFilePath() {
+        return MagmaUtils.getDefaultLocation(this.id);
+    }
+
+    public NamespaceID getDimensionID() {
+        return this.dimension;
+    }
+
+    //TODO Make functional with our own Dimension registry
+    public DimensionType getDimension() {
+        return DimensionType.OVERWORLD;
+    }
+
+    protected void load(Document document) {
         this.id = document.getString("_id");
+
+        this.name = document.getString("name");
         this.gamemode = document.getString("gamemode");
 
-        this.dimensionId = document.getString("dimensionId");
+        this.dimension = NamespaceID.from(document.getString("dimension"));
+
+        this.playArea = Selection.fromDocument(document.get("playArea", Document.class));
 
         for(Map.Entry<String, Object> ent : document.get("zones", Document.class).entrySet()) {
             this.zones.put(ent.getKey(), new Zone((Document) ent.getValue()));
@@ -63,31 +132,52 @@ public class GameMap {
         }
     }
 
-    //TODO Use SeaweedFS in production
-    public CompletableFuture<Void> setForInstance(InstanceContainer instance) {
-        return MagmaLoader.create(Path.of(this.id + "." + MagmaUtils.FORMAT_NAME)).thenAccept(instance::setChunkLoader);
+    public Document toDocument() {
+        var document = new Document();
+        document.put("_id", this.id);
+
+        document.put("name", this.name);
+        document.put("gamemode", this.gamemode);
+
+        document.put("dimension", this.dimension.toString());
+
+        document.put("playArea", this.playArea.toDocument());
+
+        var zonesDocument = new Document();
+        for (Map.Entry<String, Zone> ent : this.zones.entrySet()) {
+            var zone = ent.getValue();
+            zonesDocument.put(ent.getKey(), zone.toDocument());
+        }
+        document.put("zones", zonesDocument);
+
+        var pointsDocument = new Document();
+        for (Map.Entry<String, Pos> ent : this.points.entrySet()) {
+            var point = ent.getValue();
+            pointsDocument.put(ent.getKey(), Utils.positionToDocument(point));
+        }
+        document.put("points", pointsDocument);
+
+        return document;
     }
 
-    public static GameMap load(String name, Supplier<GameMap> mapProvider) {
-        var map = mapProvider.get();
-
-        var document = collection.find(Filters.and(
-                Filters.eq("gamemode", Slime.getActiveGame().getId()),
-                Filters.eq("name", name))).first();
-
-        if(document == null) { return null; }
-        map.fromDocument(document);
-
-        return map;
+    public static Bson getFilter(String gamemode, String id) {
+        return Filters.and(
+                Filters.eq("_id", id),
+                Filters.eq("gamemode", gamemode));
     }
 
-    public static GameMap load(String name) {
-        return load(name, GameMap::new);
+    public final Bson getFilter() {
+        return GameMap.getFilter(this.gamemode, this.id);
     }
 
-    //TODO Make functional with our own Dimension registry
-    public DimensionType getDimension() {
-        return DimensionType.OVERWORLD;
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof GameMap other && (this.id.equals(other.getId()) && this.gamemode.equals(other.getGamemode()));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id, this.gamemode);
     }
 
 }

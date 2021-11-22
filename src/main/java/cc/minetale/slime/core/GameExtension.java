@@ -33,7 +33,10 @@ public abstract class GameExtension extends Extension {
     public abstract GameMap getLobbyMap();
 
     /** Calls the default behavior before initialization of your own {@linkplain GameExtension} implementation. */
-    public final void preInit() { }
+    public final void preInit() {
+        if(Slime.TOOL_MANAGER.isEnabled())
+            Slime.TOOL_MANAGER.addGame(this);
+    }
 
     /** Calls the default behavior after initialization of your own {@linkplain GameExtension} implementation. */
     public final void postInit() {
