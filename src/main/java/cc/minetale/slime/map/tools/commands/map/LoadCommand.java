@@ -45,10 +45,18 @@ public final class LoadCommand extends Command {
             return;
         }
 
-        var map = GameMap.fromBoth(gamemode, id);
+        var oGame = Slime.TOOL_MANAGER.getGame(gamemode);
+        if(oGame.isEmpty()) {
+            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Cannot find the gamemode! " +
+                    "Make sure you typed in the name correctly and the gamemode is installed.", MC.CC.RED.getTextColor())));
+            return;
+        }
+        var game = oGame.get();
+
+        var map = GameMap.fromBoth(gamemode, id, game.getMapProvider());
         if(map == null) {
             sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Map doesn't exist! " +
-                    "Make sure you typed in the name correctly.", MC.CC.RED.getTextColor())));
+                    "Make sure you typed in the name correctly and the map exists.", MC.CC.RED.getTextColor())));
             return;
         }
 

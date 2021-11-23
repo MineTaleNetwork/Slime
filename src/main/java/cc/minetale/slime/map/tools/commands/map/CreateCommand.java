@@ -3,7 +3,6 @@ package cc.minetale.slime.map.tools.commands.map;
 import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.tools.TempMap;
 import cc.minetale.slime.map.tools.ToolManager;
 import net.kyori.adventure.text.Component;
@@ -49,11 +48,21 @@ public final class CreateCommand extends Command {
 
         if(TOOL_MANAGER.mapExists(id, gamemode, true, true)) {
             sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Failed to create a map with ID \"" + gamemode + ":" + id + "\".\n" +
-                            "Make sure a map with that ID doesn't exist, alternatively you can load an existing one using \"/slime map load\".", MC.CC.RED.getTextColor())));
+                    Component.text("Map with ID \"" + gamemode + ":" + id + "\" already exists.\n" +
+                            "Remove it with \"/slime map remove " + gamemode + " " + id + "\" or alternatively you can load an existing one using \"/slime map load\".", MC.CC.RED.getTextColor())));
         }
 
-        var map = new GameMap(id, name, gamemode, dimension, selection);
+        var oGame = Slime.TOOL_MANAGER.getGame(gamemode);
+        if(oGame.isEmpty()) {
+            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Cannot find the gamemode! " +
+                    "Make sure you typed in the name correctly and the gamemode is installed.", MC.CC.RED.getTextColor())));
+            return;
+        }
+        var game = oGame.get();
+
+        var mapProvider = game.getMapProvider();
+        var map = mapProvider.createMap(id, name, gamemode, dimension, selection);
+
         var tempMap = TempMap.ofMap(map, false);
 
         Slime.TOOL_MANAGER.addMap(tempMap);

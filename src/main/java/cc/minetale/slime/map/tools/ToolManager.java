@@ -49,6 +49,12 @@ public class ToolManager {
         return Collections.unmodifiableSet(this.availableGames);
     }
 
+    public Optional<GameExtension> getGame(String id) {
+        return this.availableGames.stream()
+                .filter(other -> other.getId().equals(id))
+                .findFirst();
+    }
+
     public boolean addGame(GameExtension extension) {
         if(isGameAvailable(extension)) { return false; }
         this.availableGames.add(extension);
@@ -59,8 +65,13 @@ public class ToolManager {
         return this.availableGames.remove(extension);
     }
 
+    private boolean isGameAvailable(String id) {
+        return this.availableGames.stream()
+                .anyMatch(other -> Objects.equals(other.getId(), id));
+    }
+
     private boolean isGameAvailable(GameExtension extension) {
-        return this.availableGames.stream().anyMatch(other -> other.getId().equals(extension.getId()));
+        return isGameAvailable(extension.getId());
     }
 
     public Set<TempMap> getActiveMaps() {
@@ -99,11 +110,15 @@ public class ToolManager {
         var otherMap = getMap(gamemode, id);
         if(otherMap.isPresent()) { return otherMap.get(); }
 
-        var map = GameMap.fromBoth(gamemode, id);
+        var oGame = getGame(gamemode);
+        if(oGame.isEmpty()) { return null; }
+        var game = oGame.get();
+
+        var map = GameMap.fromBoth(gamemode, id, game.getMapProvider());
         var tempMap = TempMap.ofMap(map, true);
 
         this.activeMaps.add(tempMap);
-        return null;
+        return tempMap;
     }
 
     public boolean removeMap(TempMap map) {

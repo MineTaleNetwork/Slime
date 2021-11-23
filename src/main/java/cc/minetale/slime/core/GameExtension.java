@@ -2,6 +2,7 @@ package cc.minetale.slime.core;
 
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.GameMap;
+import cc.minetale.slime.map.MapProvider;
 import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public abstract class GameExtension extends Extension {
 
     public abstract PlayerProvider getPlayerProvider();
     public abstract Supplier<GameTeam> getTeamProvider();
+    public abstract MapProvider<GameMap> getMapProvider();
 
     public abstract int getMinPlayers();
     public abstract int getMaxPlayers();

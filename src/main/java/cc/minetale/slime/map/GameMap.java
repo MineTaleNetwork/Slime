@@ -65,8 +65,8 @@ public class GameMap {
         return GameMap.fromDocument(document, GameMap::new);
     }
 
-    public static <T extends GameMap> T fromBoth(String gamemode, String id, Supplier<T> mapProvider) {
-        var map = mapProvider.get();
+    public static <T extends GameMap> T fromBoth(String gamemode, String id, MapProvider<T> mapProvider) {
+        var map = mapProvider.createMap();
 
         var document = collection.find(GameMap.getFilter(gamemode, id)).first();
 
@@ -77,15 +77,15 @@ public class GameMap {
     }
 
     public static GameMap fromBoth(String gamemode, String id) {
-        return fromBoth(gamemode, id, GameMap::new);
+        return fromBoth(gamemode, id, MapProvider.DEFAULT);
     }
 
-    public static <T extends GameMap> T fromActiveGame(String id, Supplier<T> mapProvider) {
+    public static <T extends GameMap> T fromActiveGame(String id, MapProvider<T> mapProvider) {
         return fromBoth(Slime.getActiveGame().getId(), id, mapProvider);
     }
 
     public static GameMap fromActiveGame(String id) {
-        return fromActiveGame(id, GameMap::new);
+        return fromActiveGame(id, MapProvider.DEFAULT);
     }
 
     //TODO Use SeaweedFS in production

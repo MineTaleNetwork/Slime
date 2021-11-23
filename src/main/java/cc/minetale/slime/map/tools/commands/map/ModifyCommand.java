@@ -18,11 +18,7 @@ public final class ModifyCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        var subcmd = new Command("id");
-        subcmd.addSyntax(this::modifyMap, SINGLE_ID_ARG, NEW_ID_ARG);
-        addSubcommand(subcmd);
-
-        subcmd = new Command("name");
+        var subcmd = new Command("name");
         subcmd.addSyntax(this::modifyMap, SINGLE_ID_ARG, NAME_ARG);
         addSubcommand(subcmd);
 

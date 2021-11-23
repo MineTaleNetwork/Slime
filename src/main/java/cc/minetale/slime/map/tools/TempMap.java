@@ -1,6 +1,7 @@
 package cc.minetale.slime.map.tools;
 
 import cc.minetale.slime.Slime;
+import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.map.GameMap;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.result.UpdateResult;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class TempMap {
 
     @Getter private GameMap handle;
+    @Getter private GameExtension game;
 
     @Getter private InstanceContainer instance;
 
