@@ -19,7 +19,7 @@ public final class LoadCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::loadMap, GAMEMODE_ARG, SINGLE_ID_ARG);
+        addSyntax(this::loadMap, GAMEMODE_ARG, ID_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
@@ -37,7 +37,7 @@ public final class LoadCommand extends Command {
         }
 
         String gamemode = context.get(GAMEMODE_ARG);
-        String id = context.get(SINGLE_ID_ARG);
+        String id = context.get(ID_AUTO_ARG);
 
         if(Slime.TOOL_MANAGER.mapExists(gamemode, id, true, false)) {
             sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("This map is already loaded! " +

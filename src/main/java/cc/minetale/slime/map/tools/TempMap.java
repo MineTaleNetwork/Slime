@@ -24,8 +24,9 @@ public class TempMap {
     @Getter private boolean isInDatabase;
     @Getter @Accessors(fluent = true) private boolean hasChanged;
 
-    private TempMap(GameMap handle, boolean isInDatabase) {
+    private TempMap(GameMap handle, GameExtension game, boolean isInDatabase) {
         this.handle = handle;
+        this.game = game;
 
         this.isInDatabase = isInDatabase;
 
@@ -37,8 +38,16 @@ public class TempMap {
         playArea.setInstance(this.instance);
     }
 
+    public static TempMap ofMap(GameMap map, GameExtension game, boolean isInDatabase) {
+        return new TempMap(map, game, isInDatabase);
+    }
+
     public static TempMap ofMap(GameMap map, boolean isInDatabase) {
-        return new TempMap(map, isInDatabase);
+        var oGame = Slime.TOOL_MANAGER.getGame(map.getGamemode());
+        if(oGame.isEmpty()) { return null; }
+        var game = oGame.get();
+
+        return new TempMap(map, game, isInDatabase);
     }
 
     public UpdateResult saveSettings() {

@@ -65,7 +65,7 @@ public class ToolManager {
         return this.availableGames.remove(extension);
     }
 
-    private boolean isGameAvailable(String id) {
+    public boolean isGameAvailable(String id) {
         return this.availableGames.stream()
                 .anyMatch(other -> Objects.equals(other.getId(), id));
     }
@@ -159,6 +159,12 @@ public class ToolManager {
         if(database) { return MapUtil.isInDatabase(id, gamemode); }
 
         return false;
+    }
+
+    public List<TempMap> getActiveMapsForGame(GameExtension game) {
+        return this.activeMaps.stream()
+                .filter(map -> map.getGame() == game || Objects.equals(map.getGame().getId(), game.getId()))
+                .toList();
     }
 
 }

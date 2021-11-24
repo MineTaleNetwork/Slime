@@ -10,7 +10,6 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentString;
-import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.Suggestion;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -20,8 +19,24 @@ public final class MapCommand extends Command {
     public static final ToolManager TOOL_MANAGER = Slime.TOOL_MANAGER;
 
     //Arguments
-    public static final ArgumentWord SINGLE_ID_ARG = new ArgumentWord("id");
-    public static final ArgumentStringArray MULTIPLE_ID_ARG = new ArgumentStringArray("ids");
+    public static final ArgumentWord ID_ARG = new ArgumentWord("id");
+    public static final ArgumentWord ID_AUTO_ARG = (ArgumentWord) ID_ARG
+            .setSuggestionCallback((sender, context, suggestion) -> {
+                if(context.has("gamemode")) {
+                    String gamemode = context.get("gamemode");
+
+                    var oGame = Slime.TOOL_MANAGER.getGame(gamemode);
+                    if(oGame.isEmpty()) { return; }
+                    var game = oGame.get();
+
+                    Slime.TOOL_MANAGER.getActiveMapsForGame(game)
+                            .forEach(map -> {
+                                var handle = map.getHandle();
+                                var id = handle.getId();
+                                suggestion.addEntry(new SuggestionEntry(id, Component.text(id)));
+                            });
+                }
+            });
 
     public static final ArgumentString NAME_ARG = new ArgumentString("name");
 

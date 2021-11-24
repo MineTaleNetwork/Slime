@@ -22,8 +22,8 @@ public final class CreateCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::createMap, SINGLE_ID_ARG, NAME_ARG, GAMEMODE_ARG, DIMENSION_ARG);
-        addSyntax(this::createMap, SINGLE_ID_ARG, NAME_ARG, GAMEMODE_ARG);
+        addSyntax(this::createMap, ID_ARG, NAME_ARG, GAMEMODE_ARG, DIMENSION_ARG);
+        addSyntax(this::createMap, ID_ARG, NAME_ARG, GAMEMODE_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
@@ -31,7 +31,7 @@ public final class CreateCommand extends Command {
     }
 
     public void createMap(CommandSender sender, CommandContext context) {
-        var id = context.get(SINGLE_ID_ARG);
+        var id = context.get(ID_AUTO_ARG);
         var name = context.get(NAME_ARG);
         var gamemode = context.get(GAMEMODE_ARG);
         var dimension = NamespaceID.from(context.has(DIMENSION_ARG) ? context.get(DIMENSION_ARG) : "minecraft:overworld");
