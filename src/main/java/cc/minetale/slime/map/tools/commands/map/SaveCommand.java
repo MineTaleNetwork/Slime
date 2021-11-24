@@ -23,7 +23,7 @@ public final class SaveCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map save <id> <saveSettings> <saveBlocks>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map save <saveSettings> <saveBlocks>", MC.CC.GRAY.getTextColor())));
     }
 
     private void saveMap(CommandSender sender, CommandContext context) {

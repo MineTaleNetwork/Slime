@@ -8,7 +8,6 @@ import cc.minetale.magma.MagmaUtils;
 import cc.minetale.slime.Slime;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
@@ -29,14 +28,14 @@ public class GameMap {
 
     @Getter private static final MongoCollection<Document> collection = CommonLib.getCommonLib().getMongoDatabase().getCollection("maps");
 
-    @Getter @Setter(AccessLevel.PROTECTED) protected String id;
+    @Getter protected String id;
 
-    @Getter @Setter(AccessLevel.PROTECTED) protected String name;
-    @Getter @Setter(AccessLevel.PROTECTED) protected String gamemode;
+    @Getter @Setter protected String name;
+    @Getter @Setter protected String gamemode;
 
-    @Setter(AccessLevel.PROTECTED) protected NamespaceID dimension;
+    @Setter protected NamespaceID dimension;
 
-    @Getter @Setter(AccessLevel.PROTECTED) protected Selection playArea;
+    @Getter @Setter protected Selection playArea;
 
     @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
     @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
