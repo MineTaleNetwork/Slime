@@ -1,13 +1,17 @@
 package cc.minetale.slime.map.tools.commands.map;
 
+import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.Slime;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.utils.NamespaceID;
 
-import static cc.minetale.slime.map.tools.commands.MapCommand.*;
+import static cc.minetale.slime.map.tools.commands.MapCommand.DIMENSION_ARG;
+import static cc.minetale.slime.map.tools.commands.MapCommand.NAME_ARG;
 
 public final class ModifyCommand extends Command {
 
@@ -19,30 +23,51 @@ public final class ModifyCommand extends Command {
         setDefaultExecutor(this::defaultExecutor);
 
         var subcmd = new Command("name");
-        subcmd.addSyntax(this::modifyMap, SINGLE_ID_ARG, NAME_ARG);
-        addSubcommand(subcmd);
-
-        subcmd = new Command("gamemode");
-        subcmd.addSyntax(this::modifyMap, SINGLE_ID_ARG, GAMEMODE_ARG);
+        subcmd.setDefaultExecutor((sender, context) -> {
+            sender.sendMessage(MC.Chat.notificationMessage("Map",
+                    Component.text("Usage: /slime map modify name <newName>", MC.CC.GRAY.getTextColor())));
+        });
+        subcmd.addSyntax(this::modifyMap, NAME_ARG);
         addSubcommand(subcmd);
 
         subcmd = new Command("dimension");
-        subcmd.addSyntax(this::modifyMap, SINGLE_ID_ARG, DIMENSION_ARG);
+        subcmd.setDefaultExecutor((sender, context) -> {
+            sender.sendMessage(MC.Chat.notificationMessage("Map",
+                    Component.text("Usage: /slime map modify dimension <newDimensionId>", MC.CC.GRAY.getTextColor())));
+        });
+        subcmd.addSyntax(this::modifyMap, DIMENSION_ARG);
         addSubcommand(subcmd);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map modify <id|name|gamemode|dimension|bounds>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.Chat.notificationMessage("Map",
+                Component.text("Usage: /slime map modify <name|dimension|bounds> ...",
+                        MC.CC.GRAY.getTextColor())));
     }
 
     public void modifyMap(CommandSender sender, CommandContext context) {
-        String id = context.get(SINGLE_ID_ARG);
+        var builder = Utils.getSenderAsBuilder(sender);
+        if(builder == null) { return; }
 
+        var instance = builder.getInstance();
 
-
-        if(context.has(NEW_ID_ARG)) {
-
+        var oMap = Slime.TOOL_MANAGER.getMapByInstance(instance);
+        if(oMap.isEmpty()) {
+            sender.sendMessage(MC.Chat.notificationMessage("Map",
+                    Component.text("Something went wrong when looking up the map you're currently in.", MC.CC.RED.getTextColor())));
+            return;
         }
+        var map = oMap.get();
+
+        var handle = map.getHandle();
+
+        if(context.has(NAME_ARG)) {
+            handle.setName(context.get(NAME_ARG));
+        } else if(context.has(DIMENSION_ARG)) {
+            handle.setDimension(NamespaceID.from(context.get(DIMENSION_ARG)));
+        }
+
+        //TODO Editable bounds
     }
 
 }
