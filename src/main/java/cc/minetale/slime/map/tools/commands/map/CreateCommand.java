@@ -46,13 +46,14 @@ public final class CreateCommand extends Command {
             return;
         }
 
-        if(TOOL_MANAGER.mapExists(id, gamemode, true, true)) {
+        if(TOOL_MANAGER.mapExists(gamemode, id, true, true)) {
             sender.sendMessage(MC.Chat.notificationMessage("Map",
                     Component.text("Map with ID \"" + gamemode + ":" + id + "\" already exists.\n" +
-                            "Remove it with \"/slime map remove " + gamemode + " " + id + "\" or alternatively you can load an existing one using \"/slime map load\".", MC.CC.RED.getTextColor())));
+                            "Remove it with \"/slime map remove\" or alternatively you can load an existing one using \"/slime map load\".", MC.CC.RED.getTextColor())));
+            return;
         }
 
-        var oGame = Slime.TOOL_MANAGER.getGame(gamemode);
+        var oGame = TOOL_MANAGER.getGame(gamemode);
         if(oGame.isEmpty()) {
             sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Cannot find the gamemode! " +
                     "Make sure you typed in the name correctly and the gamemode is installed.", MC.CC.RED.getTextColor())));

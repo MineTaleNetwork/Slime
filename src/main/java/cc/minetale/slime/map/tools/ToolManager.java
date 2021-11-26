@@ -156,7 +156,7 @@ public class ToolManager {
             return true;
         }
 
-        if(database) { return MapUtil.isInDatabase(id, gamemode); }
+        if(database) { return MapUtil.isInDatabase(gamemode, id); }
 
         return false;
     }
