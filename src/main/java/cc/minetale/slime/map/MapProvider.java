@@ -13,12 +13,12 @@ public interface MapProvider<T extends GameMap> {
         }
 
         @Override
-        public @NotNull GameMap createMap() {
+        public @NotNull GameMap emptyMap() {
             return new GameMap();
         }
     };
 
     @NotNull T createMap(String id, String name, String gamemode, NamespaceID dimension, Selection playArea);
-    @NotNull T createMap();
+    @NotNull T emptyMap();
 
 }

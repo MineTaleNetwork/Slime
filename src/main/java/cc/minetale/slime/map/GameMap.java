@@ -65,7 +65,7 @@ public class GameMap {
     }
 
     public static <T extends GameMap> T fromBoth(String gamemode, String id, MapProvider<T> mapProvider) {
-        var map = mapProvider.createMap();
+        var map = mapProvider.emptyMap();
 
         var document = collection.find(GameMap.getFilter(gamemode, id)).first();
 
