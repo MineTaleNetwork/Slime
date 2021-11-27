@@ -61,7 +61,15 @@ public final class LoadCommand extends Command {
         }
 
         var tempMap = TempMap.ofMap(map, true);
-        Slime.TOOL_MANAGER.addMap(tempMap);
+        var result = Slime.TOOL_MANAGER.addMap(tempMap);
+
+        if(result) {
+            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text(
+                    "Successfully loaded \"" + gamemode + ":" + id + "\".", MC.CC.GREEN.getTextColor())));
+        } else {
+            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text(
+                    "There was a problem loading \"" + gamemode + ":" + id + "\".", MC.CC.RED.getTextColor())));
+        }
     }
 
 }

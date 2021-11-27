@@ -40,7 +40,11 @@ public final class TeleportCommand extends Command {
             return;
         }
 
-        builder.setInstance(tempMap.get().getInstance(), Pos.ZERO);
+        builder.setInstance(tempMap.get().getInstance(), Pos.ZERO)
+                .thenAccept(v -> {
+                    sender.sendMessage(MC.Chat.notificationMessage("Map",
+                            Component.text("You've been teleported to \"" + gamemode + ":" + id + "\".", MC.CC.GREEN.getTextColor())));
+                });
     }
 
 }

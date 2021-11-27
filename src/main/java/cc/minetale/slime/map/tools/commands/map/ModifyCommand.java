@@ -62,9 +62,23 @@ public final class ModifyCommand extends Command {
         var handle = map.getHandle();
 
         if(context.has(NAME_ARG)) {
-            handle.setName(context.get(NAME_ARG));
+            var newName = context.get(NAME_ARG);
+            handle.setName(newName);
+            sender.sendMessage(MC.Chat.notificationMessage("Map",
+                    Component.text("Successfully changed the name of \"" + handle.getGamemode() + ":" + handle.getId() + "\" to \"" + newName + "\".",
+                            MC.CC.GREEN.getTextColor())
+                            .append(Component.newline())
+                            .append(Component.text("Make sure to save the map with \"/slime map save\".",
+                                    MC.CC.YELLOW.getTextColor()))));
         } else if(context.has(DIMENSION_ARG)) {
-            handle.setDimension(NamespaceID.from(context.get(DIMENSION_ARG)));
+            var newDimension = context.get(DIMENSION_ARG);
+            handle.setDimension(NamespaceID.from(newDimension));
+            sender.sendMessage(MC.Chat.notificationMessage("Map",
+                    Component.text("Successfully changed the dimension of \"" + handle.getGamemode() + ":" + handle.getId() + "\" to \"" + newDimension + "\".",
+                            MC.CC.GREEN.getTextColor())
+                            .append(Component.newline())
+                            .append(Component.text("Make sure to save the map with \"/slime map save\".",
+                                    MC.CC.YELLOW.getTextColor()))));
         }
 
         //TODO Editable bounds

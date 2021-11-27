@@ -4,7 +4,6 @@ import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.tools.TempMap;
-import cc.minetale.slime.map.tools.ToolManager;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
@@ -14,8 +13,6 @@ import net.minestom.server.utils.NamespaceID;
 import static cc.minetale.slime.map.tools.commands.MapCommand.*;
 
 public final class CreateCommand extends Command {
-
-    public static final ToolManager TOOL_MANAGER = Slime.TOOL_MANAGER;
 
     public CreateCommand() {
         super("create");
@@ -72,7 +69,7 @@ public final class CreateCommand extends Command {
                 Component.text("Successfully created a map with ID \"" + gamemode + ":" + id + "\".", MC.CC.GREEN.getTextColor())
                         .append(Component.newline())
                         .append(Component.text(
-                                "- Make sure to save your map with \"/map save\" when you're finished.\n" +
+                                "- Make sure to save your map with \"/slime map save\" when you're finished.\n" +
                                         "- It is currently not in the database and inaccessible by players, but you can change that with \"/slime map open\" after saving.", MC.CC.YELLOW.getTextColor()))));
     }
 
