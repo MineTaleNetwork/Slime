@@ -8,6 +8,8 @@ import cc.minetale.magma.MagmaUtils;
 import cc.minetale.slime.Slime;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
@@ -40,9 +42,10 @@ public class GameMap {
     @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
     @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
 
+    private boolean isOpen;
+
     protected GameMap() {}
 
-    //TODO Block usage by setting to private and only allow to load from database through GameMap#
     public GameMap(String id, String name, String gamemode, NamespaceID dimension, Selection playArea) {
         this.id = id;
 
@@ -93,7 +96,7 @@ public class GameMap {
     }
 
     //TODO Use SeaweedFS in production
-    public Path getFilePath() {
+    public final Path getFilePath() {
         return MagmaUtils.getDefaultLocation(this.id);
     }
 
@@ -104,6 +107,12 @@ public class GameMap {
     //TODO Make functional with our own Dimension registry
     public DimensionType getDimension() {
         return DimensionType.OVERWORLD;
+    }
+
+    public final UpdateResult setStatus(boolean isOpen) {
+        this.isOpen = isOpen;
+        return GameMap.getCollection()
+                .updateOne(getFilter(), Updates.set("status", isOpen));
     }
 
     protected void load(Document document) {
@@ -129,6 +138,8 @@ public class GameMap {
                             pos.get("yaw", Float.class),
                             pos.get("pitch", Float.class)));
         }
+
+        this.isOpen = document.getBoolean("isOpen", false);
     }
 
     public Document toDocument() {
@@ -155,6 +166,8 @@ public class GameMap {
             pointsDocument.put(ent.getKey(), Utils.positionToDocument(point));
         }
         document.put("points", pointsDocument);
+
+        document.put("isOpen", this.isOpen);
 
         return document;
     }
