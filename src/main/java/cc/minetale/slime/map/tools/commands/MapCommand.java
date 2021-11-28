@@ -64,6 +64,7 @@ public final class MapCommand extends Command {
         addSubcommand(new SaveCommand());
 
         addSubcommand(new ListCommand());
+        addSubcommand(new InfoCommand());
 
         addSubcommand(new LoadCommand());
         addSubcommand(new UnloadCommand());
@@ -75,7 +76,7 @@ public final class MapCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map <create|modify|remove|save|list|load|unload|open|close|tp>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map <create|modify|remove|save|list|info|load|unload|open|close|tp>", MC.CC.GRAY.getTextColor())));
     }
 
 }
