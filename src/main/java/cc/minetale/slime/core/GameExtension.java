@@ -4,12 +4,14 @@ import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.MapProvider;
 import cc.minetale.slime.team.GameTeam;
+import cc.minetale.slime.team.ITeamType;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.extensions.Extension;
 import net.minestom.server.instance.SharedInstance;
 import net.minestom.server.network.PlayerProvider;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class GameExtension extends Extension {
@@ -23,6 +25,8 @@ public abstract class GameExtension extends Extension {
     public abstract PlayerProvider getPlayerProvider();
     public abstract Supplier<GameTeam> getTeamProvider();
     public abstract MapProvider<GameMap> getMapProvider();
+
+    public abstract List<? extends ITeamType> getTeamTypes();
 
     public abstract int getMinPlayers();
     public abstract int getMaxPlayers();

@@ -25,6 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import static cc.minetale.slime.Slime.TOOL_MANAGER;
+
 public class GameMap {
 
     @Getter private static final MongoCollection<Document> collection = CommonLib.getCommonLib().getMongoDatabase().getCollection("maps");
@@ -38,8 +40,7 @@ public class GameMap {
 
     @Getter @Setter protected Selection playArea;
 
-    @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
-    @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
+    @Getter private final Map<String, SpawnPoint> spawnPoints = new ConcurrentHashMap<>();
 
     @Getter private boolean isOpen;
 
@@ -94,6 +95,22 @@ public class GameMap {
         return MagmaLoader.create(getFilePath()).thenAccept(instance::setChunkLoader);
     }
 
+    public SpawnPoint getSpawnPoint(String id) {
+        return this.getSpawnPoints().get(id);
+    }
+
+    public void addSpawnPoint(SpawnPoint spawnPoint) {
+        this.spawnPoints.put(spawnPoint.getId(), spawnPoint);
+    }
+
+    public void removeSpawnPoint(String spawnId) {
+        this.spawnPoints.remove(spawnId);
+    }
+
+    public void removeSpawnPoint(SpawnPoint spawnPoint) {
+        removeSpawnPoint(spawnPoint.getId());
+    }
+
     //TODO Use SeaweedFS in production
     public final Path getFilePath() {
         return MagmaUtils.getDefaultLocation(this.id);
@@ -124,18 +141,10 @@ public class GameMap {
 
         this.playArea = Selection.fromDocument(document.get("playArea", Document.class));
 
-        for(Map.Entry<String, Object> ent : document.get("zones", Document.class).entrySet()) {
-            this.zones.put(ent.getKey(), new Zone((Document) ent.getValue()));
-        }
+        var game = TOOL_MANAGER.isEnabled() ? TOOL_MANAGER.getGame(this.gamemode).orElse(null) : Slime.getActiveGame();
 
-        for(Map.Entry<String, Object> ent : document.get("points", Document.class).entrySet()) {
-            var pos = (Document) ent.getValue();
-            this.points.put(ent.getKey(),
-                    new Pos(pos.getDouble("x"),
-                            pos.getDouble("y"),
-                            pos.getDouble("z"),
-                            pos.get("yaw", Float.class),
-                            pos.get("pitch", Float.class)));
+        for(Map.Entry<String, Object> ent : document.get("spawnPoints", Document.class).entrySet()) {
+            this.spawnPoints.put(ent.getKey(), SpawnPoint.fromDocument((Document) ent.getValue(), game));
         }
 
         this.isOpen = document.getBoolean("isOpen", false);
@@ -152,19 +161,12 @@ public class GameMap {
 
         document.put("playArea", this.playArea.toDocument());
 
-        var zonesDocument = new Document();
-        for (Map.Entry<String, Zone> ent : this.zones.entrySet()) {
-            var zone = ent.getValue();
-            zonesDocument.put(ent.getKey(), zone.toDocument());
+        Document spawnPointsDocument = new Document();
+        for (Map.Entry<String, SpawnPoint> ent : this.spawnPoints.entrySet()) {
+            var spawnPoint = ent.getValue();
+            spawnPointsDocument.put(ent.getKey(), spawnPoint.toDocument());
         }
-        document.put("zones", zonesDocument);
-
-        var pointsDocument = new Document();
-        for (Map.Entry<String, Pos> ent : this.points.entrySet()) {
-            var point = ent.getValue();
-            pointsDocument.put(ent.getKey(), Utils.positionToDocument(point));
-        }
-        document.put("points", pointsDocument);
+        document.put("spawnPoints", spawnPointsDocument);
 
         document.put("isOpen", this.isOpen);
 
