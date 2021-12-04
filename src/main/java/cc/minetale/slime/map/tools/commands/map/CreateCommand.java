@@ -19,16 +19,17 @@ public final class CreateCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::createMap, ID_ARG, NAME_ARG, GAMEMODE_ARG, DIMENSION_ARG);
-        addSyntax(this::createMap, ID_ARG, NAME_ARG, GAMEMODE_ARG);
+        addSyntax(this::createMap, MAP_ARG, NAME_ARG, GAMEMODE_ARG, DIMENSION_ARG);
+        addSyntax(this::createMap, MAP_ARG, NAME_ARG, GAMEMODE_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map create <id> <name> <gamemodeId> [dimensionId]", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map create <id> <name> <gamemodeId> [dimensionId]",
+                MC.CC.GRAY.getTextColor())));
     }
 
     public void createMap(CommandSender sender, CommandContext context) {
-        var id = context.get(ID_AUTO_ARG);
+        var id = context.get(MAP_AUTO_ARG);
         var name = context.get(NAME_ARG);
         var gamemode = context.get(GAMEMODE_ARG);
         var dimension = NamespaceID.from(context.has(DIMENSION_ARG) ? context.get(DIMENSION_ARG) : "minecraft:overworld");
@@ -70,7 +71,8 @@ public final class CreateCommand extends Command {
                         .append(Component.newline())
                         .append(Component.text(
                                 "- Make sure to save your map with \"/slime map save\" when you're finished.\n" +
-                                        "- It is currently not in the database and inaccessible by players, but you can change that with \"/slime map open\" after saving.", MC.CC.YELLOW.getTextColor()))));
+                                        "- It is currently not in the database and inaccessible by players, but you can change that with \"/slime map open\" after saving.",
+                                MC.CC.YELLOW.getTextColor()))));
     }
 
 }

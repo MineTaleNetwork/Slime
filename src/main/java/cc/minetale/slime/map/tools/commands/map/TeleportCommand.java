@@ -10,7 +10,7 @@ import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.coordinate.Pos;
 
 import static cc.minetale.slime.map.tools.commands.MapCommand.GAMEMODE_ARG;
-import static cc.minetale.slime.map.tools.commands.MapCommand.ID_AUTO_ARG;
+import static cc.minetale.slime.map.tools.commands.MapCommand.MAP_AUTO_ARG;
 
 public final class TeleportCommand extends Command {
 
@@ -19,7 +19,7 @@ public final class TeleportCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::teleportToMap, GAMEMODE_ARG, ID_AUTO_ARG);
+        addSyntax(this::teleportToMap, GAMEMODE_ARG, MAP_AUTO_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
@@ -28,7 +28,7 @@ public final class TeleportCommand extends Command {
 
     private void teleportToMap(CommandSender sender, CommandContext context) {
         var gamemode = context.get(GAMEMODE_ARG);
-        var id = context.get(ID_AUTO_ARG);
+        var id = context.get(MAP_AUTO_ARG);
 
         var builder = Utils.getSenderAsBuilder(sender);
         if(builder == null) { return; }

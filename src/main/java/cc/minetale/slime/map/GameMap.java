@@ -1,18 +1,17 @@
 package cc.minetale.slime.map;
 
 import cc.minetale.buildingtools.Selection;
-import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaLoader;
 import cc.minetale.magma.MagmaUtils;
 import cc.minetale.slime.Slime;
+import cc.minetale.slime.spawn.SpawnPoint;
+import cc.minetale.slime.utils.MapUtil;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.Setter;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
@@ -42,7 +41,7 @@ public class GameMap {
     @Getter private final Map<String, Zone> zones = new ConcurrentHashMap<>();
     @Getter private final Map<String, Pos> points = new ConcurrentHashMap<>();
 
-    private boolean isOpen;
+    @Getter private boolean isOpen;
 
     protected GameMap() {}
 
@@ -70,7 +69,7 @@ public class GameMap {
     public static <T extends GameMap> T fromBoth(String gamemode, String id, MapProvider<T> mapProvider) {
         var map = mapProvider.emptyMap();
 
-        var document = collection.find(GameMap.getFilter(gamemode, id)).first();
+        var document = collection.find(MapUtil.getFilter(gamemode, id)).first();
 
         if(document == null) { return null; }
         map.load(document);
@@ -172,14 +171,8 @@ public class GameMap {
         return document;
     }
 
-    public static Bson getFilter(String gamemode, String id) {
-        return Filters.and(
-                Filters.eq("_id", id),
-                Filters.eq("gamemode", gamemode));
-    }
-
     public final Bson getFilter() {
-        return GameMap.getFilter(this.gamemode, this.id);
+        return MapUtil.getFilter(this.gamemode, this.id);
     }
 
     @Override

@@ -7,15 +7,12 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
-import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.utils.NamespaceID;
 
 import static cc.minetale.slime.map.tools.commands.MapCommand.DIMENSION_ARG;
 import static cc.minetale.slime.map.tools.commands.MapCommand.NAME_ARG;
 
 public final class ModifyCommand extends Command {
-
-    private static final ArgumentWord NEW_ID_ARG = new ArgumentWord("newId");
 
     public ModifyCommand() {
         super("modify");

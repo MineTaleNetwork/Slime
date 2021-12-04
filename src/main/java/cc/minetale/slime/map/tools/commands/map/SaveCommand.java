@@ -72,12 +72,12 @@ public final class SaveCommand extends Command {
                             .append(Component.text("Settings: ",
                                     MC.CC.GRAY.getTextColor()))
                             .append(Component.text(settingsIncluded ? (settingsSuccess ? "Success" : "Failed") : "Not included",
-                                    settingsIncluded ? (settingsSuccess ? MC.CC.GREEN.getTextColor() : MC.CC.RED.getTextColor()) : MC.CC.DARK_GRAY.getTextColor()))
+                                    settingsIncluded ? (settingsSuccess ? MC.CC.GREEN : MC.CC.RED).getTextColor() : MC.CC.DARK_GRAY.getTextColor()))
                             .append(Component.newline())
                             .append(Component.text("Blocks: ",
                                     MC.CC.GRAY.getTextColor()))
                             .append(Component.text(blocksIncluded ? (blocksSuccess ? "Success" : "Failed") : "Not included",
-                                    blocksIncluded ? (blocksSuccess ? MC.CC.GREEN.getTextColor() : MC.CC.RED.getTextColor()) : MC.CC.DARK_GRAY.getTextColor()))));
+                                    blocksIncluded ? (blocksSuccess ? MC.CC.GREEN : MC.CC.RED).getTextColor() : MC.CC.DARK_GRAY.getTextColor()))));
         });
     }
 

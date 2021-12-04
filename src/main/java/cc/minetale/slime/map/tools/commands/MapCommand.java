@@ -19,8 +19,8 @@ public final class MapCommand extends Command {
     public static final ToolManager TOOL_MANAGER = Slime.TOOL_MANAGER;
 
     //Arguments
-    public static final ArgumentWord ID_ARG = new ArgumentWord("id");
-    public static final ArgumentWord ID_AUTO_ARG = (ArgumentWord) ID_ARG
+    public static final ArgumentWord MAP_ARG = new ArgumentWord("id");
+    public static final ArgumentWord MAP_AUTO_ARG = (ArgumentWord) MAP_ARG
             .setSuggestionCallback((sender, context, suggestion) -> {
                 if(context.has("gamemode")) {
                     String gamemode = context.get("gamemode");
