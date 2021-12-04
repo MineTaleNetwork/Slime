@@ -1,8 +1,8 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.slime.event.game.GameStageChangeEvent;
-import cc.minetale.slime.state.Stage;
 import cc.minetale.slime.state.IStage;
+import cc.minetale.slime.state.Stage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
