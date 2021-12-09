@@ -4,6 +4,7 @@ import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -23,7 +24,8 @@ public final class TeleportCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map tp <gamemode> <id>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime map tp <gamemode> <id>", NamedTextColor.GRAY)));
     }
 
     private void teleportToMap(CommandSender sender, CommandContext context) {
@@ -35,15 +37,15 @@ public final class TeleportCommand extends Command {
 
         var tempMap = Slime.TOOL_MANAGER.getMap(gamemode, id);
         if(tempMap.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Couldn't find a map under this ID, make sure the map exists and is loaded.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Couldn't find a map under this ID, make sure the map exists and is loaded.", NamedTextColor.RED)));
             return;
         }
 
         builder.setInstance(tempMap.get().getInstance(), Pos.ZERO)
                 .thenAccept(v -> {
-                    sender.sendMessage(MC.Chat.notificationMessage("Map",
-                            Component.text("You've been teleported to \"" + gamemode + ":" + id + "\".", MC.CC.GREEN.getTextColor())));
+                    sender.sendMessage(MC.notificationMessage("Map",
+                            Component.text("You've been teleported to \"" + gamemode + ":" + id + "\".", NamedTextColor.GREEN)));
                 });
     }
 

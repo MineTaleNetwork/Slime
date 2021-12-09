@@ -4,6 +4,7 @@ import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -22,8 +23,8 @@ public final class RemoveCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime spawn create <id> [position] [rotation]",
-                MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime spawn create <id> [position] [rotation]", NamedTextColor.GRAY)));
     }
 
     public void createSpawnPoint(CommandSender sender, CommandContext context) {
@@ -36,8 +37,8 @@ public final class RemoveCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -45,20 +46,20 @@ public final class RemoveCommand extends Command {
         var handle = map.getHandle();
 
         if(MapUtil.isSpawnIdAvailable(handle, id)) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Spawn with this ID doesn't exist.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Spawn with this ID doesn't exist.", NamedTextColor.RED)));
             return;
         }
 
-        handle.removeSpawnPoint(id);
+        handle.removeSpawn(id);
 
-        sender.sendMessage(MC.Chat.notificationMessage("Map",
-                Component.text("Successfully removed a spawn with ID \"" + id + "\" at \"" + MapUtil.getFullId(handle) + ".",
-                                MC.CC.GREEN.getTextColor())
-                        .append(Component.newline())
-                        .append(Component.text(
-                                "- Remember to save the map with \"/slime map save\" to keep the change.",
-                                MC.CC.YELLOW.getTextColor()))));
+        sender.sendMessage(MC.notificationMessage("Map", Component.text()
+                .append(Component.text("Successfully removed a spawn with ID \"" + id + "\" at \"" + MapUtil.getFullId(handle) + ".",
+                                NamedTextColor.GREEN),
+                        Component.newline(),
+                        Component.text("- Remember to save the map with \"/slime map save\" to keep the change.",
+                                NamedTextColor.YELLOW))
+                .build()));
     }
 
 }

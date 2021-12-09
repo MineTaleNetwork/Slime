@@ -1,6 +1,5 @@
 package cc.minetale.slime.loadout;
 
-import cc.minetale.commonlib.util.MC;
 import net.minestom.server.color.Color;
 import net.minestom.server.inventory.PlayerInventory;
 import net.minestom.server.item.ItemHideFlag;
@@ -25,13 +24,13 @@ public final class DefaultLoadouts {
         items.set(3, ItemStack.of(Material.EMERALD));
         items.set(4, ItemStack.of(Material.NOTE_BLOCK));
         items.set(5, ItemStack.of(Material.FIREWORK_STAR).withMeta(FireworkEffectMeta.class, meta -> {
-            java.awt.Color color = MC.CC.GREEN.getColor();
+            List<Color> color = Collections.singletonList(new Color(0, 255, 0));
             meta.effect(new FireworkEffect(
                     false,
                     false,
                     FireworkEffectType.SMALL_BALL,
-                    Collections.singletonList(new Color(color.getRed(), color.getGreen(), color.getBlue())),
-                    Collections.singletonList(new Color(color.getRed(), color.getGreen(), color.getBlue()))));
+                    color,
+                    color));
             meta.hideFlag(ItemHideFlag.HIDE_POTION_EFFECTS);
         }));
         items.set(8, ItemStack.of(Material.RED_DYE));

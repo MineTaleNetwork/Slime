@@ -6,6 +6,7 @@ import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.map.tools.ToolManager;
 import cc.minetale.slime.map.tools.commands.map.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -76,7 +77,8 @@ public final class MapCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map <create|modify|remove|save|list|info|load|unload|open|close|tp>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime map <create|modify|remove|save|list|info|load|unload|open|close|tp>", NamedTextColor.GRAY)));
     }
 
 }

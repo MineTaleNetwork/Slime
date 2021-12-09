@@ -1,11 +1,13 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.commonlib.util.MC;
-import cc.minetale.mlib.util.ProfileUtil;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.GameManager;
+import cc.minetale.slime.player.GamePlayer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.event.Event;
@@ -15,11 +17,11 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerRespawnEvent;
 
-import static cc.minetale.slime.state.PlayerState.SPECTATE;
+import static cc.minetale.slime.player.PlayerState.SPECTATE;
 
 public final class MainListener {
 
-    static void registerEvents(GameManager gameManager) {
+    public static void registerEvents(GameManager gameManager) {
         var mainNode = EventNode.all("slime").setPriority(Integer.MAX_VALUE);
         registerDefaultEvents(mainNode, gameManager);
         registerGamePlayerEvents(mainNode, gameManager);
@@ -41,19 +43,21 @@ public final class MainListener {
             }
 
             if(game.addPlayer(player)) {
-                var profile = ProfileUtil.getAssociatedProfile(player).getNow(null);
+                var profile = player.getProfile();
                 if(profile == null) {
                     player.kick("Couldn't join the server.");
                     return;
                 }
 
-                game.sendMessage(Component.text("» ", MC.CC.YELLOW.getTextColor())
-                        .append(profile.api().getChatFormat())
-                        .append(Component.text(" has joined! (", MC.CC.GOLD.getTextColor()))
-                        .append(Component.text(game.getPlayers().size(), MC.CC.YELLOW.getTextColor()))
-                        .append(Component.text("/", MC.CC.GOLD.getTextColor()))
-                        .append(Component.text(Slime.getActiveGame().getMaxPlayers(), MC.CC.YELLOW.getTextColor()))
-                        .append(Component.text(")", MC.CC.GOLD.getTextColor())));
+                game.sendMessage(Component.text().append(
+                        Component.text("» ", NamedTextColor.YELLOW),
+                        profile.getChatFormat(),
+                        Component.text(" has joined! (", NamedTextColor.GOLD),
+                        Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
+                        Component.text("/", NamedTextColor.GOLD),
+                        Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
+                        Component.text(")", NamedTextColor.GOLD))
+                );
             }
 
             event.setSpawningInstance(game.getSpawnInstance(player));
@@ -67,16 +71,18 @@ public final class MainListener {
 
             game.removePlayer(player);
 
-            var profile = ProfileUtil.getAssociatedProfile(player).getNow(null);
+            var profile = player.getProfile();
             if(profile == null) { return; }
 
-            game.sendMessage(Component.text("» ", MC.CC.YELLOW.getTextColor())
-                    .append(profile.api().getChatFormat())
-                    .append(Component.text(" has left! (", MC.CC.GOLD.getTextColor()))
-                    .append(Component.text(game.getPlayers().size(), MC.CC.YELLOW.getTextColor()))
-                    .append(Component.text("/", MC.CC.GOLD.getTextColor()))
-                    .append(Component.text(Slime.getActiveGame().getMaxPlayers(), MC.CC.YELLOW.getTextColor()))
-                    .append(Component.text(")", MC.CC.GOLD.getTextColor())));
+            game.sendMessage(Component.text().append(
+                    Component.text("» ", NamedTextColor.YELLOW),
+                    profile.getChatFormat(),
+                    Component.text(" has left! (", NamedTextColor.GOLD),
+                    Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
+                    Component.text("/", NamedTextColor.GOLD),
+                    Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
+                    Component.text(")", NamedTextColor.GOLD))
+            );
         });
 
         node.addListener(PlayerRespawnEvent.class, event -> {

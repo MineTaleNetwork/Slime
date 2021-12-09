@@ -25,8 +25,16 @@ public class MapUtil {
      * Full ID of a map containing both map's gamemode and ID. <br>
      * It's only used for display purposes.
      */
+    public static String getFullId(String gamemode, String id) {
+        return gamemode + ":" + id;
+    }
+
+    /**
+     * Full ID of a map containing both map's gamemode and ID. <br>
+     * It's only used for display purposes.
+     */
     public static String getFullId(GameMap map) {
-        return map.getGamemode() + ":" + map.getId();
+        return getFullId(map.getGamemode(), map.getId());
     }
 
     public static boolean isSpawnIdAvailable(GameMap map, String spawnId) {

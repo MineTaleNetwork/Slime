@@ -1,7 +1,7 @@
 package cc.minetale.slime.spawn;
 
-import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,41 +9,43 @@ import lombok.Setter;
 
 import java.util.*;
 
+@Getter
 public final class SpawnManager {
 
-    @Getter @Setter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
     private Game game;
 
-    @Getter @Setter private ISpawnStrategy strategy = DefaultStrategy.RANDOM;
+    @Setter private ISpawnStrategy strategy = DefaultStrategy.RANDOM;
 
-    @Getter private Map<GameTeam, List<SpawnPoint>> spawnPoints = Collections.synchronizedMap(new HashMap<>());
+    private Map<GameTeam, List<Spawn>> spawns = Collections.synchronizedMap(new HashMap<>());
 
-    public List<SpawnPoint> getSpawnPointsFor(GameTeam team) {
-        return this.spawnPoints.computeIfAbsent(team, key -> Collections.synchronizedList(new ArrayList<>()));
+    public List<Spawn> getSpawnsFor(GameTeam team) {
+        return this.spawns.computeIfAbsent(team, key -> Collections.synchronizedList(new ArrayList<>()));
     }
 
-    public void addSpawnPoint(GameTeam team, SpawnPoint spawnpoint) {
-        spawnpoint.getOwners().add(team);
+    public void addSpawn(Spawn spawn) {
+        Set<GameTeam> owners = spawn.getOwners();
+        for(GameTeam owner : owners) {
+            this.spawns.compute(owner, (key, value) -> {
+                List<Spawn> spawns = Objects.requireNonNullElse(value, new ArrayList<>());
+                spawns.add(spawn);
 
-        this.spawnPoints.compute(team, (key, value) -> {
-            List<SpawnPoint> spawnPoints = Objects.requireNonNullElse(value, new ArrayList<>());
-            spawnPoints.add(spawnpoint);
-
-            return spawnPoints;
-        });
-    }
-
-    public void removeSpawnPoint(SpawnPoint spawnpoint) {
-        Set<GameTeam> owners = spawnpoint.getOwners();
-        for(var owner : owners) {
-            List<SpawnPoint> spawnPoints = this.spawnPoints.get(owner);
-            if(spawnPoints == null) { continue; }
-
-            spawnPoints.remove(spawnpoint);
+                return spawns;
+            });
         }
     }
 
-    public SpawnPoint findSpawnPoint(GamePlayer player) {
+    public void removeSpawn(Spawn spawn) {
+        Set<GameTeam> owners = spawn.getOwners();
+        for(var owner : owners) {
+            List<Spawn> spawns = this.spawns.get(owner);
+            if(spawns == null) { continue; }
+
+            spawns.remove(spawn);
+        }
+    }
+
+    public Spawn findSpawn(GamePlayer player) {
         return this.strategy.find(this, player);
     }
 

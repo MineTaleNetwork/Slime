@@ -1,6 +1,6 @@
 package cc.minetale.slime.team;
 
-import cc.minetale.commonlib.util.MC;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.item.Material;
 
 /**
@@ -9,7 +9,7 @@ import net.minestom.server.item.Material;
  * for example "Zombies" and "Civilians".
  */
 public interface ITeamType {
-    MC.CC getColor();
+    NamedTextColor getColor();
 
     String getId();
 

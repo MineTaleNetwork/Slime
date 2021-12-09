@@ -2,7 +2,9 @@ package cc.minetale.slime.map.tools.commands.map;
 
 import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -26,8 +28,8 @@ public final class InfoCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -35,29 +37,30 @@ public final class InfoCommand extends Command {
         var handle = map.getHandle();
 
         var playArea = handle.getPlayArea();
-        sender.sendMessage(MC.Chat.notificationMessage("Map",
-                Component.text("Displaying information for \"" + handle.getGamemode() + ":" + handle.getId() +"\":")
-                    .append(Component.newline())
-                    .append(Component.text("ID: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(handle.getId(), MC.CC.WHITE.getTextColor())))
-                    .append(Component.newline())
-                    .append(Component.text("Gamemode: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(handle.getGamemode(), MC.CC.WHITE.getTextColor())))
-                    .append(Component.newline())
-                    .append(Component.text("Name: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(handle.getName(), MC.CC.WHITE.getTextColor())))
-                    .append(Component.newline())
-                    .append(Component.text("IsOpen: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(handle.isOpen(), (handle.isOpen() ? MC.CC.GREEN : MC.CC.RED).getTextColor())))
-                    .append(Component.newline())
-                    .append(Component.newline())
-                    .append(Component.text("Dimension: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(handle.getDimensionID().asString(), MC.CC.WHITE.getTextColor())))
-                    .append(Component.newline())
-                    .append(Component.text("PlayArea: ", MC.CC.GRAY.getTextColor())
-                            .append(Component.text(playArea.getLengthX() + "x" + playArea.getLengthY() + "x" + playArea.getLengthZ(), MC.CC.WHITE.getTextColor())))
-                )
-        );
+        //TODO Update and include more info
+        sender.sendMessage(MC.notificationMessage("Map", Component.text()
+                .append(Component.text("Displaying information for \"" + MapUtil.getFullId(handle) + "\":"),
+                        Component.newline(),
+                        Component.text("ID: ", NamedTextColor.GRAY)
+                                .append(Component.text(handle.getId(), NamedTextColor.WHITE)),
+                        Component.newline(),
+                        Component.text("Gamemode: ", NamedTextColor.GRAY)
+                                .append(Component.text(handle.getGamemode(), NamedTextColor.WHITE)),
+                        Component.newline(),
+                        Component.text("Name: ", NamedTextColor.GRAY)
+                                .append(Component.text(handle.getName(), NamedTextColor.WHITE)),
+                        Component.newline(),
+                        Component.text("IsOpen: ", NamedTextColor.GRAY)
+                                .append(Component.text(handle.isOpen(), handle.isOpen() ? NamedTextColor.GREEN : NamedTextColor.RED)),
+                        Component.newline(),
+                        Component.newline(),
+                        Component.text("Dimension: ", NamedTextColor.GRAY)
+                                .append(Component.text(handle.getDimensionID().asString(), NamedTextColor.WHITE)),
+                        Component.newline(),
+                        Component.text("PlayArea: ", NamedTextColor.GRAY)
+                                .append(Component.text(playArea.getLengthX() + "x" + playArea.getLengthY() + "x" + playArea.getLengthZ(),
+                                        NamedTextColor.WHITE)))
+                .build()));
     }
 
 }

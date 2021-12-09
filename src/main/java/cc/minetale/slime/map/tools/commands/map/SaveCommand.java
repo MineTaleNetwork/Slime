@@ -3,6 +3,7 @@ package cc.minetale.slime.map.tools.commands.map;
 import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.util.TriState;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
@@ -27,7 +28,7 @@ public final class SaveCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map save <saveSettings> <saveBlocks>", MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map", Component.text("Usage: /slime map save <saveSettings> <saveBlocks>", NamedTextColor.GRAY)));
     }
 
     private void saveMap(CommandSender sender, CommandContext context) {
@@ -41,8 +42,8 @@ public final class SaveCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -65,19 +66,18 @@ public final class SaveCommand extends Command {
 
             var blocksIncluded = blocksResult != TriState.NOT_SET;
             var blocksSuccess = blocksResult == TriState.TRUE;
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("You've saved map " + map.getGame().getId() + ":" + map.getHandle().getId() + "...",
-                                    MC.CC.YELLOW.getTextColor())
-                            .append(Component.newline())
-                            .append(Component.text("Settings: ",
-                                    MC.CC.GRAY.getTextColor()))
-                            .append(Component.text(settingsIncluded ? (settingsSuccess ? "Success" : "Failed") : "Not included",
-                                    settingsIncluded ? (settingsSuccess ? MC.CC.GREEN : MC.CC.RED).getTextColor() : MC.CC.DARK_GRAY.getTextColor()))
-                            .append(Component.newline())
-                            .append(Component.text("Blocks: ",
-                                    MC.CC.GRAY.getTextColor()))
-                            .append(Component.text(blocksIncluded ? (blocksSuccess ? "Success" : "Failed") : "Not included",
-                                    blocksIncluded ? (blocksSuccess ? MC.CC.GREEN : MC.CC.RED).getTextColor() : MC.CC.DARK_GRAY.getTextColor()))));
+            sender.sendMessage(MC.notificationMessage("Map", Component.text()
+                            .append(Component.text("You've saved map " + map.getGame().getId() + ":" + map.getHandle().getId() + "...",
+                                            NamedTextColor.YELLOW),
+                                    Component.newline(),
+                                    Component.text("Settings: ", NamedTextColor.GRAY),
+                                    Component.text(settingsIncluded ? (settingsSuccess ? "Success" : "Failed") : "Not included",
+                                            settingsIncluded ? (settingsSuccess ? NamedTextColor.GREEN : NamedTextColor.RED) : NamedTextColor.DARK_GRAY),
+                                    Component.newline(),
+                                    Component.text("Blocks: ", NamedTextColor.GRAY),
+                                    Component.text(blocksIncluded ? (blocksSuccess ? "Success" : "Failed") : "Not included",
+                                            blocksIncluded ? (blocksSuccess ? NamedTextColor.GREEN : NamedTextColor.RED) : NamedTextColor.DARK_GRAY)
+                            ).build()));
         });
     }
 

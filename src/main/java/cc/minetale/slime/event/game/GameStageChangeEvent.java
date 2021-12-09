@@ -1,8 +1,8 @@
 package cc.minetale.slime.event.game;
 
-import cc.minetale.slime.core.Game;
+import cc.minetale.slime.game.Game;
 import cc.minetale.slime.event.trait.GameEvent;
-import cc.minetale.slime.state.IStage;
+import cc.minetale.slime.game.IStage;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.trait.CancellableEvent;

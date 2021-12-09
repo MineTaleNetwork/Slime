@@ -1,17 +1,16 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.slime.event.game.GameStageChangeEvent;
-import cc.minetale.slime.state.IStage;
-import cc.minetale.slime.state.Stage;
-import lombok.AccessLevel;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.IStage;
+import cc.minetale.slime.game.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.EventDispatcher;
 
 public class GameState {
 
-    @Getter @Setter(AccessLevel.PACKAGE)
-    private Game game;
+    @Getter @Setter private Game game;
 
     @Getter protected IStage stage = Stage.IN_LOBBY;
 

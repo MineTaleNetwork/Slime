@@ -1,5 +1,8 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.game;
 
+import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.core.GameLobby;
+import cc.minetale.slime.core.MainListener;
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
 import lombok.Getter;

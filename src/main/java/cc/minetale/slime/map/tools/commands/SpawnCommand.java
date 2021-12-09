@@ -7,6 +7,7 @@ import cc.minetale.slime.map.tools.commands.spawn.CreateCommand;
 import cc.minetale.slime.map.tools.commands.spawn.RemoveCommand;
 import cc.minetale.slime.team.ITeamType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -68,9 +69,8 @@ public class SpawnCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map",
-                Component.text("Usage: /slime map modify <name|dimension|bounds> ...",
-                        MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime map modify <name|dimension|bounds> ...", NamedTextColor.GRAY)));
     }
 
 }

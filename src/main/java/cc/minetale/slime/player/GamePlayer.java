@@ -1,16 +1,16 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.player;
 
+import cc.minetale.flame.util.FlamePlayer;
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeReadable;
 import cc.minetale.slime.attribute.IAttributeWritable;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.core.GameLobby;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
-import cc.minetale.slime.spawn.SpawnPoint;
-import cc.minetale.slime.state.IPlayerState;
+import cc.minetale.slime.spawn.Spawn;
 import cc.minetale.slime.team.GameTeam;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -22,13 +22,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Getter
-public class GamePlayer extends Player implements IAttributeReadable, IAttributeWritable {
+public class GamePlayer extends FlamePlayer implements IAttributeReadable, IAttributeWritable {
 
-    @Setter(AccessLevel.PACKAGE)
-    private Game game;
+    @Setter private Game game;
 
-    @Nullable @Setter(AccessLevel.PACKAGE)
-    private GameLobby lobby;
+    @Nullable @Setter private GameLobby lobby;
 
     private final Map<Attribute, Object> attributes;
 
@@ -38,7 +36,7 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
 
     private IPlayerState state;
 
-    protected SpawnPoint currentSpawn; //Spawnpoint this player spawned from last
+    protected Spawn currentSpawn; //Spawnpoint this player spawned from last
     @Setter protected GameTeam gameTeam;
 
     public GamePlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
@@ -61,8 +59,8 @@ public class GamePlayer extends Player implements IAttributeReadable, IAttribute
         setGameMode(state.getGamemode());
     }
 
-    public final void setCurrentSpawn(@NotNull SpawnPoint spawnPoint) {
-        this.currentSpawn = spawnPoint;
+    public final void setCurrentSpawn(@NotNull Spawn spawn) {
+        this.currentSpawn = spawn;
         setRespawnPoint(this.currentSpawn.getPosition());
     }
 

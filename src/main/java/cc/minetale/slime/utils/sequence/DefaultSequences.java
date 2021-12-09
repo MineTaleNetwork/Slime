@@ -1,10 +1,10 @@
 package cc.minetale.slime.utils.sequence;
 
-import cc.minetale.commonlib.util.MC;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
@@ -37,14 +37,16 @@ public final class DefaultSequences {
             .title(1000, getCountdownTitle("1"));
 
     @NotNull private static Title getCountdownTitle(String count) {
-        return Title.title(Component.text(count, MC.CC.GOLD.getTextColor(), TextDecoration.BOLD), Component.empty(), INSTANT);
+        return Title.title(Component.text(count, NamedTextColor.GOLD, TextDecoration.BOLD), Component.empty(), INSTANT);
     }
 
     @NotNull private static TextComponent getCountdownComponent(String count, boolean plural) {
-        return Component.text("» ", MC.CC.YELLOW.getTextColor())
-                .append(Component.text("Starting in ", MC.CC.GOLD.getTextColor()))
-                .append(Component.text(count, MC.CC.YELLOW.getTextColor()))
-                .append(Component.text(plural ? " seconds..." : " second...", MC.CC.GOLD.getTextColor()));
+        return Component.text()
+                .append(Component.text("» ", NamedTextColor.YELLOW),
+                        Component.text("Starting in ", NamedTextColor.GOLD),
+                        Component.text(count, NamedTextColor.YELLOW),
+                        Component.text(plural ? " seconds..." : " second...", NamedTextColor.GOLD))
+                .build();
     }
 
 }

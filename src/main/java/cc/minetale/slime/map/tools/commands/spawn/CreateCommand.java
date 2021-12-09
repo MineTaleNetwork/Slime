@@ -2,10 +2,11 @@ package cc.minetale.slime.map.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
-import cc.minetale.slime.spawn.SpawnPoint;
+import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.utils.MapUtil;
 import cc.minetale.slime.utils.MiscUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -28,8 +29,8 @@ public final class CreateCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime spawn create <id> [position] [rotation]",
-                MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime spawn create <id> [position] [rotation]", NamedTextColor.GRAY)));
     }
 
     public void createSpawnPoint(CommandSender sender, CommandContext context) {
@@ -44,8 +45,8 @@ public final class CreateCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -53,25 +54,25 @@ public final class CreateCommand extends Command {
         var handle = map.getHandle();
 
         if(!MapUtil.isSpawnIdAvailable(handle, id)) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
+            sender.sendMessage(MC.notificationMessage("Map",
                     Component.text("Spawn with this ID already exists.\n" +
-                            "You can either remove it with \"/slime spawn remove\" or edit it with other commands.", MC.CC.RED.getTextColor())));
+                            "You can either remove it with \"/slime spawn remove\" or edit it with other commands.", NamedTextColor.RED)));
             return;
         }
 
-        var spawn = new SpawnPoint(id, pos, null);
-        handle.addSpawnPoint(spawn);
+        var spawn = new BaseSpawn(id, pos);
+        handle.addSpawn(spawn);
 
-        sender.sendMessage(MC.Chat.notificationMessage("Map",
+        sender.sendMessage(MC.notificationMessage("Map",
                 Component.text("Successfully created a spawn with ID \"" + id + "\" for \"" + MapUtil.getFullId(handle) + "\"." +
-                                "At " + MiscUtil.toString(pos), MC.CC.GREEN.getTextColor())
+                                "At " + MiscUtil.toString(pos), NamedTextColor.GREEN)
                         .append(Component.newline())
                         .append(Component.text(
                                 "- This spawn doesn't have any owners and because of this is available for any team." +
                                         "You can change that with \"/slime spawn owner\" commands.\n" +
                                         "- It is currently not in the database and inaccessible by players," +
                                         "but you can change that with \"/slime map open\" after saving.",
-                                MC.CC.YELLOW.getTextColor()))));
+                                NamedTextColor.YELLOW))));
     }
 
 }

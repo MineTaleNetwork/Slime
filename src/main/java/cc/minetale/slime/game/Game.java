@@ -1,19 +1,24 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.game;
 
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
+import cc.minetale.slime.core.GameInstance;
+import cc.minetale.slime.core.GameLobby;
+import cc.minetale.slime.core.GameState;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
-import cc.minetale.slime.event.team.GameTeamAssignEvent;
+import cc.minetale.slime.event.team.GameSetupTeamsEvent;
 import cc.minetale.slime.loadout.Loadout;
+import cc.minetale.slime.player.GamePlayer;
+import cc.minetale.slime.spawn.Spawn;
 import cc.minetale.slime.spawn.SpawnManager;
-import cc.minetale.slime.spawn.SpawnPoint;
-import cc.minetale.slime.state.Stage;
 import cc.minetale.slime.team.GameTeam;
+import cc.minetale.slime.team.TeamManager;
+import cc.minetale.slime.utils.TeamUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,39 +47,39 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
 
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
-    @Getter @Setter protected Instance mainInstance;
-    @Getter protected final Map<String, Instance> instances = new ConcurrentHashMap<>();
+    @Getter @Setter protected GameInstance mainInstance;
+    @Getter protected final Map<String, GameInstance> instances = new ConcurrentHashMap<>();
 
     @Getter protected final List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
 
-    @Getter protected List<GameTeam> teams;
-
     @Getter protected final SpawnManager spawnManager = new SpawnManager();
+    @Getter protected final TeamManager teamManager = new TeamManager();
 
     protected Game(@NotNull GameState state) {
         state.setGame(this);
         this.state = state;
+    }
 
-        this.mainInstance = INSTANCE_MANAGER.createInstanceContainer();
+    public void setup() {
+        //Setup
+        var map = Slime.getActiveGame().getGameMap();
+//        this.mainInstance =;
     }
 
     /**
      * Called after the countdown ends during {@linkplain Stage#STARTING} while in the lobby.
      */
     public void start() {
-        this.players.addAll(this.lobby.players);
+        this.players.addAll(this.lobby.getPlayers());
 
         //Assign players to their teams
-        var teamAssignEvent = new GameTeamAssignEvent(this, this.players);
-        EventDispatcher.call(teamAssignEvent);
-
-        assignTeams();
+        setupTeams();
 
         this.players.forEach(player -> {
-            var spawnEvent = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawnPoint(player));
+            var spawnEvent = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawn(player));
             EventDispatcher.call(spawnEvent);
 
-            var spawnPoint = spawnEvent.getSpawnPoint();
+            var spawnPoint = spawnEvent.getSpawn();
             if(spawnPoint == null)
                 throw new NullPointerException("Couldn't find a spawnpoint for GamePlayer \"" +
                         player.getUsername() + "\" with the \"" + player.getGameTeam().getType().getId() + "\" GameTeam.");
@@ -85,6 +90,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
             player.setInstance(spawnPoint.getInstance(), spawnPoint.getPosition());
         });
 
+        //TODO Should removing a lobby be done from itself?
         this.lobby.remove();
         this.lobby = null;
 
@@ -174,22 +180,36 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
         if(this.state.inLobby())
             return this.lobby.getInstance();
 
-        SpawnPoint spawnPoint = this.spawnManager.findSpawnPoint(player);
-        player.setCurrentSpawn(spawnPoint);
+        Spawn spawn = this.spawnManager.findSpawn(player);
+        player.setCurrentSpawn(spawn);
 
-        return Objects.requireNonNullElse(spawnPoint.getInstance(), this.mainInstance);
+        return Objects.requireNonNullElse(spawn.getInstance(), this.mainInstance);
     }
 
-    final void assignTeams() {
-        var event = new GameTeamAssignEvent(this, this.players);
+    /**
+     * Sets up teams and everything related.
+     */
+    final void setupTeams() {
+        var event = new GameSetupTeamsEvent(this, this.players, this.teamManager.getAssigner());
         EventDispatcher.call(event);
 
-        Map<GameTeam, Set<GamePlayer>> assignedTeams = event.getAssigned();
-        if(assignedTeams == null)
-            throw new NullPointerException("Assigned teams is null. Set them through GameTeamAssignEvent and use TeamAssigner or set an empty Map for no teams.");
+        var assigner = event.getAssigner();
+        if(assigner == null)
+            throw new NullPointerException("Assigned teams is null. Set them through GameTeamAssignEvent and use GameSetupTeamsEvent.");
 
-        assignedTeams.forEach(GameTeam::addPlayers);
-        this.teams = Collections.synchronizedList(new ArrayList<>(assignedTeams.keySet()));
+        var teams = event.getTeams();
+        if(teams.isEmpty())
+            throw new IllegalStateException("Assigned teams is empty. Please provide at least one team to assign players to on GameSetupTeamsEvent.");
+
+        //TODO Move assignment to TeamManager
+        Map<GameTeam, Set<GamePlayer>> assignedTeams = assigner.assign(this, teams, players);
+        if(assignedTeams == null || assignedTeams.isEmpty())
+            throw new IllegalStateException("Assigned teams is null or empty. Make sure the TeamAssigner provided is functioning correctly.");
+
+        this.teamManager.addTeams(assignedTeams.keySet());
+        this.teamManager.setAssigner(assigner);
+
+        TeamUtil.assignPlayers(assignedTeams);
     }
 
     final void remove() {
@@ -206,12 +226,12 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
     //Attributes
     @Override
     public final void setAttribute(Attribute attr, Object value) {
-        this.teams.forEach(team -> team.setAttribute(attr, value));
+        this.teamManager.getTeams().forEach((id, team) -> team.setAttribute(attr, value));
     }
 
     //Audiences
     @Override
     public @NotNull Iterable<? extends Audience> audiences() {
-        return !this.state.inLobby() ? this.teams : this.lobby.audiences();
+        return !this.state.inLobby() ? this.teamManager.getTeams().values() : this.lobby.audiences();
     }
 }

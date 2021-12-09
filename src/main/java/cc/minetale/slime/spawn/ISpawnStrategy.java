@@ -1,8 +1,8 @@
 package cc.minetale.slime.spawn;
 
-import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.player.GamePlayer;
 
 @FunctionalInterface
 public interface ISpawnStrategy {
-    SpawnPoint find(SpawnManager spawnManager, GamePlayer player);
+    Spawn find(SpawnManager spawnManager, GamePlayer player);
 }

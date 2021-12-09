@@ -1,4 +1,4 @@
-package cc.minetale.slime.state;
+package cc.minetale.slime.player;
 
 import net.minestom.server.entity.GameMode;
 

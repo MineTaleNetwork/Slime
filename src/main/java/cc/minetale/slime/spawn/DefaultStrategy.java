@@ -1,7 +1,7 @@
 package cc.minetale.slime.spawn;
 
-import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
 
     RANDOM, ORDERED, SAFEST, ENDANGERED, EXPOSED;
 
-    private BiFunction<SpawnManager, GamePlayer, SpawnPoint> supplier;
+    private BiFunction<SpawnManager, GamePlayer, Spawn> supplier;
 
     static {
         var random = new Random();
@@ -34,33 +34,33 @@ public enum DefaultStrategy implements ISpawnStrategy {
         RANDOM.supplier = (manager, player) -> {
             var team = player.getGameTeam();
 
-            List<SpawnPoint> spawnPoints = manager.getSpawnPointsFor(team);
-            if(spawnPoints.isEmpty()) { return null; }
+            List<Spawn> spawns = manager.getSpawnsFor(team);
+            if(spawns.isEmpty()) { return null; }
 
-            var index = random.nextInt(spawnPoints.size());
-            return spawnPoints.get(index);
+            var index = random.nextInt(spawns.size());
+            return spawns.get(index);
         };
 
-        Map<Game, Map<GameTeam, Integer>> lastSpawnPointIndexes = new HashMap<>();
+        Map<Game, Map<GameTeam, Integer>> lastSpawnIndexes = new HashMap<>();
 
         ORDERED.supplier = (manager, player) -> {
-            synchronized(lastSpawnPointIndexes) {
+            synchronized(lastSpawnIndexes) {
                 var team = player.getGameTeam();
 
-                List<SpawnPoint> spawnPoints = manager.getSpawnPointsFor(team);
-                if(spawnPoints.isEmpty()) { return null; }
+                List<Spawn> spawns = manager.getSpawnsFor(team);
+                if(spawns.isEmpty()) { return null; }
 
                 var game = manager.getGame();
-                Map<GameTeam, Integer> gameIndexes = lastSpawnPointIndexes.getOrDefault(game, new HashMap<>());
+                Map<GameTeam, Integer> gameIndexes = lastSpawnIndexes.getOrDefault(game, new HashMap<>());
 
                 var lastIndex = gameIndexes.getOrDefault(team, 0);
-                var index = lastIndex + 1 % spawnPoints.size();
+                var index = lastIndex + 1 % spawns.size();
 
                 gameIndexes.put(team, index);
 
-                lastSpawnPointIndexes.putIfAbsent(game, gameIndexes);
+                lastSpawnIndexes.putIfAbsent(game, gameIndexes);
 
-                return spawnPoints.get(index);
+                return spawns.get(index);
             }
         };
 
@@ -71,7 +71,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
     }
 
     @Override
-    public SpawnPoint find(SpawnManager spawnManager, GamePlayer player) {
+    public Spawn find(SpawnManager spawnManager, GamePlayer player) {
         return this.supplier.apply(spawnManager, player);
     }
 

@@ -1,10 +1,11 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.Stage;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
-import cc.minetale.slime.state.Stage;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.utils.InstanceUtil;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
@@ -111,11 +113,11 @@ public class GameLobby implements ForwardingAudience {
 
         this.countdown.pause();
         this.countdown.getInvolved().forEach(obj -> {
-            if(!(obj instanceof GamePlayer)) { return; }
-            var player = (GamePlayer) obj;
-            player.sendMessage(
-                    Component.text("» ", MC.CC.WHITE.getTextColor())
-                            .append(Component.text("Stopping the countdown, because there aren't enough players!", MC.CC.RED.getTextColor())));
+            if(!(obj instanceof GamePlayer player)) { return; }
+            player.sendMessage(Component.text().append(
+                    Component.text("» ", NamedTextColor.WHITE),
+                    Component.text("Stopping the countdown, because there aren't enough players!", NamedTextColor.RED))
+            );
         });
 
         this.game.getState().setStage(Stage.IN_LOBBY);
@@ -129,7 +131,7 @@ public class GameLobby implements ForwardingAudience {
         DefaultLoadouts.LOBBY.forceApplyFor(player);
     }
 
-    final void remove() {
+    public final void remove() {
         InstanceUtil.unregisterSafe(this.instance);
     }
 

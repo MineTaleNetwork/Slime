@@ -7,40 +7,36 @@ import cc.minetale.slime.utils.TeamUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.instance.Instance;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 @Getter
-public final class SpawnPoint {
+public final class BaseSpawn {
 
-    @Getter @Setter private String id;
+    private String id;
     private Set<ITeamType> owners;
-    @Setter @NotNull private Pos position;
-    @Setter private Instance instance;
+    @Setter private Pos position;
 
-    public SpawnPoint(String id, Set<ITeamType> owners, @NotNull Pos position, @Nullable Instance instance) {
+    public BaseSpawn(String id, Set<ITeamType> owners, @NotNull Pos position) {
         this.id = id;
         this.owners = Collections.synchronizedSet(new HashSet<>(owners));
         this.position = position;
-        this.instance = instance;
     }
 
-    public SpawnPoint(String id, ITeamType owner, @NotNull Pos position, @Nullable Instance instance) {
-        this(id, Collections.singleton(owner), position, instance);
+    public BaseSpawn(String id, ITeamType owner, @NotNull Pos position) {
+        this(id, Collections.singleton(owner), position);
     }
 
-    public SpawnPoint(String id, @NotNull Pos position, @Nullable Instance instance) {
-        this(id, new HashSet<>(), position, instance);
+    public BaseSpawn(String id, @NotNull Pos position) {
+        this(id, new HashSet<>(), position);
     }
 
-    private SpawnPoint() {}
+    private BaseSpawn() {}
 
-    public static SpawnPoint fromDocument(Document document, GameExtension game) {
-        var spawnPoint = new SpawnPoint();
+    public static BaseSpawn fromDocument(Document document, GameExtension game) {
+        var spawnPoint = new BaseSpawn();
         spawnPoint.load(document, game);
         return spawnPoint;
     }

@@ -1,6 +1,6 @@
 package cc.minetale.slime.event.game;
 
-import cc.minetale.slime.core.Game;
+import cc.minetale.slime.game.Game;
 import cc.minetale.slime.event.trait.GameEvent;
 import lombok.Getter;
 

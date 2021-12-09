@@ -4,7 +4,9 @@ import cc.minetale.buildingtools.Utils;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.tools.TempMap;
+import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -24,8 +26,8 @@ public final class CreateCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Usage: /slime map create <id> <name> <gamemodeId> [dimensionId]",
-                MC.CC.GRAY.getTextColor())));
+        sender.sendMessage(MC.notificationMessage("Map", Component.text("Usage: /slime map create <id> <name> <gamemodeId> [dimensionId]",
+                NamedTextColor.GRAY)));
     }
 
     public void createMap(CommandSender sender, CommandContext context) {
@@ -40,21 +42,22 @@ public final class CreateCommand extends Command {
         var selection = builder.getSelection();
 
         if(selection == null || selection.isIncomplete()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("You don't have a complete selection!", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("You don't have a complete selection!", NamedTextColor.RED)));
             return;
         }
 
         if(TOOL_MANAGER.mapExists(gamemode, id, true, true)) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map",
-                    Component.text("Map with ID \"" + gamemode + ":" + id + "\" already exists.\n" +
-                            "Remove it with \"/slime map remove\" or alternatively you can load an existing one using \"/slime map load\".", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Map with ID \"" + MapUtil.getFullId(gamemode, id) + "\" already exists.\n" +
+                            "Remove it with \"/slime map remove\" or alternatively you can load an existing one using \"/slime map load\".", NamedTextColor.RED)));
             return;
         }
 
         var oGame = TOOL_MANAGER.getGame(gamemode);
         if(oGame.isEmpty()) {
-            sender.sendMessage(MC.Chat.notificationMessage("Map", Component.text("Cannot find the gamemode! " +
-                    "Make sure you typed in the name correctly and the gamemode is installed.", MC.CC.RED.getTextColor())));
+            sender.sendMessage(MC.notificationMessage("Map", Component.text("Cannot find the gamemode! " +
+                    "Make sure you typed in the name correctly and the gamemode is installed.", NamedTextColor.RED)));
             return;
         }
         var game = oGame.get();
@@ -66,13 +69,13 @@ public final class CreateCommand extends Command {
 
         Slime.TOOL_MANAGER.addMap(tempMap);
 
-        sender.sendMessage(MC.Chat.notificationMessage("Map",
-                Component.text("Successfully created a map with ID \"" + gamemode + ":" + id + "\".", MC.CC.GREEN.getTextColor())
-                        .append(Component.newline())
-                        .append(Component.text(
-                                "- Make sure to save your map with \"/slime map save\" when you're finished.\n" +
-                                        "- It is currently not in the database and inaccessible by players, but you can change that with \"/slime map open\" after saving.",
-                                MC.CC.YELLOW.getTextColor()))));
+        sender.sendMessage(MC.notificationMessage("Map", Component.text()
+                .append(Component.text("Successfully created a map with ID \"" + MapUtil.getFullId(map) + "\".", NamedTextColor.GREEN),
+                        Component.newline(),
+                        Component.text("- Make sure to save your map with \"/slime map save\" when you're finished.\n" +
+                                        "- It is currently not in the database and inaccessible by players, " +
+                                        "but you can change that with \"/slime map open\" after saving.", NamedTextColor.YELLOW))
+                .build()));
     }
 
 }

@@ -1,7 +1,7 @@
 package cc.minetale.slime.event.team;
 
-import cc.minetale.slime.core.Game;
-import cc.minetale.slime.core.GamePlayer;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
 import cc.minetale.slime.event.trait.GameTeamEvent;

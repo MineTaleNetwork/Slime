@@ -1,10 +1,10 @@
 package cc.minetale.slime.team;
 
-import cc.minetale.commonlib.util.MC;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.item.Material;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 @Getter @AllArgsConstructor
 public enum ColorTeam implements ITeamType {
-    RED(MC.CC.RED, "red", "Red", "R",
+    RED(NamedTextColor.RED, "red", "Red", "R",
             Material.RED_WOOL,
             Material.RED_TERRACOTTA,
             Material.RED_CARPET,
@@ -28,7 +28,7 @@ public enum ColorTeam implements ITeamType {
             Material.RED_BED,
             Material.REDSTONE,
             Material.TNT),
-    BLUE(MC.CC.BLUE, "blue", "Blue", "B",
+    BLUE(NamedTextColor.BLUE, "blue", "Blue", "B",
             Material.BLUE_WOOL,
             Material.BLUE_TERRACOTTA,
             Material.BLUE_CARPET,
@@ -43,7 +43,7 @@ public enum ColorTeam implements ITeamType {
             Material.BLUE_BED,
             Material.LAPIS_LAZULI,
             Material.LAPIS_BLOCK),
-    GREEN(MC.CC.DARK_GREEN, "green", "Green", "G",
+    GREEN(NamedTextColor.DARK_GREEN, "green", "Green", "G",
             Material.GREEN_WOOL,
             Material.GREEN_TERRACOTTA,
             Material.GREEN_CARPET,
@@ -58,7 +58,7 @@ public enum ColorTeam implements ITeamType {
             Material.GREEN_BED,
             Material.LILY_PAD,
             Material.DRIED_KELP_BLOCK),
-    YELLOW(MC.CC.YELLOW, "yellow", "Yellow", "Y",
+    YELLOW(NamedTextColor.YELLOW, "yellow", "Yellow", "Y",
             Material.YELLOW_WOOL,
             Material.YELLOW_TERRACOTTA,
             Material.YELLOW_CARPET,
@@ -73,7 +73,7 @@ public enum ColorTeam implements ITeamType {
             Material.YELLOW_BED,
             Material.GOLD_INGOT,
             Material.GOLD_BLOCK),
-    LIGHT_BLUE(MC.CC.AQUA, "aqua", "Aqua", "A",
+    LIGHT_BLUE(NamedTextColor.AQUA, "aqua", "Aqua", "A",
             Material.LIGHT_BLUE_WOOL,
             Material.LIGHT_BLUE_TERRACOTTA,
             Material.LIGHT_BLUE_CARPET,
@@ -88,7 +88,7 @@ public enum ColorTeam implements ITeamType {
             Material.LIGHT_BLUE_BED,
             Material.DIAMOND,
             Material.DIAMOND_BLOCK),
-    WHITE(MC.CC.WHITE, "white", "White", "W",
+    WHITE(NamedTextColor.WHITE, "white", "White", "W",
             Material.WHITE_WOOL,
             Material.WHITE_TERRACOTTA,
             Material.WHITE_CARPET,
@@ -103,7 +103,7 @@ public enum ColorTeam implements ITeamType {
             Material.WHITE_BED,
             Material.IRON_INGOT,
             Material.IRON_BLOCK),
-    PINK(MC.CC.LIGHT_PURPLE, "pink", "Pink", "P",
+    PINK(NamedTextColor.LIGHT_PURPLE, "pink", "Pink", "P",
             Material.PINK_WOOL,
             Material.PINK_TERRACOTTA,
             Material.PINK_CARPET,
@@ -118,7 +118,7 @@ public enum ColorTeam implements ITeamType {
             Material.PINK_BED,
             Material.BRAIN_CORAL,
             Material.BRAIN_CORAL_BLOCK),
-    LIGHT_GRAY(MC.CC.GRAY, "dark", "Dark", "D",
+    LIGHT_GRAY(NamedTextColor.GRAY, "dark", "Dark", "D",
             Material.LIGHT_GRAY_WOOL,
             Material.LIGHT_GRAY_TERRACOTTA,
             Material.LIGHT_GRAY_CARPET,
@@ -133,7 +133,7 @@ public enum ColorTeam implements ITeamType {
             Material.LIGHT_GRAY_BED,
             Material.CLAY_BALL,
             Material.SMOOTH_STONE),
-    CYAN(MC.CC.DARK_AQUA, "cyan", "Cyan", "C",
+    CYAN(NamedTextColor.DARK_AQUA, "cyan", "Cyan", "C",
             Material.CYAN_WOOL,
             Material.CYAN_TERRACOTTA,
             Material.CYAN_CARPET,
@@ -148,7 +148,7 @@ public enum ColorTeam implements ITeamType {
             Material.CYAN_BED,
             Material.PRISMARINE_CRYSTALS,
             Material.PRISMARINE_BRICKS),
-    ORANGE(MC.CC.GOLD, "orange", "Orange", "O",
+    ORANGE(NamedTextColor.GOLD, "orange", "Orange", "O",
             Material.ORANGE_WOOL,
             Material.ORANGE_TERRACOTTA,
             Material.ORANGE_CARPET,
@@ -163,7 +163,7 @@ public enum ColorTeam implements ITeamType {
             Material.ORANGE_BED,
             Material.HONEY_BOTTLE,
             Material.HONEYCOMB_BLOCK),
-    PURPLE(MC.CC.DARK_PURPLE, "purple", "Purple", "PU",
+    PURPLE(NamedTextColor.DARK_PURPLE, "purple", "Purple", "PU",
             Material.PURPLE_WOOL,
             Material.PURPLE_TERRACOTTA,
             Material.PURPLE_CARPET,
@@ -178,7 +178,7 @@ public enum ColorTeam implements ITeamType {
             Material.PURPLE_BED,
             Material.BUBBLE_CORAL,
             Material.BUBBLE_CORAL_BLOCK),
-    LIME(MC.CC.GREEN, "lime", "Lime", "L",
+    LIME(NamedTextColor.GREEN, "lime", "Lime", "L",
             Material.LIME_WOOL,
             Material.LIME_TERRACOTTA,
             Material.LIME_CARPET,
@@ -193,7 +193,7 @@ public enum ColorTeam implements ITeamType {
             Material.LIME_BED,
             Material.SUGAR_CANE,
             Material.MELON),
-    MAGENTA(MC.CC.LIGHT_PURPLE, "magenta", "Magenta", "M",
+    MAGENTA(NamedTextColor.LIGHT_PURPLE, "magenta", "Magenta", "M",
             Material.MAGENTA_WOOL,
             Material.MAGENTA_TERRACOTTA,
             Material.MAGENTA_CARPET,
@@ -208,7 +208,7 @@ public enum ColorTeam implements ITeamType {
             Material.MAGENTA_BED,
             Material.POPPED_CHORUS_FRUIT,
             Material.PURPUR_BLOCK),
-    GRAY(MC.CC.DARK_GRAY, "black", "Black", "B",
+    GRAY(NamedTextColor.DARK_GRAY, "black", "Black", "B",
             Material.GRAY_WOOL,
             Material.GRAY_TERRACOTTA,
             Material.GRAY_CARPET,
@@ -224,7 +224,7 @@ public enum ColorTeam implements ITeamType {
             Material.NETHERITE_INGOT,
             Material.NETHERITE_BLOCK);
 
-    private MC.CC color;
+    private NamedTextColor color;
 
     private String id;
 
@@ -269,16 +269,15 @@ public enum ColorTeam implements ITeamType {
     }
 
     public TextComponent getFormattedTag() {
-        return Component.text()
-                .append(Component.text("[", MC.CC.GRAY.getTextColor()))
-                .append(Component.text(this.shortName, this.color.getTextColor()))
-                .append(Component.text("]", MC.CC.GRAY.getTextColor()))
+        return Component.text().append(
+                Component.text("[", NamedTextColor.GRAY),
+                Component.text(this.shortName, this.color),
+                Component.text("]", NamedTextColor.GRAY))
                 .build();
     }
 
     public TextComponent getFormattedName(String string) {
-        return Component.text(string)
-                .color(this.color.getTextColor());
+        return Component.text(string, this.color);
     }
 
 }

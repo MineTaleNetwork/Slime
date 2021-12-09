@@ -5,7 +5,7 @@ import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaLoader;
 import cc.minetale.magma.MagmaUtils;
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.spawn.SpawnPoint;
+import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.utils.MapUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
@@ -40,7 +40,7 @@ public class GameMap {
 
     @Getter @Setter protected Selection playArea;
 
-    @Getter private final Map<String, SpawnPoint> spawnPoints = new ConcurrentHashMap<>();
+    @Getter private final Map<String, BaseSpawn> spawnPoints = new ConcurrentHashMap<>();
 
     @Getter private boolean isOpen;
 
@@ -67,23 +67,23 @@ public class GameMap {
         return GameMap.fromDocument(document, GameMap::new);
     }
 
-    public static <T extends GameMap> T fromBoth(String gamemode, String id, MapProvider<T> mapProvider) {
-        var map = mapProvider.emptyMap();
+    public static <T extends GameMap> T fromBoth(String gamemode, String id, MapProvider provider) {
+        var map = provider.emptyMap();
 
         var document = collection.find(MapUtil.getFilter(gamemode, id)).first();
 
         if(document == null) { return null; }
         map.load(document);
 
-        return map;
+        return (T) map;
     }
 
     public static GameMap fromBoth(String gamemode, String id) {
         return fromBoth(gamemode, id, MapProvider.DEFAULT);
     }
 
-    public static <T extends GameMap> T fromActiveGame(String id, MapProvider<T> mapProvider) {
-        return fromBoth(Slime.getActiveGame().getId(), id, mapProvider);
+    public static <T extends GameMap> T fromActiveGame(String id, MapProvider provider) {
+        return fromBoth(Slime.getActiveGame().getId(), id, provider);
     }
 
     public static GameMap fromActiveGame(String id) {
@@ -95,20 +95,20 @@ public class GameMap {
         return MagmaLoader.create(getFilePath()).thenAccept(instance::setChunkLoader);
     }
 
-    public SpawnPoint getSpawnPoint(String id) {
+    public BaseSpawn getSpawn(String id) {
         return this.getSpawnPoints().get(id);
     }
 
-    public void addSpawnPoint(SpawnPoint spawnPoint) {
-        this.spawnPoints.put(spawnPoint.getId(), spawnPoint);
+    public void addSpawn(BaseSpawn spawn) {
+        this.spawnPoints.put(spawn.getId(), spawn);
     }
 
-    public void removeSpawnPoint(String spawnId) {
+    public void removeSpawn(String spawnId) {
         this.spawnPoints.remove(spawnId);
     }
 
-    public void removeSpawnPoint(SpawnPoint spawnPoint) {
-        removeSpawnPoint(spawnPoint.getId());
+    public void removeSpawn(BaseSpawn spawn) {
+        removeSpawn(spawn.getId());
     }
 
     //TODO Use SeaweedFS in production
@@ -144,7 +144,7 @@ public class GameMap {
         var game = TOOL_MANAGER.isEnabled() ? TOOL_MANAGER.getGame(this.gamemode).orElse(null) : Slime.getActiveGame();
 
         for(Map.Entry<String, Object> ent : document.get("spawnPoints", Document.class).entrySet()) {
-            this.spawnPoints.put(ent.getKey(), SpawnPoint.fromDocument((Document) ent.getValue(), game));
+            this.spawnPoints.put(ent.getKey(), BaseSpawn.fromDocument((Document) ent.getValue(), game));
         }
 
         this.isOpen = document.getBoolean("isOpen", false);
@@ -161,12 +161,12 @@ public class GameMap {
 
         document.put("playArea", this.playArea.toDocument());
 
-        Document spawnPointsDocument = new Document();
-        for (Map.Entry<String, SpawnPoint> ent : this.spawnPoints.entrySet()) {
-            var spawnPoint = ent.getValue();
-            spawnPointsDocument.put(ent.getKey(), spawnPoint.toDocument());
+        Document spawnDocument = new Document();
+        for (Map.Entry<String, BaseSpawn> ent : this.spawnPoints.entrySet()) {
+            var baseSpawn = ent.getValue();
+            spawnDocument.put(ent.getKey(), baseSpawn.toDocument());
         }
-        document.put("spawnPoints", spawnPointsDocument);
+        document.put("spawns", spawnDocument);
 
         document.put("isOpen", this.isOpen);
 
