@@ -1,0 +1,58 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'maven-publish'
+    id 'idea'
+    id 'java'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+group = 'cc.minetale'
+version = 'LATEST'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly         group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    compileOnly group: 'cc.minetale', name: 'mLib',             version: 'LATEST'
+    compileOnly group: 'cc.minetale', name: 'Flame',            version: 'LATEST'
+    compileOnly group: 'cc.minetale', name: 'BuildingTools',    version: '1.0'
+    compileOnly group: 'cc.minetale', name: 'Magma',            version: '1.0'
+    compileOnly group: 'cc.minetale', name: 'Quartz',           version: 'LATEST'
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+shadowJar {
+    classifier = null
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+        }
+    }
+}
+
+tasks.withType(Jar) {
+    destinationDirectory = file("../../Build")
+}
+
+task buildJar(dependsOn: ['clean', 'publishToMavenLocal'])
