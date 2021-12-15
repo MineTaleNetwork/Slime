@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
@@ -21,7 +21,7 @@ public final class InfoCommand extends Command {
 
     //TODO Make a bit more clean
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var instance = builder.getInstance();
@@ -37,7 +37,7 @@ public final class InfoCommand extends Command {
         var handle = map.getHandle();
 
         var playArea = handle.getPlayArea();
-        //TODO Update and include more info
+        //TODO Update and include more info such as spawns...
         sender.sendMessage(MC.notificationMessage("Map", Component.text()
                 .append(Component.text("Displaying information for \"" + MapUtil.getFullId(handle) + "\":"),
                         Component.newline(),

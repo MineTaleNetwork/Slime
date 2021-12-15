@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.tools.commands.spawn.CreateCommand;
@@ -21,7 +21,7 @@ public class SpawnCommand extends Command {
     public static final ArgumentWord SPAWN_ARG = new ArgumentWord("id");
     public static final ArgumentWord SPAWN_AUTO_ARG = (ArgumentWord) SPAWN_ARG
             .setSuggestionCallback((sender, context, suggestion) -> {
-                var builder = Utils.getSenderAsBuilder(sender);
+                var builder = Builder.fromSender(sender);
                 if(builder == null) { return; }
 
                 var instance = builder.getInstance();
@@ -40,7 +40,7 @@ public class SpawnCommand extends Command {
     public static final ArgumentWord TEAM_ARG = new ArgumentWord("teamId");
     public static final ArgumentWord TEAM_AUTO_ARG = (ArgumentWord) TEAM_ARG
             .setSuggestionCallback((sender, context, suggestion) -> {
-                var builder = Utils.getSenderAsBuilder(sender);
+                var builder = Builder.fromSender(sender);
                 if(builder == null) { return; }
 
                 var instance = builder.getInstance();

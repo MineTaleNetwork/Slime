@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -24,7 +24,7 @@ public final class UnloadCommand extends Command {
     }
 
     private void unloadMap(CommandSender sender, CommandContext context) {
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) {
             return;
         }

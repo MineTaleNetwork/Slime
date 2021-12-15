@@ -1,9 +1,9 @@
 package cc.minetale.slime.event.player;
 
-import cc.minetale.slime.game.Game;
-import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.player.IPlayerState;
 import lombok.Getter;
 import lombok.Setter;

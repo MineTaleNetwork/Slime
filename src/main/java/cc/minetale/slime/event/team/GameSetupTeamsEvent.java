@@ -1,9 +1,9 @@
 package cc.minetale.slime.event.team;
 
-import cc.minetale.slime.game.Game;
-import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.event.trait.GameEvent;
+import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.Stage;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.TeamAssigner;
 import cc.minetale.slime.team.TeamManager;

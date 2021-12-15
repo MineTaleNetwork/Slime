@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.spawn;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.utils.MapUtil;
@@ -36,7 +36,7 @@ public final class CreateCommand extends Command {
     public void createSpawnPoint(CommandSender sender, CommandContext context) {
         var id = context.get(SPAWN_ARG);
 
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         Pos pos = MiscUtil.getOptionalPosition(context, builder, POSITION_ARG, YAW_ARG, PITCH_ARG);

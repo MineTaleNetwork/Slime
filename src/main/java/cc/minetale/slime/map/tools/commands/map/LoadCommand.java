@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.GameMap;
@@ -28,7 +28,7 @@ public final class LoadCommand extends Command {
     }
 
     private void loadMap(CommandSender sender, CommandContext context) {
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         if(!builder.isBuilderMode()) {

@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.utils.MapUtil;
@@ -44,7 +44,7 @@ public final class ModifyCommand extends Command {
     }
 
     public void modifyMap(CommandSender sender, CommandContext context) {
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var instance = builder.getInstance();

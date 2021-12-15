@@ -1,11 +1,11 @@
 package cc.minetale.slime.event.team;
 
-import cc.minetale.slime.game.Game;
-import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
 import cc.minetale.slime.event.trait.GameTeamEvent;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
 import lombok.Setter;

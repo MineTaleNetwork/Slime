@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import net.kyori.adventure.text.Component;
@@ -32,7 +32,7 @@ public final class TeleportCommand extends Command {
         var gamemode = context.get(GAMEMODE_ARG);
         var id = context.get(MAP_AUTO_ARG);
 
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var tempMap = Slime.TOOL_MANAGER.getMap(gamemode, id);

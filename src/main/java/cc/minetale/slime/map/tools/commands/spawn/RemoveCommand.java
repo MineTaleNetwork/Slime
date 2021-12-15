@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.spawn;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
@@ -30,7 +30,7 @@ public final class RemoveCommand extends Command {
     public void createSpawnPoint(CommandSender sender, CommandContext context) {
         var id = context.get(SPAWN_AUTO_ARG);
 
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var instance = builder.getInstance();

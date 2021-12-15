@@ -1,6 +1,6 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -31,11 +31,12 @@ public final class SaveCommand extends Command {
         sender.sendMessage(MC.notificationMessage("Map", Component.text("Usage: /slime map save <saveSettings> <saveBlocks>", NamedTextColor.GRAY)));
     }
 
+    //TODO Command shows results as failure for both when saving for the first time and always failure for block saving
     private void saveMap(CommandSender sender, CommandContext context) {
         boolean saveSettings = context.get(SAVE_SETTINGS_ARG);
         boolean saveBlocks = context.get(SAVE_BLOCKS_ARG);
 
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var instance = builder.getInstance();

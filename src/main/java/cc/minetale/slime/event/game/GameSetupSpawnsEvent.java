@@ -1,11 +1,11 @@
 package cc.minetale.slime.event.game;
 
-import cc.minetale.slime.game.Game;
 import cc.minetale.slime.event.trait.GameEvent;
+import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.Stage;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.spawn.Spawn;
-import cc.minetale.slime.game.Stage;
 import lombok.Getter;
 
 import java.util.ArrayList;

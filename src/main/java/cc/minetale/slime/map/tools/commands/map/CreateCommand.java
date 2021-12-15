@@ -1,6 +1,7 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.buildingtools.Builder;
+import cc.minetale.buildingtools.Selection;
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.tools.TempMap;
@@ -36,7 +37,7 @@ public final class CreateCommand extends Command {
         var gamemode = context.get(GAMEMODE_ARG);
         var dimension = NamespaceID.from(context.has(DIMENSION_ARG) ? context.get(DIMENSION_ARG) : "minecraft:overworld");
 
-        var builder = Utils.getSenderAsBuilder(sender);
+        var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var selection = builder.getSelection();
