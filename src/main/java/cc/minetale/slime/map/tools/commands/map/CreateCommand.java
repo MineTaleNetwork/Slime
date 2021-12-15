@@ -48,6 +48,8 @@ public final class CreateCommand extends Command {
             return;
         }
 
+        selection = new Selection(selection);
+
         if(TOOL_MANAGER.mapExists(gamemode, id, true, true)) {
             sender.sendMessage(MC.notificationMessage("Map",
                     Component.text("Map with ID \"" + MapUtil.getFullId(gamemode, id) + "\" already exists.\n" +
