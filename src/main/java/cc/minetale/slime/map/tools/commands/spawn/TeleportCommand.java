@@ -2,41 +2,40 @@ package cc.minetale.slime.map.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
-import cc.minetale.slime.utils.MapUtil;
+import cc.minetale.slime.Slime;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
 
-import static cc.minetale.slime.Slime.TOOL_MANAGER;
 import static cc.minetale.slime.map.tools.commands.SpawnCommand.SPAWN_AUTO_ARG;
 
-public final class RemoveCommand extends Command {
+public final class TeleportCommand extends Command {
 
-    public RemoveCommand() {
-        super("remove");
+    public TeleportCommand() {
+        super("tp");
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::removeSpawn, SPAWN_AUTO_ARG);
+        addSyntax(this::teleportToSpawn, SPAWN_AUTO_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
         sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Usage: /slime spawn remove <id>", NamedTextColor.GRAY)));
+                Component.text("Usage: /slime spawn tp <spawnId>", NamedTextColor.GRAY)));
     }
 
-    public void removeSpawn(CommandSender sender, CommandContext context) {
+    private void teleportToSpawn(CommandSender sender, CommandContext context) {
         var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(instance);
+        var oMap = Slime.TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
             sender.sendMessage(MC.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
+                    Component.text("Couldn't find a map under this ID, make sure the map exists and is loaded.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -45,21 +44,16 @@ public final class RemoveCommand extends Command {
 
         var id = context.get(SPAWN_AUTO_ARG);
 
-        if(MapUtil.isSpawnIdAvailable(handle, id)) {
+        var spawn = handle.getSpawn(id);
+        if(spawn == null) {
             sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
                     "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
             return;
         }
 
-        if(handle.removeSpawn(id) != null) {
-            sender.sendMessage(MC.notificationMessage("Map", Component.text(
-                    "Successfully removed spawn \"" + id + "\" from " + "\"" + MapUtil.getFullId(map) + "\".",
-                    NamedTextColor.GREEN)));
-        } else {
-            sender.sendMessage(MC.notificationMessage("Map", Component.text(
-                    "There was a problem removing spawn \"" + id + "\" from " + "\"" + MapUtil.getFullId(map) + "\".",
-                    NamedTextColor.RED)));
-        }
+        builder.teleport(spawn.getPosition())
+                .thenAccept(v -> sender.sendMessage(MC.notificationMessage("Map",
+                        Component.text("You've been teleported to spawn \"" + id + "\".", NamedTextColor.GREEN))));
     }
 
 }

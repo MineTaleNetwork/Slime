@@ -31,4 +31,5 @@ public interface ITeamType {
 
     default Material getTeamItem() { return null; }
     default Material getTeamBlock() { return null; }
+
 }

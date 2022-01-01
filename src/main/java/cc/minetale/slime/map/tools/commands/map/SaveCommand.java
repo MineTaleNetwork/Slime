@@ -2,15 +2,20 @@ package cc.minetale.slime.map.tools.commands.map;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.map.tools.TempMap;
+import cc.minetale.slime.utils.Requirement;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.TriState;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentBoolean;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
@@ -33,8 +38,8 @@ public final class SaveCommand extends Command {
 
     //TODO Command shows results as failure for both when saving for the first time and always failure for block saving
     private void saveMap(CommandSender sender, CommandContext context) {
-        boolean saveSettings = context.get(SAVE_SETTINGS_ARG);
-        boolean saveBlocks = context.get(SAVE_BLOCKS_ARG);
+        var saveSettings = context.get(SAVE_SETTINGS_ARG);
+        var saveBlocks = context.get(SAVE_BLOCKS_ARG);
 
         var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
@@ -51,14 +56,33 @@ public final class SaveCommand extends Command {
 
         var settingsFuture = CompletableFuture.completedFuture(TriState.NOT_SET);
         if(saveSettings) {
-            var result = map.saveSettings();
-            settingsFuture = CompletableFuture.completedFuture(TriState.byBoolean(result.getMatchedCount() > 0));
+            List<Requirement<TempMap>> failedRequirements = map.getUnsatisfiedRequirements();
+            if(!failedRequirements.isEmpty()) {
+                var errorMsg = Component.text()
+                        .append(Component.text("Unable to save settings due to the following requirements not being met:"));
+
+                for(Requirement<TempMap> requirement : failedRequirements) {
+                    errorMsg.append(
+                            Component.newline(),
+                            Component.text("-"), Component.space(),
+                            Component.text(requirement.getName(), NamedTextColor.RED, TextDecoration.BOLD), Component.newline(),
+                            Component.text(requirement.getDescription(), NamedTextColor.RED));
+                }
+                builder.sendMessage(errorMsg);
+
+                settingsFuture = CompletableFuture.completedFuture(TriState.FALSE);
+            } else {
+                var result = map.saveSettings();
+                settingsFuture = CompletableFuture.completedFuture(TriState.byBoolean(result.getMatchedCount() > 0));
+            }
         }
 
         var blocksFuture = CompletableFuture.completedFuture(TriState.NOT_SET);
         if(saveBlocks) {
             blocksFuture = map.saveBlocks()
-                    .thenCompose(result -> CompletableFuture.completedFuture(TriState.byBoolean(result)));
+                    .thenCompose(result -> CompletableFuture.completedFuture(TriState.byBoolean(result)))
+                    .completeOnTimeout(TriState.FALSE, 10000, TimeUnit.SECONDS)
+                    .exceptionally(throwable -> TriState.FALSE);
         }
 
         settingsFuture.thenAcceptBothAsync(blocksFuture, (settingsResult, blocksResult) -> {
@@ -72,11 +96,11 @@ public final class SaveCommand extends Command {
                                             NamedTextColor.YELLOW),
                                     Component.newline(),
                                     Component.text("Settings: ", NamedTextColor.GRAY),
-                                    Component.text(settingsIncluded ? (settingsSuccess ? "Success" : "Failed") : "Not included",
+                                    Component.text(settingsIncluded ? (settingsSuccess ? "Success" : "Failed") : "Excluded",
                                             settingsIncluded ? (settingsSuccess ? NamedTextColor.GREEN : NamedTextColor.RED) : NamedTextColor.DARK_GRAY),
                                     Component.newline(),
                                     Component.text("Blocks: ", NamedTextColor.GRAY),
-                                    Component.text(blocksIncluded ? (blocksSuccess ? "Success" : "Failed") : "Not included",
+                                    Component.text(blocksIncluded ? (blocksSuccess ? "Success" : "Failed") : "Excluded",
                                             blocksIncluded ? (blocksSuccess ? NamedTextColor.GREEN : NamedTextColor.RED) : NamedTextColor.DARK_GRAY)
                             ).build()));
         });

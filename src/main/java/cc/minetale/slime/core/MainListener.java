@@ -1,7 +1,7 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.attribute.Attribute;
+import cc.minetale.slime.attribute.Attributes;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.GameManager;
@@ -98,20 +98,20 @@ public final class MainListener {
             var game = player.getGame();
             if(game == null) { return; }
 
-            if(player.<Boolean>getAttribute(Attribute.AUTO_LOSE_LIVES))
+            if(player.<Boolean>getAttribute(Attributes.AUTO_LOSE_LIVES))
                 player.setLives(player.getLives() - 1);
 
             //After this event the player will be dead
             var willDie = player.getLives() == 0;
 
-            if(player.<Integer>getAttribute(Attribute.RESPAWN_TIME) == 0) {
-                if(player.<Boolean>getAttribute(Attribute.AUTO_TEMP_SPECTATOR))
+            if(player.getAttribute(Attributes.RESPAWN_TIME) == 0) {
+                if(player.getAttribute(Attributes.AUTO_DEATHCAM))
                     //TODO Automatic death spectator
 
                 return;
             }
 
-            if(player.<Boolean>getAttribute(Attribute.AUTO_PERM_SPECTATOR))
+            if(player.getAttribute(Attributes.AUTO_SPECTATOR))
                 player.setState(SPECTATE);
         });
 

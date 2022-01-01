@@ -2,9 +2,7 @@ package cc.minetale.slime.map.tools.commands;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
-import cc.minetale.slime.Slime;
-import cc.minetale.slime.map.tools.commands.spawn.CreateCommand;
-import cc.minetale.slime.map.tools.commands.spawn.RemoveCommand;
+import cc.minetale.slime.map.tools.commands.spawn.*;
 import cc.minetale.slime.team.ITeamType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,40 +14,47 @@ import net.minestom.server.command.builder.arguments.number.ArgumentFloat;
 import net.minestom.server.command.builder.arguments.relative.ArgumentRelativeVec3;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
+import java.util.Set;
+
+import static cc.minetale.slime.Slime.TOOL_MANAGER;
+
 public class SpawnCommand extends Command {
 
-    public static final ArgumentWord SPAWN_ARG = new ArgumentWord("id");
-    public static final ArgumentWord SPAWN_AUTO_ARG = (ArgumentWord) SPAWN_ARG
+    public static final ArgumentWord SPAWN_ARG = new ArgumentWord("spawnId");
+    public static final ArgumentWord SPAWN_AUTO_ARG = (ArgumentWord) new ArgumentWord("spawnId")
             .setSuggestionCallback((sender, context, suggestion) -> {
                 var builder = Builder.fromSender(sender);
                 if(builder == null) { return; }
 
                 var instance = builder.getInstance();
 
-                var oMap = Slime.TOOL_MANAGER.getMapByInstance(instance);
+                var oMap = TOOL_MANAGER.getMapByInstance(instance);
                 if(oMap.isEmpty()) { return; }
                 var map = oMap.get();
 
                 var handle = map.getHandle();
 
-                for(String spawnId : handle.getSpawnPoints().keySet()) {
+                for(String spawnId : handle.getSpawns().keySet()) {
                     suggestion.addEntry(new SuggestionEntry(spawnId, Component.text(spawnId)));
                 }
             });
 
     public static final ArgumentWord TEAM_ARG = new ArgumentWord("teamId");
-    public static final ArgumentWord TEAM_AUTO_ARG = (ArgumentWord) TEAM_ARG
+    public static final ArgumentWord TEAM_AUTO_ALL_ARG = (ArgumentWord) new ArgumentWord("teamId")
             .setSuggestionCallback((sender, context, suggestion) -> {
                 var builder = Builder.fromSender(sender);
                 if(builder == null) { return; }
 
                 var instance = builder.getInstance();
 
-                var oMap = Slime.TOOL_MANAGER.getMapByInstance(instance);
+                var oMap = TOOL_MANAGER.getMapByInstance(instance);
                 if(oMap.isEmpty()) { return; }
                 var map = oMap.get();
 
-                for(ITeamType team : map.getGame().getTeamTypes()) {
+                var game = map.getGame();
+                Set<? extends ITeamType> types = game.getTeamTypes();
+
+                for(ITeamType team : types) {
                     var teamId = team.getId();
                     suggestion.addEntry(new SuggestionEntry(teamId, Component.text(teamId)));
                 }
@@ -66,11 +71,15 @@ public class SpawnCommand extends Command {
 
         addSubcommand(new CreateCommand());
         addSubcommand(new RemoveCommand());
+        addSubcommand(new OwnerCommand());
+        addSubcommand(new TeleportCommand());
+        addSubcommand(new InfoCommand());
+        addSubcommand(new ListCommand());
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
         sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Usage: /slime map modify <name|dimension|bounds> ...", NamedTextColor.GRAY)));
+                Component.text("Usage: /slime spawn <create|remove|owner|tp|info|list>", NamedTextColor.GRAY)));
     }
 
 }

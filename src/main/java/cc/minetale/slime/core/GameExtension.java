@@ -3,15 +3,17 @@ package cc.minetale.slime.core;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.MapProvider;
+import cc.minetale.slime.map.tools.TempMap;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.team.TeamProvider;
+import cc.minetale.slime.utils.Requirement;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.extensions.Extension;
 import net.minestom.server.instance.SharedInstance;
 import net.minestom.server.network.PlayerProvider;
 
-import java.util.List;
+import java.util.Set;
 
 public abstract class GameExtension extends Extension {
 
@@ -25,19 +27,25 @@ public abstract class GameExtension extends Extension {
     public abstract TeamProvider getTeamProvider();
     public abstract MapProvider getMapProvider();
 
-    public abstract List<? extends ITeamType> getTeamTypes();
+    public abstract Set<ITeamType> getTeamTypes();
 
     public abstract int getMinPlayers();
     public abstract int getMaxPlayers();
 
-    public abstract int getMaxGames();
-
-    //TODO Use this
+    //TODO Use this in Game and move to GameManager
     public abstract long getTimeLimit();
 
+    /** Get a map for next game. */
     public abstract GameMap getGameMap();
-    /** Get a map for a lobby (usually from a pool of many) */
+    /** Get a map for a lobby. */
     public abstract GameMap getLobbyMap();
+
+    /**
+     * Requirements a {@linkplain TempMap} must meet so it can be saved. <br>
+     * You can create your own requirements if you feel like it, for example if you want zones, objectives, spawns with specific settings like IDs. <br>
+     * Or use presets from {@linkplain Requirement.Map}.
+     */
+    public abstract Set<Requirement<TempMap>> getMapRequirements();
 
     /**
      * Calls the default behavior before initialization of your own {@linkplain GameExtension} implementation.

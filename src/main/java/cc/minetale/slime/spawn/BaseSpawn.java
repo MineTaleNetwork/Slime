@@ -16,7 +16,7 @@ import java.util.*;
 public final class BaseSpawn {
 
     private String id;
-    private Set<ITeamType> owners;
+    private final Set<ITeamType> owners;
     @Setter private Pos position;
 
     public BaseSpawn(String id, Set<ITeamType> owners, @NotNull Pos position) {
@@ -33,12 +33,14 @@ public final class BaseSpawn {
         this(id, new HashSet<>(), position);
     }
 
-    private BaseSpawn() {}
+    private BaseSpawn() {
+        this.owners = Collections.synchronizedSet(new HashSet<>());
+    }
 
     public static BaseSpawn fromDocument(Document document, GameExtension game) {
-        var spawnPoint = new BaseSpawn();
-        spawnPoint.load(document, game);
-        return spawnPoint;
+        var spawn = new BaseSpawn();
+        spawn.load(document, game);
+        return spawn;
     }
 
     public boolean addOwner(ITeamType team) {
@@ -49,8 +51,16 @@ public final class BaseSpawn {
         return this.owners.remove(team);
     }
 
+    public boolean isOwnedBy(ITeamType team) {
+        return this.owners.contains(team);
+    }
+
     public void clearOwners() {
         this.owners.clear();
+    }
+
+    public boolean isOwned() {
+        return !this.owners.isEmpty();
     }
 
     public boolean isShared() {
@@ -58,6 +68,8 @@ public final class BaseSpawn {
     }
 
     private void load(Document document, GameExtension game) {
+        this.id = document.getString("_id");
+
         for(String teamId : document.getList("owners", String.class)) {
             ITeamType team = TeamUtil.findById(game.getTeamTypes(), teamId);
             this.owners.add(team);
@@ -68,6 +80,8 @@ public final class BaseSpawn {
 
     public Document toDocument() {
         var document = new Document();
+
+        document.put("_id", this.id);
 
         List<String> ownerIds = new ArrayList<>();
         for(ITeamType owner : this.owners) {

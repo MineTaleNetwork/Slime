@@ -9,7 +9,9 @@ import cc.minetale.slime.team.TeamProvider;
 
 import java.util.*;
 
-public class TeamUtil {
+public final class TeamUtil {
+
+    private TeamUtil() {}
 
     public static <T extends ITeamType> T findById(Collection<T> types, String id) {
         for(T type : types) {
@@ -24,12 +26,12 @@ public class TeamUtil {
 
     /**
      * Creates {@linkplain GameTeam} based on {@linkplain ITeamType}s without any restrictions. <br>
-     * Also see {@linkplain #createTeams(TeamProvider, List, Game, int, int)}.
+     * Also see {@linkplain #createTeams(TeamProvider, Set, Game, int, int)}.
      * @param types Team types to create {@linkplain GameTeam}s from.
      * @param game Game to create all teams for.
      * @param teamSize Maximum amount of players for each team created (can be changed for any team after creating them).
      */
-    public static List<GameTeam> createTeams(TeamProvider provider, List<ITeamType> types, Game game, int teamSize) {
+    public static List<GameTeam> createTeams(TeamProvider provider, Set<ITeamType> types, Game game, int teamSize) {
         List<GameTeam> teams = new ArrayList<>();
         for(ITeamType type : types) {
             var team = provider.createTeam(game, type.getId(), teamSize, type);
@@ -42,7 +44,7 @@ public class TeamUtil {
 
     /**
      * Creates {@linkplain GameTeam} based on {@linkplain ITeamType}s. <br>
-     * Unlike {@linkplain #createTeams(TeamProvider, List, Game, int)} it creates enough teams to fill all players and then stops. <br>
+     * Unlike {@linkplain #createTeams(TeamProvider, Set, Game, int)} it creates enough teams to fill all players and then stops. <br>
      * This is the preferred way to create teams.
      * @param types Team types to create {@linkplain GameTeam}s from.
      * @param game Game to create all teams for.
@@ -50,7 +52,7 @@ public class TeamUtil {
      * @param players Amount of players that these teams are created for. <br>
      *                Stops creating teams after all currently created teams can accommodate all players.
      */
-    public static List<GameTeam> createTeams(TeamProvider provider, List<ITeamType> types, Game game, int teamSize, int players) {
+    public static List<GameTeam> createTeams(TeamProvider provider, Set<ITeamType> types, Game game, int teamSize, int players) {
         List<GameTeam> teams = new ArrayList<>();
         //How many teams will be created
         var expectedTotal = Math.ceil((double) (types.size() * teamSize) / players);
@@ -67,7 +69,7 @@ public class TeamUtil {
 
     /**
      * Creates {@linkplain GameTeam} based on {@linkplain ITeamType}s. <br>
-     * Just like {@linkplain #createTeams(TeamProvider, List, Game, int, int)} it creates enough teams to fill all players and then stops, <br>
+     * Just like {@linkplain #createTeams(TeamProvider, Set, Game, int, int)} it creates enough teams to fill all players and then stops, <br>
      * but also allows you to specify different sizes for each team. <br>
      * <br>
      * Keep in mind this method doesn't fill teams from the smallest size to biggest, <br>

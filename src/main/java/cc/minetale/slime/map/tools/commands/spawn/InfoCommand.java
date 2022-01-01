@@ -1,4 +1,4 @@
-package cc.minetale.slime.map.tools.commands.map;
+package cc.minetale.slime.map.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
@@ -13,6 +13,7 @@ import net.minestom.server.command.builder.CommandContext;
 import java.util.Map;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
+import static cc.minetale.slime.map.tools.commands.SpawnCommand.SPAWN_AUTO_ARG;
 
 public final class InfoCommand extends Command {
 
@@ -20,10 +21,16 @@ public final class InfoCommand extends Command {
         super("info");
 
         setDefaultExecutor(this::defaultExecutor);
+
+        addSyntax(this::spawnInfo, SPAWN_AUTO_ARG);
     }
 
-    //TODO Make a bit more clean
     private void defaultExecutor(CommandSender sender, CommandContext context) {
+        sender.sendMessage(MC.notificationMessage("Map",
+                Component.text("Usage: /slime spawn info <spawnId>", NamedTextColor.GRAY)));
+    }
+
+    private void spawnInfo(CommandSender sender, CommandContext context) {
         var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
@@ -39,18 +46,23 @@ public final class InfoCommand extends Command {
 
         var handle = map.getHandle();
 
-        var playArea = handle.getPlayArea();
-        //TODO Update and include more info such as spawns...
+        var id = context.get(SPAWN_AUTO_ARG);
+
+        var spawn = handle.getSpawn(id);
+        if(spawn == null) {
+            sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
+                    "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
+            return;
+        }
+
         sender.sendMessage(MC.notificationMessage("Map", Component.text()
                 .append(MiscUtil.getInformationMessage(
-                        "Displaying information for \"" + MapUtil.getFullId(handle) + "\":",
+                        "Displaying information for \"" + id + "\":",
                         Map.ofEntries(
-                                Map.entry("ID", Component.text(handle.getId())),
-                                Map.entry("Gamemode", Component.text(handle.getGamemode())),
-                                Map.entry("Name", Component.text(handle.getName())),
-                                Map.entry("IsOpen", Component.text(handle.isOpen(), handle.isOpen() ? NamedTextColor.GREEN : NamedTextColor.RED)),
-                                Map.entry("Dimension", Component.text(handle.getDimensionID().asString())),
-                                Map.entry("PlayArea", Component.text(playArea.getLengthX() + "x" + playArea.getLengthY() + "x" + playArea.getLengthZ()))
+                                Map.entry("ID", Component.text(id)),
+                                Map.entry("Parent", Component.text(MapUtil.getFullId(map))),
+                                Map.entry("Position", Component.text(spawn.getPosition().toString())),
+                                Map.entry("Owners", Component.text(spawn.getOwners().size()))
                         )))
                 .build()));
     }

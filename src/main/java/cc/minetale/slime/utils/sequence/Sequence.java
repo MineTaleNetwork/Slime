@@ -114,7 +114,7 @@ public class Sequence {
     }
 
     private void startTask() {
-        this.task = SCHEDULER_MANAGER.buildTask(() -> {
+        var builder = SCHEDULER_MANAGER.buildTask(() -> {
 
             //Execute queued executor
             if(!this.executors.isEmpty()) {
@@ -140,11 +140,11 @@ public class Sequence {
 
             startTask();
 
-        }).delay(this.currentInterval, ChronoUnit.MILLIS).build();
+        }).delay(this.currentInterval, ChronoUnit.MILLIS);
 
         this.lastTaskScheduledAt = System.currentTimeMillis();
 
-        this.task.schedule();
+        this.task = builder.schedule();
     }
 
     public boolean addInvolved(Object obj) {

@@ -40,7 +40,7 @@ public class GameMap {
 
     @Getter @Setter protected Selection playArea;
 
-    @Getter private final Map<String, BaseSpawn> spawnPoints = new ConcurrentHashMap<>();
+    @Getter private final Map<String, BaseSpawn> spawns = new ConcurrentHashMap<>();
 
     @Getter private boolean isOpen;
 
@@ -96,15 +96,15 @@ public class GameMap {
     }
 
     public BaseSpawn getSpawn(String id) {
-        return this.getSpawnPoints().get(id);
+        return this.getSpawns().get(id);
     }
 
     public void addSpawn(BaseSpawn spawn) {
-        this.spawnPoints.put(spawn.getId(), spawn);
+        this.spawns.put(spawn.getId(), spawn);
     }
 
-    public void removeSpawn(String spawnId) {
-        this.spawnPoints.remove(spawnId);
+    public BaseSpawn removeSpawn(String spawnId) {
+        return this.spawns.remove(spawnId);
     }
 
     public void removeSpawn(BaseSpawn spawn) {
@@ -143,8 +143,8 @@ public class GameMap {
 
         var game = TOOL_MANAGER.isEnabled() ? TOOL_MANAGER.getGame(this.gamemode).orElse(null) : Slime.getActiveGame();
 
-        for(Map.Entry<String, Object> ent : document.get("spawnPoints", Document.class).entrySet()) {
-            this.spawnPoints.put(ent.getKey(), BaseSpawn.fromDocument((Document) ent.getValue(), game));
+        for(Map.Entry<String, Object> ent : document.get("spawns", Document.class).entrySet()) {
+            this.spawns.put(ent.getKey(), BaseSpawn.fromDocument((Document) ent.getValue(), game));
         }
 
         this.isOpen = document.getBoolean("isOpen", false);
@@ -161,12 +161,12 @@ public class GameMap {
 
         document.put("playArea", this.playArea.toDocument());
 
-        Document spawnDocument = new Document();
-        for (Map.Entry<String, BaseSpawn> ent : this.spawnPoints.entrySet()) {
+        Document spawnsDocument = new Document();
+        for (Map.Entry<String, BaseSpawn> ent : this.spawns.entrySet()) {
             var baseSpawn = ent.getValue();
-            spawnDocument.put(ent.getKey(), baseSpawn.toDocument());
+            spawnsDocument.put(ent.getKey(), baseSpawn.toDocument());
         }
-        document.put("spawns", spawnDocument);
+        document.put("spawns", spawnsDocument);
 
         document.put("isOpen", this.isOpen);
 
@@ -186,5 +186,6 @@ public class GameMap {
     public int hashCode() {
         return Objects.hash(this.id, this.gamemode);
     }
+
 
 }

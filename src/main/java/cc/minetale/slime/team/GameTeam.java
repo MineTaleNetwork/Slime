@@ -10,12 +10,7 @@ import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.scoreboard.Team;
-import net.minestom.server.tag.Tag;
-import net.minestom.server.tag.TagReadable;
-import net.minestom.server.tag.TagWritable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class GameTeam implements IAttributeWritable, TagReadable, TagWritable, ForwardingAudience {
+public class GameTeam implements IAttributeWritable, ForwardingAudience {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
@@ -69,19 +64,6 @@ public class GameTeam implements IAttributeWritable, TagReadable, TagWritable, F
     @Override
     public void setAttribute(Attribute attr, Object value) {
         this.players.forEach(player -> player.setAttribute(attr, value));
-    }
-
-    //Tags
-    private final NBTCompound nbtCompound = new NBTCompound();
-
-    @Override
-    public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
-        return tag.read(this.nbtCompound);
-    }
-
-    @Override
-    public <T> void setTag(@NotNull Tag<T> tag, @Nullable T value) {
-        tag.write(this.nbtCompound, value);
     }
 
     //Audiences

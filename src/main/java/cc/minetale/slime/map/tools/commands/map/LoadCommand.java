@@ -37,8 +37,8 @@ public final class LoadCommand extends Command {
             return;
         }
 
-        String gamemode = context.get(GAMEMODE_ARG);
-        String id = context.get(MAP_AUTO_ARG);
+        var gamemode = context.get(GAMEMODE_ARG);
+        var id = context.get(MAP_AUTO_ARG);
 
         if(Slime.TOOL_MANAGER.mapExists(gamemode, id, true, false)) {
             sender.sendMessage(MC.notificationMessage("Map", Component.text("This map is already loaded! " +

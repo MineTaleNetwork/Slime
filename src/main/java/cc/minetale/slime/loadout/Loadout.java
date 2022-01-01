@@ -14,7 +14,7 @@ import net.minestom.server.tag.TagReadable;
 import net.minestom.server.tag.TagWritable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -173,7 +173,7 @@ public class Loadout implements TagReadable, TagWritable {
     }
 
     //Tags
-    private final NBTCompound nbtCompound = new NBTCompound();
+    private final MutableNBTCompound nbtCompound = new MutableNBTCompound();
 
     @Override public <T> @Nullable T getTag(@NotNull Tag<T> tag) {
         return tag.read(this.nbtCompound);

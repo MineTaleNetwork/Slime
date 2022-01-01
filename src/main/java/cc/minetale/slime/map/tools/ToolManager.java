@@ -1,14 +1,24 @@
 package cc.minetale.slime.map.tools;
 
+import cc.minetale.buildingtools.Builder;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.map.GameMap;
+import cc.minetale.slime.map.tools.commands.DebugCommand;
 import cc.minetale.slime.map.tools.commands.GameCommand;
 import cc.minetale.slime.map.tools.commands.MapCommand;
+import cc.minetale.slime.map.tools.commands.SpawnCommand;
 import cc.minetale.slime.utils.MapUtil;
 import com.mongodb.client.model.ReplaceOptions;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.event.EventNode;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.scoreboard.Sidebar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +45,27 @@ public class ToolManager {
 
         //Commands
         var mainCmd = Slime.MAIN_CMD;
-        mainCmd.addSubcommand(new MapCommand());
         mainCmd.addSubcommand(new GameCommand());
+        mainCmd.addSubcommand(new MapCommand());
+
+        mainCmd.addSubcommand(new SpawnCommand());
+
+        mainCmd.addSubcommand(new DebugCommand());
+
+        //Events
+        MinecraftServer.getGlobalEventHandler()
+                .addChild(EventNode.all("toolManager")
+                        .addListener(PlayerSpawnEvent.class, event -> {
+                            if(!event.isFirstSpawn()) { return; }
+
+                            var builder = Builder.fromPlayer(event.getPlayer());
+
+                            var sidebar = builder.getSidebar();
+                            sidebar.createLine(new Sidebar.ScoreboardLine("3", Component.text()
+                                    .append(Component.text("Map: ", NamedTextColor.GOLD, TextDecoration.BOLD),
+                                            Component.text("None", NamedTextColor.GRAY))
+                                    .build(), 3));
+                        }));
 
         this.availableGames = Collections.synchronizedSet(new HashSet<>());
         this.activeMaps = Collections.synchronizedSet(new HashSet<>());
@@ -137,10 +166,8 @@ public class ToolManager {
 
         if(includeBlocks) {
             return map.saveBlocks()
-                    .thenCompose(success -> {
-                        //TODO Success is false even if it was successful
-                        return CompletableFuture.completedFuture(success && result.get());
-                    });
+                    //TODO Success is false even if it was successful
+                    .thenCompose(success -> CompletableFuture.completedFuture(success && result.get()));
         }
 
         return CompletableFuture.completedFuture(result.get());

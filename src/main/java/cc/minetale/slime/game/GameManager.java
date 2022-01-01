@@ -26,14 +26,19 @@ public final class GameManager implements ForwardingAudience {
 
     @Getter private final List<Game> games = Collections.synchronizedList(new ArrayList<>());
 
+    @Getter @Setter private int maxGames;
+
     private final Supplier<Game> gameProvider;
     private Function<Game, GameLobby> lobbyProvider = GameLobby::new;
 
     public GameManager(GameExtension extension,
+                       int maxGames,
                        @NotNull Supplier<Game> gameProvider,
                        @Nullable Function<Game, GameLobby> lobbyProvider) {
 
         this.extension = extension;
+
+        this.maxGames = maxGames;
 
         this.gameProvider = gameProvider;
         this.lobbyProvider = Objects.requireNonNullElse(lobbyProvider, this.lobbyProvider);
@@ -77,7 +82,7 @@ public final class GameManager implements ForwardingAudience {
     }
 
     private boolean canFitNewGame() {
-        return this.extension.getMaxGames() - this.games.size() > 0;
+        return this.maxGames - this.games.size() > 0;
     }
 
     //Audiences

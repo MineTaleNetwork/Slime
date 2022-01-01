@@ -1,11 +1,15 @@
 package cc.minetale.slime.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.number.ArgumentFloat;
 import net.minestom.server.command.builder.arguments.relative.ArgumentRelativeVec3;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
+
+import java.util.Map;
 
 public class MiscUtil {
 
@@ -31,6 +35,19 @@ public class MiscUtil {
         var pitch = context.getOrDefault(pitchArg, builderPos.pitch());
 
         return vec.asPosition().withView(yaw, pitch);
+    }
+
+    public static Component getInformationMessage(String title, Map<String, Component> info) {
+        var builder = Component.text()
+                .append(Component.text(title));
+
+        for(Map.Entry<String, Component> ent : info.entrySet()) {
+            builder.append(Component.newline(),
+                    Component.text(ent.getKey() + ": ", NamedTextColor.GRAY),
+                    ent.getValue().colorIfAbsent(NamedTextColor.WHITE));
+        }
+
+        return builder.build();
     }
 
 }

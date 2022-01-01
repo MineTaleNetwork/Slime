@@ -13,7 +13,6 @@ import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.coordinate.Pos;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
-import static cc.minetale.slime.map.tools.commands.MapCommand.MAP_ARG;
 import static cc.minetale.slime.map.tools.commands.SpawnCommand.*;
 
 public final class CreateCommand extends Command {
@@ -23,9 +22,9 @@ public final class CreateCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::createSpawnPoint, MAP_ARG);
-        addSyntax(this::createSpawnPoint, MAP_ARG, POSITION_ARG);
-        addSyntax(this::createSpawnPoint, MAP_ARG, POSITION_ARG, YAW_ARG, PITCH_ARG);
+        addSyntax(this::createSpawn, SPAWN_ARG);
+        addSyntax(this::createSpawn, SPAWN_ARG, POSITION_ARG);
+        addSyntax(this::createSpawn, SPAWN_ARG, POSITION_ARG, YAW_ARG, PITCH_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
@@ -33,7 +32,7 @@ public final class CreateCommand extends Command {
                 Component.text("Usage: /slime spawn create <id> [position] [rotation]", NamedTextColor.GRAY)));
     }
 
-    public void createSpawnPoint(CommandSender sender, CommandContext context) {
+    public void createSpawn(CommandSender sender, CommandContext context) {
         var id = context.get(SPAWN_ARG);
 
         var builder = Builder.fromSender(sender);
@@ -64,13 +63,13 @@ public final class CreateCommand extends Command {
         handle.addSpawn(spawn);
 
         sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Successfully created a spawn with ID \"" + id + "\" for \"" + MapUtil.getFullId(handle) + "\"." +
+                Component.text("Successfully created a spawn with ID \"" + id + "\" for \"" + MapUtil.getFullId(handle) + "\". " +
                                 "At " + MiscUtil.toString(pos), NamedTextColor.GREEN)
                         .append(Component.newline())
                         .append(Component.text(
-                                "- This spawn doesn't have any owners and because of this is available for any team." +
+                                "- This spawn doesn't have any owners and because of this is available for any team. " +
                                         "You can change that with \"/slime spawn owner\" commands.\n" +
-                                        "- It is currently not in the database and inaccessible by players," +
+                                        "- It is currently not in the database and inaccessible by players, " +
                                         "but you can change that with \"/slime map open\" after saving.",
                                 NamedTextColor.YELLOW))));
     }

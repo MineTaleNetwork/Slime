@@ -20,11 +20,25 @@ public final class MapCommand extends Command {
     public static final ToolManager TOOL_MANAGER = Slime.TOOL_MANAGER;
 
     //Arguments
+    public static final ArgumentWord GAMEMODE_ARG = (ArgumentWord) new ArgumentWord("gamemode")
+            .setSuggestionCallback((CommandSender sender, CommandContext context, Suggestion suggestion) -> {
+                for(GameExtension game : Slime.TOOL_MANAGER.getAvailableGames()) {
+                    var id = game.getId();
+                    suggestion.addEntry(new SuggestionEntry(id, Component.text(id)));
+                }
+            });
+
+    public static final ArgumentString NAME_ARG = new ArgumentString("name");
+
+    //TODO Make it so if any gamemode extension is loaded, it'll restrict this to only IDs of the currently loaded gamemode extensions
+    public static final ArgumentWord DIMENSION_ARG = new ArgumentWord("dimension")
+            .from("minecraft:overworld", "minecraft:nether", "minecraft:the_end");
+
     public static final ArgumentWord MAP_ARG = new ArgumentWord("id");
     public static final ArgumentWord MAP_AUTO_ARG = (ArgumentWord) MAP_ARG
             .setSuggestionCallback((sender, context, suggestion) -> {
-                if(context.has("gamemode")) {
-                    String gamemode = context.get("gamemode");
+                if(context.has(GAMEMODE_ARG)) {
+                    var gamemode = context.get(GAMEMODE_ARG);
 
                     var oGame = Slime.TOOL_MANAGER.getGame(gamemode);
                     if(oGame.isEmpty()) { return; }
@@ -38,20 +52,6 @@ public final class MapCommand extends Command {
                             });
                 }
             });
-
-    public static final ArgumentString NAME_ARG = new ArgumentString("name");
-
-    public static final ArgumentWord GAMEMODE_ARG = (ArgumentWord) new ArgumentWord("gamemode")
-            .setSuggestionCallback((CommandSender sender, CommandContext context, Suggestion suggestion) -> {
-                for(GameExtension game : Slime.TOOL_MANAGER.getAvailableGames()) {
-                    var id = game.getId();
-                    suggestion.addEntry(new SuggestionEntry(id, Component.text(id)));
-                }
-            });
-
-    //TODO Make it so if any gamemode extension is loaded, it'll restrict this to only IDs of the currently loaded gamemode extensions
-    public static final ArgumentWord DIMENSION_ARG = new ArgumentWord("dimension")
-            .from("minecraft:overworld", "minecraft:nether", "minecraft:the_end");
 
     public MapCommand() {
         super("map");

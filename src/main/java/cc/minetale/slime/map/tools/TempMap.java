@@ -3,13 +3,18 @@ package cc.minetale.slime.map.tools;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.map.GameMap;
+import cc.minetale.slime.utils.Requirement;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
 /**
  * Temporary Map used for building purposes.
@@ -43,7 +48,7 @@ public class TempMap {
     }
 
     public static TempMap ofMap(GameMap map, boolean isInDatabase) {
-        var oGame = Slime.TOOL_MANAGER.getGame(map.getGamemode());
+        var oGame = TOOL_MANAGER.getGame(map.getGamemode());
         if(oGame.isEmpty()) { return null; }
         var game = oGame.get();
 
@@ -59,6 +64,16 @@ public class TempMap {
         var playArea = this.handle.getPlayArea();
         var path = this.handle.getFilePath();
         return playArea.save(path);
+    }
+
+    public List<Requirement<TempMap>> getUnsatisfiedRequirements() {
+        List<Requirement<TempMap>> requirements = new ArrayList<>();
+        for(Requirement<TempMap> requirement : this.game.getMapRequirements()) {
+            if(!requirement.doesMeetRequirement(this)) {
+                requirements.add(requirement);
+            }
+        }
+        return requirements;
     }
 
 }

@@ -2,6 +2,7 @@ package cc.minetale.slime.player;
 
 import cc.minetale.flame.util.FlamePlayer;
 import cc.minetale.slime.attribute.Attribute;
+import cc.minetale.slime.attribute.Attributes;
 import cc.minetale.slime.attribute.IAttributeReadable;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.core.GameLobby;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class GamePlayer extends FlamePlayer implements IAttributeReadable, IAttr
 
     @Nullable @Setter private GameLobby lobby;
 
-    private final Map<Attribute, Object> attributes;
+    private final Map<Attribute<?>, Object> attributes;
 
     /** If the player dies when they have 0 lives, they cannot respawn. Anything below 0 means the player is dead. */
     @Setter protected int lives = 0;
@@ -42,8 +43,8 @@ public class GamePlayer extends FlamePlayer implements IAttributeReadable, IAttr
     public GamePlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         super(uuid, username, playerConnection);
 
-        EnumMap<Attribute, Object> attributes = new EnumMap<>(Attribute.class);
-        for(Attribute attribute : Attribute.values()) {
+        Map<Attribute<?>, Object> attributes = new HashMap<>(Attributes.ALL_ATTRIBUTES.size());
+        for(Attribute<?> attribute : Attributes.ALL_ATTRIBUTES) {
             attributes.put(attribute, attribute.getDefaultValue());
         }
         this.attributes = Collections.synchronizedMap(attributes);
@@ -76,7 +77,7 @@ public class GamePlayer extends FlamePlayer implements IAttributeReadable, IAttr
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getAttribute(Attribute attr) {
+    public <T> T getAttribute(Attribute<T> attr) {
         return (T) this.attributes.get(attr);
     }
 
