@@ -2,7 +2,7 @@ package cc.minetale.slime.map.tools.commands;
 
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.map.AbstractMap;
-import cc.minetale.slime.map.tools.commands.map.*;
+import cc.minetale.slime.map.tools.commands.lobby.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
@@ -14,11 +14,11 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
 import static cc.minetale.slime.map.tools.commands.CommonCommands.GAMEMODE_ARG;
 
-public final class MapCommand extends Command {
+public final class LobbyCommand extends Command {
 
     //Arguments
-    public static final ArgumentWord MAP_ARG = new ArgumentWord("id");
-    public static final ArgumentWord MAP_AUTO_ARG = (ArgumentWord) MAP_ARG
+    public static final ArgumentWord LOBBY_ARG = new ArgumentWord("id");
+    public static final ArgumentWord LOBBY_AUTO_ARG = (ArgumentWord) LOBBY_ARG
             .setSuggestionCallback((sender, context, suggestion) -> {
                 if(context.has(GAMEMODE_ARG)) {
                     var gamemode = context.get(GAMEMODE_ARG);
@@ -27,7 +27,7 @@ public final class MapCommand extends Command {
                     if(oGame.isEmpty()) { return; }
                     var game = oGame.get();
 
-                    TOOL_MANAGER.getActiveMapsForGame(AbstractMap.Type.GAME, game)
+                    TOOL_MANAGER.getActiveMapsForGame(AbstractMap.Type.LOBBY, game)
                             .forEach(map -> {
                                 var handle = map.getHandle();
                                 var id = handle.getId();
@@ -36,8 +36,8 @@ public final class MapCommand extends Command {
                 }
             });
 
-    public MapCommand() {
-        super("map");
+    public LobbyCommand() {
+        super("lobby");
 
         setDefaultExecutor(this::defaultExecutor);
 
@@ -60,8 +60,8 @@ public final class MapCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Usage: /slime map <create|modify|remove|save|list|info|load|unload|open|close|tp>", NamedTextColor.GRAY)));
+        sender.sendMessage(MC.notificationMessage("Lobby",
+                Component.text("Usage: /slime lobby <create|modify|remove|save|list|info|load|unload|open|close|tp>", NamedTextColor.GRAY)));
     }
 
 }

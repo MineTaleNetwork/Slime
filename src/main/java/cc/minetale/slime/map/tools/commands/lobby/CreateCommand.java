@@ -1,4 +1,4 @@
-package cc.minetale.slime.map.tools.commands.map;
+package cc.minetale.slime.map.tools.commands.lobby;
 
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.map.AbstractMap;
@@ -19,15 +19,16 @@ public final class CreateCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax((sender, context) -> CommonCommands.createMap(AbstractMap.Type.GAME, sender, context),
-                MAP_ARG, NAME_ARG, GAMEMODE_ARG, DIMENSION_ARG);
-        addSyntax((sender, context) -> CommonCommands.createMap(AbstractMap.Type.GAME, sender, context),
-                MAP_ARG, NAME_ARG, GAMEMODE_ARG);
+        addSyntax((sender, context) -> CommonCommands.createMap(AbstractMap.Type.LOBBY, sender, context),
+                MAP_ARG, GAMEMODE_ARG, DIMENSION_ARG);
+
+        addSyntax((sender, context) -> CommonCommands.createMap(AbstractMap.Type.LOBBY, sender, context),
+                MAP_ARG, GAMEMODE_ARG);
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Usage: /slime map create <id> <name> <gamemodeId> [dimensionId]", NamedTextColor.GRAY)));
+        sender.sendMessage(MC.notificationMessage("Lobby",
+                Component.text("Usage: /slime lobby create <id> <gamemodeId> [dimensionId]", NamedTextColor.GRAY)));
     }
 
 }

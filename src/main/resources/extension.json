@@ -1,5 +1,6 @@
 {
   "entrypoint": "cc.minetale.slime.Slime",
   "name": "Slime",
+  "version": "LATEST",
   "dependencies": ["mLib", "Flame"]
 }

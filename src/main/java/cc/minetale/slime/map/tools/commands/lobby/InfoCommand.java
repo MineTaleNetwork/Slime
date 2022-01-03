@@ -1,4 +1,4 @@
-package cc.minetale.slime.map.tools.commands.map;
+package cc.minetale.slime.map.tools.commands.lobby;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
@@ -30,10 +30,10 @@ public final class InfoCommand extends Command {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(AbstractMap.Type.GAME, instance);
+        var oMap = TOOL_MANAGER.getMapByInstance(AbstractMap.Type.LOBBY, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage("Map",
-                    Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
+            sender.sendMessage(MC.notificationMessage("Lobby",
+                    Component.text("Something went wrong when looking up the lobby you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
@@ -48,7 +48,6 @@ public final class InfoCommand extends Command {
                         Map.ofEntries(
                                 Map.entry("ID", Component.text(handle.getId())),
                                 Map.entry("Gamemode", Component.text(handle.getGamemode())),
-                                Map.entry("Name", Component.text(handle.getName())),
                                 Map.entry("IsOpen", Component.text(handle.isOpen(), handle.isOpen() ? NamedTextColor.GREEN : NamedTextColor.RED)),
                                 Map.entry("Dimension", Component.text(handle.getDimensionID().asString())),
                                 Map.entry("Area", Component.text(area.getLengthX() + "x" + area.getLengthY() + "x" + area.getLengthZ()))

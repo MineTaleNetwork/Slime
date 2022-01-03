@@ -1,4 +1,4 @@
-package cc.minetale.slime.map.tools.commands.map;
+package cc.minetale.slime.map.tools.commands.lobby;
 
 import cc.minetale.commonlib.util.MC;
 import cc.minetale.slime.map.AbstractMap;
@@ -18,12 +18,12 @@ public final class CloseCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax((sender, context) -> CommonCommands.closeMap(AbstractMap.Type.GAME, sender, context));
+        addSyntax((sender, context) -> CommonCommands.closeMap(AbstractMap.Type.LOBBY, sender, context));
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
-                Component.text("Usage: /slime map close", NamedTextColor.GRAY)));
+        sender.sendMessage(MC.notificationMessage("Lobby",
+                Component.text("Usage: /slime lobby close", NamedTextColor.GRAY)));
     }
 
 }

@@ -2,6 +2,7 @@ package cc.minetale.slime.map.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.utils.MapUtil;
 import cc.minetale.slime.utils.MiscUtil;
 import net.kyori.adventure.text.Component;
@@ -44,7 +45,11 @@ public final class InfoCommand extends Command {
         }
         var map = oMap.get();
 
-        var handle = map.getHandle();
+        if(!(map.getHandle() instanceof GameMap handle)) {
+            sender.sendMessage(MC.notificationMessage("Map",
+                    Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
+            return;
+        }
 
         var id = context.get(SPAWN_AUTO_ARG);
 

@@ -1,4 +1,4 @@
-package cc.minetale.slime.map.tools.commands.map;
+package cc.minetale.slime.map.tools.commands.lobby;
 
 import cc.minetale.slime.map.tools.TempMap;
 import net.minestom.server.command.CommandSender;
@@ -17,8 +17,8 @@ public final class ListCommand extends Command {
 
     //TODO Make a bit more clean
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage("Active Game Maps:");
-        for(TempMap map : TOOL_MANAGER.getActiveGameMaps()) {
+        sender.sendMessage("Active Lobby Maps: ");
+        for(TempMap map : TOOL_MANAGER.getActiveLobbyMaps()) {
             var handle = map.getHandle();
             sender.sendMessage(handle.getGamemode() + ":" + handle.getId());
         }

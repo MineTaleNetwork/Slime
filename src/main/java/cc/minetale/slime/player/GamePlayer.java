@@ -5,7 +5,7 @@ import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.Attributes;
 import cc.minetale.slime.attribute.IAttributeReadable;
 import cc.minetale.slime.attribute.IAttributeWritable;
-import cc.minetale.slime.core.GameLobby;
+import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.spawn.Spawn;

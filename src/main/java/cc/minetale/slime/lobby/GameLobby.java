@@ -1,6 +1,7 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.lobby;
 
 import cc.minetale.slime.Slime;
+import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.Stage;
 import cc.minetale.slime.loadout.DefaultLoadouts;

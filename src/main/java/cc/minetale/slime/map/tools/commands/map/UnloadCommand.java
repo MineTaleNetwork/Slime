@@ -1,7 +1,8 @@
 package cc.minetale.slime.map.tools.commands.map;
 
-import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.map.AbstractMap;
+import cc.minetale.slime.map.tools.commands.CommonCommands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.CommandSender;
@@ -15,22 +16,12 @@ public final class UnloadCommand extends Command {
 
         setDefaultExecutor(this::defaultExecutor);
 
-        addSyntax(this::unloadMap);
+        addSyntax((sender, context) -> CommonCommands.unloadMap(AbstractMap.Type.GAME, sender, context));
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
         sender.sendMessage(MC.notificationMessage("Map",
                 Component.text("Usage: /slime map unload", NamedTextColor.GRAY)));
-    }
-
-    private void unloadMap(CommandSender sender, CommandContext context) {
-        var builder = Builder.fromSender(sender);
-        if(builder == null) {
-            return;
-        }
-
-        //TODO Get the map from instance, inform if it isn't loaded and warn if there are any unsaved changes
-
     }
 
 }

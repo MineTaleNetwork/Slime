@@ -1,6 +1,6 @@
 package cc.minetale.slime.spawn;
 
-import cc.minetale.buildingtools.Utils;
+import cc.minetale.mlib.util.DocumentUtil;
 import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.utils.TeamUtil;
@@ -75,7 +75,7 @@ public final class BaseSpawn {
             this.owners.add(team);
         }
 
-        this.position = Utils.documentToPosition(document.get("position", Document.class));
+        this.position = DocumentUtil.documentToPosition(document.get("position", Document.class));
     }
 
     public Document toDocument() {
@@ -89,7 +89,7 @@ public final class BaseSpawn {
         }
         document.put("owners", ownerIds);
 
-        document.put("position", Utils.positionToDocument(this.position));
+        document.put("position", DocumentUtil.positionToDocument(this.position));
 
         return document;
     }

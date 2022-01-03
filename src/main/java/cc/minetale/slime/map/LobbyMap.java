@@ -3,72 +3,52 @@ package cc.minetale.slime.map;
 import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaUtils;
 import cc.minetale.mlib.util.DocumentUtil;
-import cc.minetale.slime.spawn.BaseSpawn;
+import cc.minetale.slime.utils.MapUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.Setter;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
 @Getter
-public class GameMap extends AbstractMap {
+public class LobbyMap extends AbstractMap {
 
-    @Getter private static final MongoCollection<Document> collection = CommonLib.getMongoDatabase().getCollection("maps");
+    @Getter private static final MongoCollection<Document> collection = CommonLib.getMongoDatabase().getCollection("lobbies");
 
     protected String id;
-
-    @Setter protected String name;
     @Setter protected String gamemode;
-
     @Setter protected NamespaceID dimension;
-
     @Setter protected Vec minPos;
     @Setter protected Vec maxPos;
-
-    private final Map<String, BaseSpawn> spawns = new ConcurrentHashMap<>();
-
+    @Setter protected Pos spawn = Pos.ZERO;
     private boolean isOpen;
 
-    public GameMap() {}
+    protected LobbyMap() {}
 
-    public GameMap(String id, String name, String gamemode, NamespaceID dimension, Vec minPos, Vec maxPos) {
+    public LobbyMap(String id, String gamemode, NamespaceID dimension, Vec minPos, Vec maxPos) {
         this.id = id;
-
-        this.name = name;
         this.gamemode = gamemode;
-
         this.dimension = dimension;
-
         this.minPos = minPos;
         this.maxPos = maxPos;
     }
 
-    public BaseSpawn getSpawn(String id) {
-        return this.getSpawns().get(id);
+    @Override
+    public String getName() {
+        return "";
     }
 
-    public void addSpawn(BaseSpawn spawn) {
-        this.spawns.put(spawn.getId(), spawn);
-    }
-
-    public BaseSpawn removeSpawn(String spawnId) {
-        return this.spawns.remove(spawnId);
-    }
-
-    public void removeSpawn(BaseSpawn spawn) {
-        removeSpawn(spawn.getId());
-    }
+    @Override
+    public void setName(String name) {}
 
     @Override
     public NamespaceID getDimensionID() {
@@ -84,32 +64,23 @@ public class GameMap extends AbstractMap {
     @Override
     public final UpdateResult setStatus(boolean isOpen) {
         this.isOpen = isOpen;
-        return GameMap.getCollection()
+        return LobbyMap.getCollection()
                 .updateOne(getFilter(), Updates.set("status", isOpen));
     }
 
     @Override
     public Path getFilePath() {
-        return MagmaUtils.getDefaultLocation("maps/" + getId());
+        return MagmaUtils.getDefaultLocation("lobbies/" + getId());
     }
 
     @Override
     protected void load(Document document) {
         this.id = document.getString("_id");
-
-        this.name = document.getString("name");
         this.gamemode = document.getString("gamemode");
-
         this.dimension = NamespaceID.from(document.getString("dimension"));
-
         this.minPos = DocumentUtil.documentToVector(document.get("minPos", Document.class));
         this.maxPos = DocumentUtil.documentToVector(document.get("maxPos", Document.class));
-
-        var game = TOOL_MANAGER.getGameOrActive(this.gamemode);
-        for(Map.Entry<String, Object> ent : document.get("spawns", Document.class).entrySet()) {
-            this.spawns.put(ent.getKey(), BaseSpawn.fromDocument((Document) ent.getValue(), game));
-        }
-
+        this.spawn = DocumentUtil.documentToPosition(document.get("spawn", Document.class));
         this.isOpen = document.getBoolean("isOpen", false);
     }
 
@@ -117,35 +88,27 @@ public class GameMap extends AbstractMap {
     public Document toDocument() {
         var document = new Document();
         document.put("_id", this.id);
-
-        document.put("name", this.name);
         document.put("gamemode", this.gamemode);
-
         document.put("dimension", this.dimension.toString());
-
         document.put("minPos", DocumentUtil.vectorToDocument(this.minPos));
         document.put("maxPos", DocumentUtil.vectorToDocument(this.maxPos));
-
-        Document spawnsDocument = new Document();
-        for (Map.Entry<String, BaseSpawn> ent : this.spawns.entrySet()) {
-            var baseSpawn = ent.getValue();
-            spawnsDocument.put(ent.getKey(), baseSpawn.toDocument());
-        }
-        document.put("spawns", spawnsDocument);
-
+        document.put("spawn", DocumentUtil.positionToDocument(this.spawn));
         document.put("isOpen", this.isOpen);
 
         return document;
     }
 
+    public final Bson getFilter() {
+        return MapUtil.getFilter(this.gamemode, this.id);
+    }
+
     @Override
     public boolean equals(Object o) {
-        return this == o || o instanceof GameMap other && (this.id.equals(other.getId()) && this.gamemode.equals(other.getGamemode()));
+        return this == o || o instanceof LobbyMap other && (this.id.equals(other.getId()) && this.gamemode.equals(other.getGamemode()));
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(this.id, this.gamemode);
     }
-
 }

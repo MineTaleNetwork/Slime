@@ -1,26 +1,30 @@
 package cc.minetale.slime.utils;
 
 import cc.minetale.commonlib.util.CollectionsUtil;
+import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.tools.TempMap;
 import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.team.ITeamType;
-import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
 
 import java.util.*;
 
+import static cc.minetale.slime.Slime.TOOL_MANAGER;
+
 public final class MapUtil {
 
     private MapUtil() {}
 
-    public static boolean isInDatabase(String gamemode, String id) {
-        return GameMap.getCollection().countDocuments(
-                Filters.and(
-                        Filters.eq("_id", id),
-                        Filters.eq("gamemode", gamemode)
-                ), new CountOptions().limit(1)) > 0;
+    //TODO Merge these methods through MapResolver within AbstractMap.Type?
+    public static boolean isMapInDatabase(AbstractMap.Type type, String gamemode, String id) {
+        Optional<GameExtension> oGame = TOOL_MANAGER.getGame(gamemode);
+        if(oGame.isEmpty()) { return false; }
+        var game = oGame.get();
+
+        return type.getResolver(game).isInDatabase(gamemode, id);
     }
 
     public static Bson getFilter(String gamemode, String id) {
@@ -41,7 +45,7 @@ public final class MapUtil {
      * Full ID of a map containing both map's gamemode and ID. <br>
      * It's only used for display purposes.
      */
-    public static String getFullId(GameMap map) {
+    public static String getFullId(AbstractMap map) {
         return getFullId(map.getGamemode(), map.getId());
     }
 

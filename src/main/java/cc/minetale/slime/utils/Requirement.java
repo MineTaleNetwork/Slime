@@ -1,5 +1,6 @@
 package cc.minetale.slime.utils;
 
+import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.tools.TempMap;
 import cc.minetale.slime.spawn.BaseSpawn;
 import cc.minetale.slime.team.ITeamType;
@@ -35,7 +36,10 @@ public final class Requirement<T> {
             return new Requirement<>(
                     "MIN_SPAWN_" + min,
                     "There should be at least " + min + " spawn(s).",
-                    map -> map.getHandle().getSpawns().size() >= min);
+                    map -> {
+                        if(!(map.getHandle() instanceof GameMap handle)) { return false; }
+                        return handle.getSpawns().size() >= min;
+                    });
         }
 
         /**
@@ -50,7 +54,7 @@ public final class Requirement<T> {
                     "Each team should own at least " + min + " usable spawn(s). " +
                             "(Make sure to check if any spawns aren't unexpectedly owned by some team(s))",
                     map -> {
-                        var handle = map.getHandle();
+                        if(!(map.getHandle() instanceof GameMap handle)) { return false; }
                         Collection<BaseSpawn> spawns = handle.getSpawns().values();
 
                         var game = map.getGame();
@@ -65,7 +69,7 @@ public final class Requirement<T> {
                             "MIN_UNOWNED_SPAWN_" + min,
                             "There should be at least " + min + " unowned spawn(s).",
                             map -> {
-                                var handle = map.getHandle();
+                                if(!(map.getHandle() instanceof GameMap handle)) { return false; }
                                 Collection<BaseSpawn> spawns = handle.getSpawns().values();
 
                                 int unowned = 0;
@@ -81,7 +85,7 @@ public final class Requirement<T> {
                         "ALL_SPAWNS_OWNED",
                         "All spawns should be owned by any team.",
                         map -> {
-                            var handle = map.getHandle();
+                            if(!(map.getHandle() instanceof GameMap handle)) { return false; }
                             Collection<BaseSpawn> spawns = handle.getSpawns().values();
 
                             return spawns.stream().allMatch(BaseSpawn::isOwned);
@@ -93,7 +97,7 @@ public final class Requirement<T> {
                         "ALL_SPAWNS_NOT_OWNED",
                         "All spawns shouldn't be owned by any team.",
                         map -> {
-                            var handle = map.getHandle();
+                            if(!(map.getHandle() instanceof GameMap handle)) { return false; }
                             Collection<BaseSpawn> spawns = handle.getSpawns().values();
 
                             return spawns.stream().noneMatch(BaseSpawn::isOwned);

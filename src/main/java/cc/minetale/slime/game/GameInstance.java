@@ -1,4 +1,4 @@
-package cc.minetale.slime.core;
+package cc.minetale.slime.game;
 
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.GameMap;

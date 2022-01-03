@@ -2,6 +2,7 @@ package cc.minetale.slime.map.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.utils.MapUtil;
 import cc.minetale.slime.utils.TeamUtil;
@@ -34,8 +35,9 @@ public final class OwnerCommand extends Command {
                 var map = oMap.get();
 
                 if(context.has(SPAWN_ARG)) {
+                    if(!(map.getHandle() instanceof GameMap handle)) { return; }
+
                     var spawnId = context.get(SPAWN_ARG);
-                    var handle = map.getHandle();
                     var spawn = handle.getSpawn(spawnId);
 
                     var game = map.getGame();
@@ -63,8 +65,9 @@ public final class OwnerCommand extends Command {
                 var map = oMap.get();
 
                 if(context.has(SPAWN_ARG)) {
+                    if(!(map.getHandle() instanceof GameMap handle)) { return; }
+
                     var spawnId = context.get(SPAWN_ARG);
-                    var handle = map.getHandle();
                     var spawn = handle.getSpawn(spawnId);
 
                     Set<ITeamType> owners = spawn.getOwners();
@@ -130,7 +133,13 @@ public final class OwnerCommand extends Command {
             }
             var map = oMap.get();
 
-            var spawn = map.getHandle().getSpawn(spawnId);
+            if(!(map.getHandle() instanceof GameMap handle)) {
+                sender.sendMessage(MC.notificationMessage("Map",
+                        Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
+                return;
+            }
+
+            var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
                 sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
@@ -193,7 +202,13 @@ public final class OwnerCommand extends Command {
             }
             var map = oMap.get();
 
-            var spawn = map.getHandle().getSpawn(spawnId);
+            if(!(map.getHandle() instanceof GameMap handle)) {
+                sender.sendMessage(MC.notificationMessage("Map",
+                        Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
+                return;
+            }
+
+            var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
                 sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
@@ -255,7 +270,13 @@ public final class OwnerCommand extends Command {
             }
             var map = oMap.get();
 
-            var spawn = map.getHandle().getSpawn(spawnId);
+            if(!(map.getHandle() instanceof GameMap handle)) {
+                sender.sendMessage(MC.notificationMessage("Map",
+                        Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
+                return;
+            }
+
+            var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
                 sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));

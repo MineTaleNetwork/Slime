@@ -2,6 +2,7 @@ package cc.minetale.slime.map.tools.commands;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.commonlib.util.MC;
+import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.tools.commands.spawn.*;
 import cc.minetale.slime.team.ITeamType;
 import net.kyori.adventure.text.Component;
@@ -32,7 +33,7 @@ public class SpawnCommand extends Command {
                 if(oMap.isEmpty()) { return; }
                 var map = oMap.get();
 
-                var handle = map.getHandle();
+                if(!(map.getHandle() instanceof GameMap handle)) { return; }
 
                 for(String spawnId : handle.getSpawns().keySet()) {
                     suggestion.addEntry(new SuggestionEntry(spawnId, Component.text(spawnId)));

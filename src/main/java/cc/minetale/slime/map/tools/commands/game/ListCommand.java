@@ -1,10 +1,11 @@
 package cc.minetale.slime.map.tools.commands.game;
 
-import cc.minetale.slime.Slime;
 import cc.minetale.slime.core.GameExtension;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
+
+import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
 public final class ListCommand extends Command {
 
@@ -17,7 +18,7 @@ public final class ListCommand extends Command {
     //TODO Make a bit more clean
     private void defaultExecutor(CommandSender sender, CommandContext context) {
         sender.sendMessage("Available Games: ");
-        for(GameExtension game : Slime.TOOL_MANAGER.getAvailableGames()) {
+        for(GameExtension game : TOOL_MANAGER.getAvailableGames()) {
             sender.sendMessage(game.getId());
         }
     }

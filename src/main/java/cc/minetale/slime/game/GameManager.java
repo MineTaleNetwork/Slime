@@ -1,7 +1,7 @@
 package cc.minetale.slime.game;
 
 import cc.minetale.slime.core.GameExtension;
-import cc.minetale.slime.core.GameLobby;
+import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.core.MainListener;
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
