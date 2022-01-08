@@ -2,34 +2,31 @@ package cc.minetale.slime.team;
 
 import cc.minetale.mlib.nametag.NameplateProvider;
 import cc.minetale.mlib.nametag.ProviderType;
-import cc.minetale.slime.attribute.Attribute;
-import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
+import cc.minetale.slime.rule.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static cc.minetale.slime.Slime.TEAM_MANAGER;
 
 @Getter
-public class GameTeam implements IAttributeWritable, SlimeForwardingAudience {
+public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
 
     @Setter(AccessLevel.PACKAGE)
     private Team handle;
+
+    private final Map<Rule<?>, Object> rules;
 
     private final String id;
 
@@ -53,6 +50,8 @@ public class GameTeam implements IAttributeWritable, SlimeForwardingAudience {
         this.size = size;
         this.type = type;
         this.nameplateProvider = new NameplateProvider(this.handle, ProviderType.SLIME);
+
+        this.rules = Collections.synchronizedMap(new HashMap<>());
     }
 
     public boolean addPlayer(GamePlayer player) {
@@ -77,10 +76,24 @@ public class GameTeam implements IAttributeWritable, SlimeForwardingAudience {
         return this.players.size() + amount <= this.size;
     }
 
-    //Attributes
+    //Rules
     @Override
-    public void setAttribute(Attribute attr, Object value) {
-        this.players.forEach(player -> player.setAttribute(attr, value));
+    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+        if(rule instanceof TeamRule) {
+            this.rules.put(rule, value);
+            return;
+        } else if(rule instanceof UniversalRule) {
+            this.rules.put(rule, value);
+        }
+
+        if(affectChildren)
+            this.players.forEach(player -> player.setRule(rule, value, affectChildren));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getRule(Rule<T> rule) {
+        return (T) this.rules.get(rule);
     }
 
     //Audiences

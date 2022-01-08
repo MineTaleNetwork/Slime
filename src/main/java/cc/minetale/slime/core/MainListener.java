@@ -1,11 +1,11 @@
 package cc.minetale.slime.core;
 
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.attribute.Attributes;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.GameManager;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.player.PlayerState;
+import cc.minetale.slime.rule.PlayerRule;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
@@ -127,22 +127,22 @@ public final class MainListener {
             var game = player.getGame();
             if(game == null) { return; }
 
-            if(player.getAttribute(Attributes.AUTO_LOSE_LIVES))
+            if(player.getRule(PlayerRule.AUTO_LOSE_LIVES))
                 player.setLives(player.getLives() - 1);
 
             //Will the player will be set to spectator?
             var eliminated = player.getLives() == 0;
 
             if(!eliminated) {
-                if(player.getAttribute(Attributes.RESPAWN_TIME) > 0) {
-                    if(player.getAttribute(Attributes.AUTO_DEATHCAM))
+                if(player.getRule(PlayerRule.RESPAWN_TIME) > 0) {
+                    if(player.getRule(PlayerRule.AUTO_DEATHCAM))
                         player.setState(PlayerState.DEATHCAM);
                     //TODO Automatic deathcam
 
                     return;
                 }
             } else {
-                if(player.getAttribute(Attributes.AUTO_SPECTATOR))
+                if(player.getRule(PlayerRule.AUTO_SPECTATOR))
                     player.setState(PlayerState.SPECTATE);
                 //TODO Automatic spectator
             }

@@ -1,8 +1,6 @@
 package cc.minetale.slime.game;
 
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.attribute.Attribute;
-import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
 import cc.minetale.slime.core.GameState;
@@ -16,6 +14,7 @@ import cc.minetale.slime.event.team.GameSetupTeamsEvent;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.player.GamePlayer;
+import cc.minetale.slime.rule.*;
 import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.team.GameTeam;
@@ -38,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public abstract class Game implements IAttributeWritable, SlimeForwardingAudience {
+public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
 
@@ -49,6 +48,8 @@ public abstract class Game implements IAttributeWritable, SlimeForwardingAudienc
 
     @Getter @Setter(AccessLevel.PACKAGE)
     private GameState state;
+
+    private final Map<Rule<?>, Object> rules;
 
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
@@ -63,6 +64,8 @@ public abstract class Game implements IAttributeWritable, SlimeForwardingAudienc
     protected Game(@NotNull GameState state) {
         state.setGame(this);
         this.state = state;
+
+        this.rules = Collections.synchronizedMap(new HashMap<>());
     }
 
     public CompletableFuture<Void> setup() {
@@ -247,10 +250,24 @@ public abstract class Game implements IAttributeWritable, SlimeForwardingAudienc
         INSTANCE_MANAGER.unregisterInstance(instance);
     }
 
-    //Attributes
+    //Rules
     @Override
-    public final void setAttribute(Attribute attr, Object value) {
-        this.teamManager.getTeams().forEach((id, team) -> team.setAttribute(attr, value));
+    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+        if(rule instanceof GameRule) {
+            this.rules.put(rule, value);
+            return;
+        } else if(rule instanceof UniversalRule) {
+            this.rules.put(rule, value);
+        }
+
+        if(affectChildren)
+            this.teamManager.getTeams().forEach((id, team) -> team.setRule(rule, value, true));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getRule(Rule<T> rule) {
+        return (T) this.rules.get(rule);
     }
 
     //Audiences

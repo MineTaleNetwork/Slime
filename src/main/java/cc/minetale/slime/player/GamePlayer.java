@@ -3,16 +3,13 @@ package cc.minetale.slime.player;
 import cc.minetale.flame.util.FlamePlayer;
 import cc.minetale.mlib.nametag.NameplateHandler;
 import cc.minetale.mlib.nametag.ProviderType;
-import cc.minetale.slime.attribute.Attribute;
-import cc.minetale.slime.attribute.Attributes;
-import cc.minetale.slime.attribute.IAttributeReadable;
-import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.loadout.ILoadoutHolder;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.lobby.GameLobby;
+import cc.minetale.slime.rule.*;
 import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.team.GameTeam;
 import lombok.Getter;
@@ -28,13 +25,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 @Getter
-public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHolder, IAttributeReadable, IAttributeWritable {
+public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHolder, IRuleReadable, IRuleWritable {
 
     @Setter private Game game;
 
     @Nullable @Setter private GameLobby lobby;
 
-    private final Map<Attribute<?>, Object> attributes;
+    private final Map<Rule<?>, Object> rules;
 
     /** If the player dies when they have 0 or fewer lives, they cannot respawn. Anything below 0 means the player is dead. */
     @Setter protected int lives = 0;
@@ -50,11 +47,7 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
     public GamePlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         super(uuid, username, playerConnection);
 
-        Map<Attribute<?>, Object> attributes = new HashMap<>(Attributes.ALL_ATTRIBUTES.size());
-        for(Attribute<?> attribute : Attributes.ALL_ATTRIBUTES) {
-            attributes.put(attribute, attribute.getDefaultValue());
-        }
-        this.attributes = Collections.synchronizedMap(attributes);
+        this.rules = Collections.synchronizedMap(new HashMap<>());
     }
 
     public static GamePlayer fromPlayer(Player player) {
@@ -142,15 +135,20 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
         Loadout.removeIfAny(this);
     }
 
-    //Attributes
+    //Rules
     @Override
-    public void setAttribute(Attribute attr, Object value) {
-        this.attributes.put(attr, value);
+    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+        if(rule instanceof PlayerRule) {
+            this.rules.put(rule, value);
+            return;
+        } else if(rule instanceof UniversalRule) {
+            this.rules.put(rule, value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getAttribute(Attribute<T> attr) {
-        return (T) this.attributes.get(attr);
+    public <T> T getRule(Rule<T> rule) {
+        return (T) this.rules.get(rule);
     }
 }
