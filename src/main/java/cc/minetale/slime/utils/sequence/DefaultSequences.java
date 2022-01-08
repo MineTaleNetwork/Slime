@@ -25,16 +25,14 @@ public final class DefaultSequences {
             .chatRepeat(5000, 2000, 1000, getCountdownComponent("%d", true))
             .chat(1000, getCountdownComponent("1", false))
 
-            //Dingdingding
+            //Sounds
             .soundRepeat(5000, 1000, 1000,
                     Sound.sound(Key.key("block.note_block.pling"), Sound.Source.RECORD, 1f, 1f), Sound.Emitter.self(), null)
             .sound(0,
                     Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.RECORD, 1f, 1f), Sound.Emitter.self(), null)
 
-            //Title last 3 seconds countdown
-            .title(3000, getCountdownTitle("3"))
-            .title(2000, getCountdownTitle("2"))
-            .title(1000, getCountdownTitle("1"));
+            //Title countdown
+            .titleRepeat(3000, 1000, 1000, getCountdownTitle("%d"));
 
     @NotNull private static Title getCountdownTitle(String count) {
         return Title.title(Component.text(count, NamedTextColor.GOLD, TextDecoration.BOLD), Component.empty(), INSTANT);
@@ -42,7 +40,7 @@ public final class DefaultSequences {
 
     @NotNull private static TextComponent getCountdownComponent(String count, boolean plural) {
         return Component.text()
-                .append(Component.text("» ", NamedTextColor.YELLOW),
+                .append(Component.text("\u00bb ", NamedTextColor.YELLOW),
                         Component.text("Starting in ", NamedTextColor.GOLD),
                         Component.text(count, NamedTextColor.YELLOW),
                         Component.text(plural ? " seconds..." : " second...", NamedTextColor.GOLD))

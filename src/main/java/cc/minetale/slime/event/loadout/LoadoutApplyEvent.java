@@ -1,23 +1,22 @@
 package cc.minetale.slime.event.loadout;
 
 import cc.minetale.slime.event.trait.LoadoutEvent;
+import cc.minetale.slime.loadout.ILoadoutHolder;
 import cc.minetale.slime.loadout.Loadout;
 import lombok.Getter;
 import lombok.Setter;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
-import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class LoadoutApplyEvent implements LoadoutEvent, PlayerEvent, CancellableEvent {
+public class LoadoutApplyEvent implements LoadoutEvent, CancellableEvent {
 
     private boolean cancelled;
 
-    @Getter private Player player;
+    @Getter private ILoadoutHolder holder;
     @Getter @Setter private Loadout loadout;
 
-    public LoadoutApplyEvent(@NotNull Player player, @NotNull Loadout loadout) {
-        this.player = player;
+    public LoadoutApplyEvent(@NotNull ILoadoutHolder holder, @NotNull Loadout loadout) {
+        this.holder = holder;
         this.loadout = loadout;
     }
 

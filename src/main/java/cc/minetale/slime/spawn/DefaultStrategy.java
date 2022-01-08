@@ -26,7 +26,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
 
     RANDOM, ORDERED, SAFEST, ENDANGERED, EXPOSED;
 
-    private BiFunction<SpawnManager, GamePlayer, Spawn> supplier;
+    private BiFunction<SpawnManager, GamePlayer, GameSpawn> supplier;
 
     static {
         var random = new Random();
@@ -34,7 +34,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
         RANDOM.supplier = (manager, player) -> {
             var team = player.getGameTeam();
 
-            List<Spawn> spawns = manager.getSpawnsFor(team);
+            List<GameSpawn> spawns = manager.getSpawnsFor(team);
             if(spawns.isEmpty()) { return null; }
 
             var index = random.nextInt(spawns.size());
@@ -47,7 +47,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
             synchronized(lastSpawnIndexes) {
                 var team = player.getGameTeam();
 
-                List<Spawn> spawns = manager.getSpawnsFor(team);
+                List<GameSpawn> spawns = manager.getSpawnsFor(team);
                 if(spawns.isEmpty()) { return null; }
 
                 var game = manager.getGame();
@@ -71,7 +71,7 @@ public enum DefaultStrategy implements ISpawnStrategy {
     }
 
     @Override
-    public Spawn find(SpawnManager spawnManager, GamePlayer player) {
+    public GameSpawn find(SpawnManager spawnManager, GamePlayer player) {
         return this.supplier.apply(spawnManager, player);
     }
 

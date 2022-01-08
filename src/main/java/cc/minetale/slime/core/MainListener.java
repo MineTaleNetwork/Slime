@@ -3,19 +3,20 @@ package cc.minetale.slime.core;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.attribute.Attributes;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
-import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.GameManager;
 import cc.minetale.slime.player.GamePlayer;
+import cc.minetale.slime.player.PlayerState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
-import net.minestom.server.event.player.PlayerDeathEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerLoginEvent;
-import net.minestom.server.event.player.PlayerRespawnEvent;
+import net.minestom.server.event.player.*;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static cc.minetale.slime.player.PlayerState.SPECTATE;
 
@@ -33,38 +34,66 @@ public final class MainListener {
     private static void registerDefaultEvents(EventNode<Event> mainNode, GameManager gameManager) {
         var node = EventNode.all("default");
 
-        node.addListener(PlayerLoginEvent.class, event -> {
-            var player = (GamePlayer) event.getPlayer();
+        node.addListener(AsyncPlayerPreLoginEvent.class, event -> {
+            var player = GamePlayer.fromPlayer(event.getPlayer());
 
-            Game game = gameManager.findGameOrCreate();
+            try {
+                var game = gameManager.findGameOrCreate().get(15000, TimeUnit.MILLISECONDS);
+                if(game == null) {
+                    player.kick("Couldn't join the server.");
+                    return;
+                }
+
+                game.addPlayer(player);
+            } catch(InterruptedException | ExecutionException | TimeoutException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+
+                player.kick("Couldn't join the server.");
+            }
+        });
+
+        node.addListener(PlayerLoginEvent.class, event -> {
+            var player = GamePlayer.fromPlayer(event.getPlayer());
+
+            var game = player.getGame();
             if(game == null) {
                 player.kick("Couldn't join the server.");
                 return;
             }
 
-            if(game.addPlayer(player)) {
-                var profile = player.getProfile();
-                if(profile == null) {
-                    player.kick("Couldn't join the server.");
-                    return;
-                }
+            event.setSpawningInstance(game.getSpawnInstance(player));
+        });
+        
+        node.addListener(PlayerSpawnEvent.class, event -> {
+            if(!event.isFirstSpawn()) { return; }
+            var player = GamePlayer.fromPlayer(event.getPlayer());
 
-                game.sendMessage(Component.text().append(
-                        Component.text("» ", NamedTextColor.YELLOW),
-                        profile.getChatFormat(),
-                        Component.text(" has joined! (", NamedTextColor.GOLD),
-                        Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
-                        Component.text("/", NamedTextColor.GOLD),
-                        Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
-                        Component.text(")", NamedTextColor.GOLD))
-                );
+            var profile = player.getProfile();
+            if(profile == null) {
+                player.kick("Couldn't join the server.");
+                return;
+            }
+            
+            var game = player.getGame();
+            if(game == null) {
+                player.kick("Couldn't join the server.");
+                return;
             }
 
-            event.setSpawningInstance(game.getSpawnInstance(player));
+            game.sendMessage(Component.text().append(
+                    Component.text("\u00bb ", NamedTextColor.YELLOW),
+                    profile.getChatFormat(),
+                    Component.text(" has joined! (", NamedTextColor.GOLD),
+                    Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
+                    Component.text("/", NamedTextColor.GOLD),
+                    Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
+                    Component.text(")", NamedTextColor.GOLD))
+            );
         });
 
         node.addListener(PlayerDisconnectEvent.class, event -> {
-            var player = (GamePlayer) event.getPlayer();
+            var player = GamePlayer.fromPlayer(event.getPlayer());
 
             var game = player.getGame();
             if(game == null) { return; }
@@ -75,7 +104,7 @@ public final class MainListener {
             if(profile == null) { return; }
 
             game.sendMessage(Component.text().append(
-                    Component.text("» ", NamedTextColor.YELLOW),
+                    Component.text("\u00bb ", NamedTextColor.YELLOW),
                     profile.getChatFormat(),
                     Component.text(" has left! (", NamedTextColor.GOLD),
                     Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
@@ -93,26 +122,30 @@ public final class MainListener {
         });
 
         node.addListener(PlayerDeathEvent.class, event -> {
-            var player = (GamePlayer) event.getPlayer();
+            var player = GamePlayer.fromPlayer(event.getPlayer());
 
             var game = player.getGame();
             if(game == null) { return; }
 
-            if(player.<Boolean>getAttribute(Attributes.AUTO_LOSE_LIVES))
+            if(player.getAttribute(Attributes.AUTO_LOSE_LIVES))
                 player.setLives(player.getLives() - 1);
 
-            //After this event the player will be dead
-            var willDie = player.getLives() == 0;
+            //Will the player will be set to spectator?
+            var eliminated = player.getLives() == 0;
 
-            if(player.getAttribute(Attributes.RESPAWN_TIME) == 0) {
-                if(player.getAttribute(Attributes.AUTO_DEATHCAM))
-                    //TODO Automatic death spectator
+            if(!eliminated) {
+                if(player.getAttribute(Attributes.RESPAWN_TIME) > 0) {
+                    if(player.getAttribute(Attributes.AUTO_DEATHCAM))
+                        player.setState(PlayerState.DEATHCAM);
+                    //TODO Automatic deathcam
 
-                return;
+                    return;
+                }
+            } else {
+                if(player.getAttribute(Attributes.AUTO_SPECTATOR))
+                    player.setState(PlayerState.SPECTATE);
+                //TODO Automatic spectator
             }
-
-            if(player.getAttribute(Attributes.AUTO_SPECTATOR))
-                player.setState(SPECTATE);
         });
 
         mainNode.addChild(node);

@@ -5,15 +5,18 @@ import cc.minetale.slime.attribute.Attribute;
 import cc.minetale.slime.attribute.IAttributeWritable;
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
-import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.core.GameState;
+import cc.minetale.slime.core.SlimeAudience;
+import cc.minetale.slime.core.SlimeForwardingAudience;
+import cc.minetale.slime.event.game.GameSetupEvent;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
 import cc.minetale.slime.event.team.GameSetupTeamsEvent;
 import cc.minetale.slime.loadout.Loadout;
+import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.player.GamePlayer;
-import cc.minetale.slime.spawn.Spawn;
+import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.TeamManager;
@@ -21,20 +24,23 @@ import cc.minetale.slime.utils.TeamUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.instance.Instance;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public abstract class Game implements IAttributeWritable, ForwardingAudience {
+public abstract class Game implements IAttributeWritable, SlimeForwardingAudience {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
 
     @Getter private final String identifier = "G#" + RandomStringUtils.randomAlphanumeric(6);
 
@@ -59,37 +65,56 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
         this.state = state;
     }
 
-    public void setup() {
-        //Setup
+    public CompletableFuture<Void> setup() {
         var map = Slime.getActiveGame().getGameMap();
-//        this.mainInstance =;
+        this.mainInstance = new GameInstance(map);
+
+        var event = new GameSetupEvent(this, new ArrayList<>(map.getSpawns().values()));
+        EventDispatcher.call(event);
+
+        List<GameSpawn> spawns = event.getGameSpawns();
+        if(spawns.isEmpty()) {
+            LOGGER.warn("There aren't any spawns converted. Convert MapSpawns to GameSpawns through GameSetupEvent. Expect issues.");
+        }
+        this.spawnManager.addSpawns(spawns);
+
+        return this.mainInstance.setMap(map);
     }
 
     /**
      * Called after the countdown ends during {@linkplain Stage#STARTING} while in the lobby.
      */
     public void start() {
-        this.players.addAll(this.lobby.getPlayers());
-
         //Assign players to their teams
         setupTeams();
 
-        this.players.forEach(player -> {
-            var spawnEvent = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawn(player));
-            EventDispatcher.call(spawnEvent);
+        synchronized(this.players) {
+            this.players.forEach(player -> {
+                var team = player.getGameTeam();
+                if(team == null) {
+                    LOGGER.warn("Player \"" + player.getUsername() + "\" doesn't have an assigned team.");
+                    player.kick("Something went wrong. Please contact an administrator.");
+                    return;
+                }
 
-            var spawnPoint = spawnEvent.getSpawn();
-            if(spawnPoint == null)
-                throw new NullPointerException("Couldn't find a spawnpoint for GamePlayer \"" +
-                        player.getUsername() + "\" with the \"" + player.getGameTeam().getType().getId() + "\" GameTeam.");
+                var event = new GamePlayerSpawnEvent(this, player, this.spawnManager.findSpawn(player));
+                EventDispatcher.call(event);
 
-            Loadout.removeIfAny(player);
+                var spawn = event.getSpawn();
+                if(spawn == null) {
+                    LOGGER.warn("Couldn't find a spawn for player \"" +
+                            player.getUsername() + "\" with the \"" + team.getType().getId() + "\" GameTeam.");
+                    player.kick("Something went wrong. Please contact an administrator.");
+                    return;
+                }
 
-            player.setCurrentSpawn(spawnPoint);
-            player.setInstance(spawnPoint.getInstance(), spawnPoint.getPosition());
-        });
+                Loadout.removeIfAny(player);
 
-        //TODO Should removing a lobby be done from itself?
+                player.setCurrentSpawn(spawn);
+                player.setInstance(spawn.getInstance(), spawn.getPosition());
+            });
+        }
+
         this.lobby.remove();
         this.lobby = null;
 
@@ -179,7 +204,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
         if(this.state.inLobby())
             return this.lobby.getInstance();
 
-        Spawn spawn = this.spawnManager.findSpawn(player);
+        GameSpawn spawn = this.spawnManager.findSpawn(player);
         player.setCurrentSpawn(spawn);
 
         return Objects.requireNonNullElse(spawn.getInstance(), this.mainInstance);
@@ -230,7 +255,7 @@ public abstract class Game implements IAttributeWritable, ForwardingAudience {
 
     //Audiences
     @Override
-    public @NotNull Iterable<? extends Audience> audiences() {
+    public @NotNull Iterable<? extends SlimeAudience> audiences() {
         return !this.state.inLobby() ? this.teamManager.getTeams().values() : this.lobby.audiences();
     }
 }

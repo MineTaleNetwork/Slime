@@ -2,7 +2,7 @@ package cc.minetale.slime;
 
 import cc.minetale.slime.commands.SlimeCommand;
 import cc.minetale.slime.core.GameExtension;
-import cc.minetale.slime.map.tools.ToolManager;
+import cc.minetale.slime.tools.ToolManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.MinecraftServer;
@@ -11,6 +11,8 @@ import net.minestom.server.extensions.Extension;
 import net.minestom.server.extensions.ExtensionManager;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.network.ConnectionManager;
+import net.minestom.server.scoreboard.TeamManager;
+import net.minestom.server.timer.SchedulerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,8 @@ public final class Slime extends Extension {
     public static final InstanceManager INSTANCE_MANAGER = MinecraftServer.getInstanceManager();
     public static final ConnectionManager CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
     public static final CommandManager COMMAND_MANAGER = MinecraftServer.getCommandManager();
+    public static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
+    public static final TeamManager TEAM_MANAGER = MinecraftServer.getTeamManager();
 
     public static final ExtensionManager EXTENSION_MANAGER = MinecraftServer.getExtensionManager();
 

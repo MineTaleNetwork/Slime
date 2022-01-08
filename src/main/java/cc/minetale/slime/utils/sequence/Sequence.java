@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.timer.Task;
 
 import java.time.temporal.ChronoUnit;
@@ -16,10 +15,10 @@ import java.util.NavigableMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static cc.minetale.slime.Slime.SCHEDULER_MANAGER;
+
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Sequence {
-
-    private static final SchedulerManager SCHEDULER_MANAGER = MinecraftServer.getSchedulerManager();
 
     @Getter private final long totalTime;
 
@@ -115,7 +114,6 @@ public class Sequence {
 
     private void startTask() {
         var builder = SCHEDULER_MANAGER.buildTask(() -> {
-
             //Execute queued executor
             if(!this.executors.isEmpty()) {
                 var executorTime = this.executors.firstKey();

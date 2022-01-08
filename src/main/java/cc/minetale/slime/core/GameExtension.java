@@ -6,7 +6,7 @@ import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.LobbyMap;
 import cc.minetale.slime.map.MapProvider;
 import cc.minetale.slime.map.MapResolver;
-import cc.minetale.slime.map.tools.TempMap;
+import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.team.TeamProvider;
 import cc.minetale.slime.utils.Requirement;

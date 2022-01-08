@@ -5,31 +5,28 @@ import cc.minetale.slime.event.loadout.LoadoutRemoveEvent;
 import cc.minetale.slime.event.loadout.LoadoutReplaceEvent;
 import lombok.Builder;
 import lombok.Getter;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.inventory.PlayerInventory;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.tag.TagReadable;
 import net.minestom.server.tag.TagWritable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Getter
-public class Loadout implements TagReadable, TagWritable {
-
-    public static final @NotNull Tag<String> CURRENT_LOADOUT_TAG = Tag.String("slime-currentLoadout");
+public final class Loadout implements TagReadable, TagWritable {
 
     private static final @NotNull Map<String, Loadout> REGISTERED_LOADOUTS = Collections.synchronizedMap(new HashMap<>());
-    private static final @NotNull Map<String, Loadout> REGISTERED_LOADOUTS_SAFE = Collections.unmodifiableMap(REGISTERED_LOADOUTS);
 
-    private static final @NotNull Map<Loadout, List<Player>> ACTIVE_LOADOUTS = new ConcurrentHashMap<>();
+    private final List<ILoadoutHolder> holders = Collections.synchronizedList(new ArrayList<>());
 
     private final String id;
 
@@ -39,19 +36,20 @@ public class Loadout implements TagReadable, TagWritable {
     private final List<ItemStack> items;
 
     //Can be used to set events for the player/inventory/hotbar
-    private @Nullable Consumer<Player> onApply;
-    private @Nullable Consumer<Player> onRemove;
 
-    private final @Nullable BiConsumer<Player, List<ItemStack>> modifier;
+    private @Nullable Consumer<ILoadoutHolder> onApply;
+    private @Nullable Consumer<ILoadoutHolder> onRemove;
+
+    private final @Nullable Function<ILoadoutHolder, List<ItemStack>> modifier;
 
     @Builder
     public Loadout(String id,
                    String displayName,
                    ItemStack displayItem,
                    List<ItemStack> items,
-                   @Nullable Consumer<Player> onApply,
-                   @Nullable Consumer<Player> onRemove,
-                   @Nullable BiConsumer<Player, List<ItemStack>> modifier) {
+                   @Nullable Consumer<ILoadoutHolder> onApply,
+                   @Nullable Consumer<ILoadoutHolder> onRemove,
+                   @Nullable Function<ILoadoutHolder, List<ItemStack>> modifier) {
 
         if(items.size() > PlayerInventory.INVENTORY_SIZE)
             throw new IllegalArgumentException("Loadout's items list size is too big for player's inventory");
@@ -61,7 +59,7 @@ public class Loadout implements TagReadable, TagWritable {
         this.displayName = displayName;
         this.displayItem = displayItem;
 
-        this.items = Collections.synchronizedList(new ArrayList<>(items));
+        this.items = List.copyOf(items);
 
         this.onApply = onApply;
         this.onRemove = onRemove;
@@ -74,102 +72,110 @@ public class Loadout implements TagReadable, TagWritable {
         return this;
     }
 
-    public boolean applyFor(Player player) {
-        if(player.hasTag(CURRENT_LOADOUT_TAG)) { return false; }
+    private void applyToHolder(ILoadoutHolder holder, boolean isReplacing) {
+        List<ItemStack> items = this.items;
+        if(this.modifier != null)
+            items = this.modifier.apply(holder);
 
-        var oldLoadout = getActiveLoadout(player);
-        if(oldLoadout == null) {
-            var event = new LoadoutApplyEvent(player, this);
-            EventDispatcher.call(event);
+        if(this.onApply != null)
+            this.onApply.accept(holder);
 
-            if(event.isCancelled()) { return false; }
-
-            var otherLoadout = event.getLoadout(); //The event might change the loadout to apply
-            if(otherLoadout != this) {
-                otherLoadout.forceApplyFor(player);
-                return true;
-            }
+        if(!isReplacing) {
+            holder.applyLoadout0(this, items);
         } else {
-            var event = new LoadoutReplaceEvent(player, oldLoadout, this);
-            EventDispatcher.call(event);
-
-            if(event.isCancelled()) { return false; }
-
-            var otherLoadout = event.getNewLoadout(); //The event might change the loadout to apply
-            if(otherLoadout != this) {
-                otherLoadout.forceApplyFor(player);
-                return true;
-            }
+            holder.replaceLoadout0(this, items);
         }
-        forceApplyFor(player);
+
+        this.holders.add(holder);
+    }
+
+    /** Removes any previous loadout (if one is set) and sets this one for the provided loadout holder. */
+    public boolean setFor(ILoadoutHolder holder) {
+        if(holder.hasLoadout()) {
+            return replaceFor(holder) != null;
+        } else {
+            return applyFor(holder);
+        }
+    }
+
+    /** Sets this loadout for the provided loadout holder only if they don't have a loadout set. */
+    public boolean applyFor(ILoadoutHolder holder) {
+        if(holder.hasLoadout()) { return false; }
+
+        var event = new LoadoutApplyEvent(holder, this);
+        EventDispatcher.call(event);
+
+        if(event.isCancelled()) { return false; }
+
+        var loadout = event.getLoadout();
+        loadout.applyToHolder(holder, false);
+
         return true;
     }
 
-    public void forceApplyFor(Player player) {
-        removeIfAny(player);
+    /** Sets this loadout for the provided loadout holder only if they have a loadout set already. */
+    public @Nullable Loadout replaceFor(ILoadoutHolder holder) {
+        if(!holder.hasLoadout()) { return null; }
 
-        var inventory = player.getInventory();
+        var oldLoadout = holder.getLoadout();
 
-        player.setTag(CURRENT_LOADOUT_TAG, this.id);
-        
-        if(this.modifier != null) { this.modifier.accept(player, this.items); }
-        inventory.copyContents(this.items.toArray(new ItemStack[0]));
-
-        if(this.onApply != null) { this.onApply.accept(player); }
-
-        ACTIVE_LOADOUTS.compute(this, (key, value) -> {
-            if(value == null)
-                value = new ArrayList<>();
-
-            value.add(player);
-            return value;
-        });
-    }
-
-    public boolean isUsing(Player player) {
-        var currentLoadout = player.getTag(CURRENT_LOADOUT_TAG);
-        return this.id.equals(currentLoadout);
-    }
-
-    public List<Player> getPlayersUsing() {
-        return ACTIVE_LOADOUTS.getOrDefault(this, new ArrayList<>());
-    }
-
-    /**
-     * Attempts to remove a loadout from the player if they have any and clears their inventory if so.
-     * @return {@linkplain Loadout} that will be removed, {@code null} otherwise.
-     */
-    public static @Nullable Loadout removeIfAny(Player player) {
-        if(!player.hasTag(CURRENT_LOADOUT_TAG)) { return null; }
-
-        var currentLoadout = getActiveLoadout(player);
-        if(currentLoadout == null) { return null; }
-
-        var event = new LoadoutRemoveEvent(player, currentLoadout);
+        var event = new LoadoutReplaceEvent(holder, oldLoadout, this);
         EventDispatcher.call(event);
 
         if(event.isCancelled()) { return null; }
 
-        var onRemove = currentLoadout.onRemove;
-        if(onRemove != null) { onRemove.accept(player); }
+        removeIfAny(holder, false);
 
-        player.removeTag(CURRENT_LOADOUT_TAG);
-        player.getInventory().clear();
+        var loadout = event.getNewLoadout(); //The event might change the loadout to apply
+        loadout.applyToHolder(holder, true);
 
-        List<Player> players = ACTIVE_LOADOUTS.get(currentLoadout);
-        if(players != null)
-            players.remove(player);
-
-        return currentLoadout;
+        return oldLoadout;
     }
 
-    public static Loadout getActiveLoadout(Player player) {
-        if(!player.hasTag(CURRENT_LOADOUT_TAG)) { return null; }
-        return REGISTERED_LOADOUTS.get(player.getTag(CURRENT_LOADOUT_TAG));
+    public boolean isUsing(ILoadoutHolder holder) {
+        var loadout = holder.getLoadout();
+        return Objects.equals(this.id, loadout.id);
     }
 
-    public static Map<String, Loadout> getRegisteredLoadouts() {
-        return REGISTERED_LOADOUTS_SAFE;
+    /**
+     * Attempts to remove a loadout from the holder if they have any and clears their inventory if so.
+     * @return {@linkplain Loadout} that will be removed, {@code null} otherwise.
+     */
+    public static @Nullable Loadout removeIfAny(ILoadoutHolder holder) {
+        return removeIfAny(holder, true);
+    }
+
+    private static @Nullable Loadout removeIfAny(ILoadoutHolder holder, boolean callEvent) {
+        if(!holder.hasLoadout()) { return null; }
+
+        var loadout = holder.getLoadout();
+
+        if(callEvent) {
+            var event = new LoadoutRemoveEvent(holder, loadout);
+            EventDispatcher.call(event);
+
+            if(event.isCancelled()) { return null; }
+        }
+
+        Consumer<ILoadoutHolder> onRemove = loadout.getOnRemove();
+        if(onRemove != null)
+            onRemove.accept(holder);
+
+        holder.removeLoadout0();
+
+        loadout.holders.remove(holder);
+
+        return loadout;
+    }
+
+    @Contract(pure = true)
+    public @NotNull @UnmodifiableView List<ILoadoutHolder> getHolders() {
+        return Collections.unmodifiableList(this.holders);
+    }
+
+    @Contract(pure = true)
+    public static @NotNull @UnmodifiableView Map<String, Loadout> getRegisteredLoadouts() {
+        return Collections.unmodifiableMap(REGISTERED_LOADOUTS);
     }
 
     //Tags

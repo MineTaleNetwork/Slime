@@ -1,6 +1,7 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.slime.event.game.GameStageChangeEvent;
+import cc.minetale.slime.event.game.PostGameStageChangeEvent;
+import cc.minetale.slime.event.game.PreGameStageChangeEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.IStage;
 import cc.minetale.slime.game.Stage;
@@ -14,11 +15,16 @@ public class GameState {
 
     @Getter protected IStage stage = Stage.IN_LOBBY;
 
-    public void setStage(IStage state) {
-        var event = new GameStageChangeEvent(game, this.stage, state);
-        EventDispatcher.call(event);
+    public void setStage(IStage stage) {
+        var preEvent = new PreGameStageChangeEvent(game, this.stage, stage);
+        EventDispatcher.call(preEvent);
 
-        this.stage = event.getNewStage();
+        if(!preEvent.isCancelled()) {
+            this.stage = preEvent.getNewStage();
+
+            var postEvent = new PostGameStageChangeEvent(game, this.stage, stage);
+            EventDispatcher.call(postEvent);
+        }
     }
 
     public boolean inLobby() {

@@ -3,7 +3,7 @@ package cc.minetale.slime.map;
 import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaUtils;
 import cc.minetale.mlib.util.DocumentUtil;
-import cc.minetale.slime.spawn.BaseSpawn;
+import cc.minetale.slime.spawn.MapSpawn;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
@@ -36,7 +36,7 @@ public class GameMap extends AbstractMap {
     @Setter protected Vec minPos;
     @Setter protected Vec maxPos;
 
-    private final Map<String, BaseSpawn> spawns = new ConcurrentHashMap<>();
+    private final Map<String, MapSpawn> spawns = new ConcurrentHashMap<>();
 
     private boolean isOpen;
 
@@ -54,19 +54,19 @@ public class GameMap extends AbstractMap {
         this.maxPos = maxPos;
     }
 
-    public BaseSpawn getSpawn(String id) {
+    public MapSpawn getSpawn(String id) {
         return this.getSpawns().get(id);
     }
 
-    public void addSpawn(BaseSpawn spawn) {
+    public void addSpawn(MapSpawn spawn) {
         this.spawns.put(spawn.getId(), spawn);
     }
 
-    public BaseSpawn removeSpawn(String spawnId) {
+    public MapSpawn removeSpawn(String spawnId) {
         return this.spawns.remove(spawnId);
     }
 
-    public void removeSpawn(BaseSpawn spawn) {
+    public void removeSpawn(MapSpawn spawn) {
         removeSpawn(spawn.getId());
     }
 
@@ -107,7 +107,7 @@ public class GameMap extends AbstractMap {
 
         var game = TOOL_MANAGER.getGameOrActive(this.gamemode);
         for(Map.Entry<String, Object> ent : document.get("spawns", Document.class).entrySet()) {
-            this.spawns.put(ent.getKey(), BaseSpawn.fromDocument((Document) ent.getValue(), game));
+            this.spawns.put(ent.getKey(), MapSpawn.fromDocument((Document) ent.getValue(), game));
         }
 
         this.isOpen = document.getBoolean("isOpen", false);
@@ -127,7 +127,7 @@ public class GameMap extends AbstractMap {
         document.put("maxPos", DocumentUtil.vectorToDocument(this.maxPos));
 
         Document spawnsDocument = new Document();
-        for (Map.Entry<String, BaseSpawn> ent : this.spawns.entrySet()) {
+        for (Map.Entry<String, MapSpawn> ent : this.spawns.entrySet()) {
             var baseSpawn = ent.getValue();
             spawnsDocument.put(ent.getKey(), baseSpawn.toDocument());
         }

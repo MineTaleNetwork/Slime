@@ -1,14 +1,14 @@
 package cc.minetale.slime.game;
 
 import cc.minetale.slime.core.GameExtension;
-import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.core.MainListener;
+import cc.minetale.slime.core.SlimeAudience;
+import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
+import cc.minetale.slime.lobby.GameLobby;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.minestom.server.event.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,10 +17,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class GameManager implements ForwardingAudience {
+public final class GameManager implements SlimeForwardingAudience {
 
     @Getter @Setter private GameExtension extension;
 
@@ -46,15 +47,18 @@ public final class GameManager implements ForwardingAudience {
         MainListener.registerEvents(this);
     }
 
-    public Game findGameOrCreate() {
-        return this.games.stream()
-                .filter(game -> game.getState().inLobby() &&
-                        game.canFitPlayer())
-                .findFirst()
-                .orElseGet(this::addNewGame);
+    public CompletableFuture<Game> findGameOrCreate() {
+        synchronized(this.games) {
+            return this.games.stream()
+                    .filter(game -> game.getState().inLobby() &&
+                            game.canFitPlayer())
+                    .findFirst()
+                    .map(CompletableFuture::completedFuture)
+                    .orElseGet(this::addNewGame);
+        }
     }
 
-    public Game addNewGame() {
+    public CompletableFuture<Game> addNewGame() {
         if(!canFitNewGame()) { return null; }
 
         var game = this.gameProvider.get();
@@ -62,13 +66,23 @@ public final class GameManager implements ForwardingAudience {
 
         game.setLobby(lobby);
 
-        var event = new GameCreateEvent(game);
-        EventDispatcher.call(event);
-        if(event.isCancelled()) { return null; }
+        var future = new CompletableFuture<Game>();
 
-        this.games.add(game);
+        CompletableFuture.allOf(lobby.setup(), game.setup())
+                .thenRun(() -> {
+                    var event = new GameCreateEvent(game);
+                    EventDispatcher.call(event);
+                    if(event.isCancelled()) {
+                        future.complete(null);
+                        return;
+                    }
 
-        return game;
+                    this.games.add(game);
+
+                    future.complete(game);
+                });
+
+        return future;
     }
 
     public Game removeGame(Game game) {
@@ -87,7 +101,7 @@ public final class GameManager implements ForwardingAudience {
 
     //Audiences
     @Override
-    public @NotNull Iterable<? extends Audience> audiences() {
+    public @NotNull Iterable<? extends SlimeAudience> audiences() {
         return this.games;
     }
 

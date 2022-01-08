@@ -4,8 +4,8 @@ import cc.minetale.commonlib.util.CollectionsUtil;
 import cc.minetale.slime.core.GameExtension;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
-import cc.minetale.slime.map.tools.TempMap;
-import cc.minetale.slime.spawn.BaseSpawn;
+import cc.minetale.slime.tools.TempMap;
+import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
@@ -66,7 +66,7 @@ public final class MapUtil {
      * See {@linkplain Requirement.Map#minSpawnsPerTeam(int)}
      * @param spawnsRequired How many spawns should each team have minimum (inclusive)
      */
-    public static boolean allTeamsHaveSpawn(Collection<BaseSpawn> spawns, Set<ITeamType> teams, int spawnsRequired) {
+    public static boolean allTeamsHaveSpawn(Collection<MapSpawn> spawns, Set<ITeamType> teams, int spawnsRequired) {
         spawns = new ArrayList<>(spawns);
 
         Map<ITeamType, Integer> teamsLeft = new HashMap<>();

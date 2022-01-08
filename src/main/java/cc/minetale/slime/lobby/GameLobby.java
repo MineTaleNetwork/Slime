@@ -1,8 +1,10 @@
 package cc.minetale.slime.lobby;
 
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.core.SlimeAudience;
+import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.GameInstance;
 import cc.minetale.slime.game.Stage;
 import cc.minetale.slime.loadout.DefaultLoadouts;
 import cc.minetale.slime.loadout.Loadout;
@@ -11,39 +13,44 @@ import cc.minetale.slime.utils.InstanceUtil;
 import cc.minetale.slime.utils.sequence.DefaultSequences;
 import cc.minetale.slime.utils.sequence.Sequence;
 import lombok.Getter;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.timer.ExecutionType;
+import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
+import static cc.minetale.slime.Slime.SCHEDULER_MANAGER;
 
 /**
  * As to avoid confusion. There is only one instance of {@linkplain GameLobby}, <br>
  * but players are separated "logically" into their respective games.
  */
-public class GameLobby implements ForwardingAudience {
+public class GameLobby implements SlimeForwardingAudience {
 
-    public static final GameExtension ACTIVE_GAME = Slime.getActiveGame();
-
-    @Getter private final Instance instance;
     @Getter private final Game game;
+    @Getter protected GameInstance instance;
 
     @Getter protected List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
 
     private Sequence countdown;
 
     public GameLobby(Game game) {
-        this.instance = INSTANCE_MANAGER.createSharedInstance(ACTIVE_GAME.getLobbyInstance());
         this.game = game;
+    }
+
+    public CompletableFuture<Void> setup() {
+        var map = Slime.getActiveGame().getLobbyMap();
+        this.instance = new GameInstance(map);
+
+        return this.instance.setMap(map);
     }
 
     public boolean addPlayer(GamePlayer player) {
@@ -52,7 +59,7 @@ public class GameLobby implements ForwardingAudience {
         if(this.players.contains(player)) { return false; }
         this.players.add(player);
         player.setLobby(this);
-        applyLoadout(player);
+        DefaultLoadouts.LOBBY.applyFor(player);
 
         startCountdown();
 
@@ -116,7 +123,7 @@ public class GameLobby implements ForwardingAudience {
         this.countdown.getInvolved().forEach(obj -> {
             if(!(obj instanceof GamePlayer player)) { return; }
             player.sendMessage(Component.text().append(
-                    Component.text("» ", NamedTextColor.WHITE),
+                    Component.text("\u00bb ", NamedTextColor.WHITE),
                     Component.text("Stopping the countdown, because there aren't enough players!", NamedTextColor.RED))
             );
         });
@@ -128,17 +135,16 @@ public class GameLobby implements ForwardingAudience {
         this.countdown.resume();
     }
 
-    private void applyLoadout(Player player) {
-        DefaultLoadouts.LOBBY.forceApplyFor(player);
-    }
-
     public final void remove() {
-        InstanceUtil.unregisterSafe(this.instance);
+        SCHEDULER_MANAGER.buildTask(() -> InstanceUtil.unregisterSafe(this.instance))
+                .delay(TaskSchedule.tick(5))
+                .executionType(ExecutionType.ASYNC)
+                .schedule();
     }
 
     //Audiences
     @Override
-    public @NotNull Iterable<? extends Audience> audiences() {
+    public @NotNull Iterable<? extends SlimeAudience> audiences() {
         return this.players;
     }
 

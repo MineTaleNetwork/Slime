@@ -2,6 +2,7 @@ package cc.minetale.slime.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minestom.server.entity.GameMode;
 
 /**
@@ -10,10 +11,14 @@ import net.minestom.server.entity.GameMode;
  */
 @AllArgsConstructor
 public enum PlayerState implements IPlayerState {
-    LOBBY(GameMode.ADVENTURE),
+    LOBBY(GameMode.ADVENTURE, false),
 
-    PLAY(GameMode.SURVIVAL),
-    SPECTATE(GameMode.ADVENTURE);
+    PLAY(GameMode.SURVIVAL, true),
+    DEATHCAM(GameMode.ADVENTURE, true),
+    SPECTATE(GameMode.ADVENTURE, true);
 
     @Getter final GameMode gamemode;
+
+    @Getter @Accessors(fluent = true)
+    final boolean showTeam;
 }

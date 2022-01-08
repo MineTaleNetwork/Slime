@@ -1,35 +1,38 @@
 package cc.minetale.slime.game;
 
-import cc.minetale.slime.Slime;
+import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
 import lombok.Getter;
 import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
 /**
- * Should be used instead of {@linkplain InstanceContainer}. Mainly used to correlate {@linkplain GameMap} with instances.<br>
+ * Should be used instead of {@linkplain InstanceContainer}. Mainly used to correlate {@linkplain AbstractMap} with instances.<br>
  * It is possible for you to have your own implementation of this if you want to override {@linkplain InstanceContainer}'s behavior.
  */
 public class GameInstance extends InstanceContainer {
 
-    @Getter private GameMap map;
+    @Getter private AbstractMap map;
 
     /**
-     * Creates a GameInstance, automatically sets the {@linkplain GameMap} and registers it.
+     * Creates a GameInstance, automatically sets the {@linkplain AbstractMap} and registers it.
      */
-    public GameInstance(@NotNull UUID uniqueId, @NotNull GameMap map) {
+    public GameInstance(@NotNull UUID uniqueId, @NotNull AbstractMap map) {
         super(uniqueId, map.getDimension());
-        setMap(map);
+        INSTANCE_MANAGER.registerInstance(this);
 
-        Slime.INSTANCE_MANAGER.registerInstance(this);
+        this.map = map;
     }
 
     /**
      * Creates a GameInstance, automatically sets the {@linkplain GameMap} and registers it.
      */
-    public GameInstance(@NotNull GameMap map) {
+    public GameInstance(@NotNull AbstractMap map) {
         this(UUID.randomUUID(), map);
     }
 
@@ -37,9 +40,11 @@ public class GameInstance extends InstanceContainer {
         getChunks().forEach(this::unloadChunk);
     }
 
-    public void setMap(GameMap map) {
+    public CompletableFuture<Void> setMap(AbstractMap map) {
         clear();
-        map.setForInstance(this);
+        this.map = map;
+
+        return map.setForInstance(this);
     }
 
 }
