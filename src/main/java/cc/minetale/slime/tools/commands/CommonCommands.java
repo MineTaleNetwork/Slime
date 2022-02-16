@@ -2,9 +2,11 @@ package cc.minetale.slime.tools.commands;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.buildingtools.Selection;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.core.GameExtension;
-import cc.minetale.slime.map.*;
+import cc.minetale.slime.map.AbstractMap;
+import cc.minetale.slime.map.MapProvider;
+import cc.minetale.slime.map.MapResolver;
 import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.utils.MapUtil;
 import cc.minetale.slime.utils.Requirement;
@@ -57,7 +59,7 @@ public class CommonCommands {
 
         var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
@@ -67,10 +69,10 @@ public class CommonCommands {
         var result = handle.setStatus(true);
 
         if(result.getModifiedCount() > 0) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Successfully closed \"" + MapUtil.getFullId(handle) + "\".", NamedTextColor.GREEN)));
         } else {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Couldn't open \"" + MapUtil.getFullId(handle) + "\". Are you sure it's not closed already?\n" +
                             "You can check with \"/slime map status\".", NamedTextColor.RED)));
         }
@@ -83,7 +85,7 @@ public class CommonCommands {
         var selection = builder.getSelection();
 
         if(selection == null || selection.isIncomplete()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("You don't have a complete selection!", NamedTextColor.RED)));
             return;
         }
@@ -102,7 +104,7 @@ public class CommonCommands {
         }
 
         if(TOOL_MANAGER.mapExists(type, gamemode, id, true, true)) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text(type.getPascalcase() + " with ID \"" + MapUtil.getFullId(gamemode, id) + "\" already exists.\n" +
                             "Remove it with \"/slime " + type.getLowercase() + " remove\" or alternatively you can load an existing one using" +
                             "\"/slime " + type.getLowercase() + " load\".", NamedTextColor.RED)));
@@ -111,7 +113,7 @@ public class CommonCommands {
 
         var oGame = TOOL_MANAGER.getGame(gamemode);
         if(oGame.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Cannot find the gamemode!" +
                             "Make sure you typed in the name correctly and the gamemode is installed.", NamedTextColor.RED)));
             return;
@@ -127,7 +129,7 @@ public class CommonCommands {
 
         TOOL_MANAGER.addMap(tempMap);
 
-        sender.sendMessage(MC.notificationMessage(type.getPascalcase(), Component.text()
+        sender.sendMessage(Message.notification(type.getPascalcase(), Component.text()
                 .append(Component.text("Successfully created a " + type.getLowercase() +
                                 " with ID \"" + MapUtil.getFullId(map) + "\".", NamedTextColor.GREEN),
                         Component.newline(),
@@ -143,7 +145,7 @@ public class CommonCommands {
         if(builder == null) { return; }
 
         if(!builder.isBuilderMode()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("You need to be in builder mode to execute this command!", NamedTextColor.RED)));
             return;
         }
@@ -160,7 +162,7 @@ public class CommonCommands {
         }
 
         if(TOOL_MANAGER.mapExists(type, gamemode, id, true, false)) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("This " + type.getLowercase() + " is already loaded! " +
                             "You can teleport to it with \"/slime " + type.getLowercase() + " tp\".", NamedTextColor.RED)));
             return;
@@ -168,7 +170,7 @@ public class CommonCommands {
 
         var oGame = TOOL_MANAGER.getGame(gamemode);
         if(oGame.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Cannot find the gamemode! " +
                             "Make sure you typed in the name correctly and the gamemode is installed.", NamedTextColor.RED)));
             return;
@@ -180,7 +182,7 @@ public class CommonCommands {
         AbstractMap map = resolver.fromBoth(gamemode, id, provider);
 
         if(map == null) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text(type.getPascalcase() + " doesn't exist!" +
                             "Make sure you typed in the name correctly and the " + type.getLowercase() + " exists.", NamedTextColor.RED)));
             return;
@@ -190,10 +192,10 @@ public class CommonCommands {
         var result = TOOL_MANAGER.addMap(tempMap);
 
         if(result) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Successfully loaded \"" + MapUtil.getFullId(tempMap) + "\".", NamedTextColor.GREEN)));
         } else {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("There was a problem loading \"" + MapUtil.getFullId(tempMap) + "\".", NamedTextColor.RED)));
         }
     }
@@ -206,7 +208,7 @@ public class CommonCommands {
 
         var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " +
                             type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
@@ -218,7 +220,7 @@ public class CommonCommands {
         if(context.has(NAME_ARG)) {
             var newName = context.get(NAME_ARG);
             handle.setName(newName);
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(), Component.text().append(
+            sender.sendMessage(Message.notification(type.getPascalcase(), Component.text().append(
                             Component.text("Successfully changed the name of \"" + MapUtil.getFullId(handle) +
                                     "\" to \"" + newName + "\".", NamedTextColor.GREEN),
                             Component.newline(),
@@ -228,7 +230,7 @@ public class CommonCommands {
         } else if(context.has(DIMENSION_ARG)) {
             var newDimension = context.get(DIMENSION_ARG);
             handle.setDimension(NamespaceID.from(newDimension));
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(), Component.text()
+            sender.sendMessage(Message.notification(type.getPascalcase(), Component.text()
                     .append(Component.text("Successfully changed the dimension of \"" + MapUtil.getFullId(handle) +
                                     "\" to \"" + newDimension + "\".", NamedTextColor.GREEN),
                             Component.newline(),
@@ -247,7 +249,7 @@ public class CommonCommands {
 
         var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
@@ -257,10 +259,10 @@ public class CommonCommands {
         var result = handle.setStatus(true);
 
         if(result.getModifiedCount() > 0) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Successfully opened \"" + MapUtil.getFullId(handle) + "\".", NamedTextColor.GREEN)));
         } else {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Couldn't open \"" + MapUtil.getFullId(handle) + "\". Are you sure it's not open already?\n" +
                             "You can check with \"/slime " + type.getLowercase() + " info\".", NamedTextColor.RED)));
         }
@@ -282,7 +284,7 @@ public class CommonCommands {
 
         var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
@@ -332,7 +334,7 @@ public class CommonCommands {
 
             var blocksIncluded = blocksResult != TriState.NOT_SET;
             var blocksSuccess = blocksResult == TriState.TRUE;
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(), Component.text()
+            sender.sendMessage(Message.notification(type.getPascalcase(), Component.text()
                     .append(Component.text("You've saved " + type.getLowercase() + " " + MapUtil.getFullId(map) + "...",
                                     NamedTextColor.YELLOW),
                             Component.newline(),
@@ -356,7 +358,7 @@ public class CommonCommands {
 
         Optional<TempMap> oTempMap = TOOL_MANAGER.getMap(type, gamemode, id);
         if(oTempMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+            sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Couldn't find a " + type.getLowercase() +
                             " under this ID, make sure the " + type.getLowercase() + " exists and is loaded.", NamedTextColor.RED)));
             return;
@@ -377,7 +379,7 @@ public class CommonCommands {
                                     Component.text(type.getPascalcase(), NamedTextColor.GRAY))
                             .build());
 
-                    sender.sendMessage(MC.notificationMessage(type.getPascalcase(),
+                    sender.sendMessage(Message.notification(type.getPascalcase(),
                             Component.text("You've been teleported to \"" + fullId + "\".", NamedTextColor.GREEN)));
                 });
     }

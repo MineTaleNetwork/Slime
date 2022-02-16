@@ -1,6 +1,6 @@
 package cc.minetale.slime.tools.commands.map;
 
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.tools.commands.CommonCommands;
 import net.kyori.adventure.text.Component;
@@ -18,7 +18,7 @@ public final class ModifyCommand extends Command {
 
         var subcmd = new Command("name");
         subcmd.setDefaultExecutor((sender, context) -> {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Usage: /slime map modify name <newName>", NamedTextColor.GRAY)));
         });
         subcmd.addSyntax((sender, context) -> CommonCommands.modifyMap(AbstractMap.Type.GAME, sender, context),
@@ -27,7 +27,7 @@ public final class ModifyCommand extends Command {
 
         subcmd = new Command("dimension");
         subcmd.setDefaultExecutor((sender, context) -> {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Usage: /slime map modify dimension <newDimensionId>", NamedTextColor.GRAY)));
         });
         subcmd.addSyntax((sender, context) -> CommonCommands.modifyMap(AbstractMap.Type.GAME, sender, context),
@@ -38,7 +38,7 @@ public final class ModifyCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Usage: /slime map modify <name|dimension|bounds>", NamedTextColor.GRAY)));
     }
 

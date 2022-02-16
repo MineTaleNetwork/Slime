@@ -1,7 +1,7 @@
 package cc.minetale.slime.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.tools.commands.SpawnCommand;
@@ -89,7 +89,7 @@ public final class OwnerCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Usage: /slime spawn owner <add|remove|list>", NamedTextColor.GRAY)));
     }
 
@@ -105,7 +105,7 @@ public final class OwnerCommand extends Command {
         }
 
         private void defaultExecutor(CommandSender sender, CommandContext context) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Usage: /slime spawn owner add <spawnId> <teamId>", NamedTextColor.GRAY)));
         }
 
@@ -114,7 +114,7 @@ public final class OwnerCommand extends Command {
             if(builder == null) { return; }
 
             if(!builder.isBuilderMode()) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("You need to be in builder mode to execute this command!",
+                sender.sendMessage(Message.notification("Map", Component.text("You need to be in builder mode to execute this command!",
                         NamedTextColor.RED)));
                 return;
             }
@@ -126,21 +126,21 @@ public final class OwnerCommand extends Command {
 
             var oMap = TOOL_MANAGER.getMapByInstance(instance);
             if(oMap.isEmpty()) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
             var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
                 return;
             }
 
             var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
+                sender.sendMessage(Message.notification("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
                 return;
             }
@@ -149,12 +149,12 @@ public final class OwnerCommand extends Command {
             var team = TeamUtil.findById(types, teamId);
 
             if(spawn.addOwner(team)) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text(
+                sender.sendMessage(Message.notification("Map", Component.text(
                         "Successfully added team \"" + teamId + "\" to owners for spawn \"" +
                                 spawnId + "\" in map " + "\"" + MapUtil.getFullId(map) + "\".",
                         NamedTextColor.GREEN)));
             } else {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text(
+                sender.sendMessage(Message.notification("Map", Component.text(
                         "There was a problem adding team \"" + teamId + "\" to owners for spawn \"" +
                                 spawnId + "\" in map " + "\"" + MapUtil.getFullId(map) + "\".",
                         NamedTextColor.RED)));
@@ -174,7 +174,7 @@ public final class OwnerCommand extends Command {
         }
 
         private void defaultExecutor(CommandSender sender, CommandContext context) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Usage: /slime spawn owner remove <spawnId> <teamId>", NamedTextColor.GRAY)));
         }
 
@@ -183,7 +183,7 @@ public final class OwnerCommand extends Command {
             if(builder == null) { return; }
 
             if(!builder.isBuilderMode()) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("You need to be in builder mode to execute this command!",
+                sender.sendMessage(Message.notification("Map", Component.text("You need to be in builder mode to execute this command!",
                         NamedTextColor.RED)));
                 return;
             }
@@ -195,21 +195,21 @@ public final class OwnerCommand extends Command {
 
             var oMap = TOOL_MANAGER.getMapByInstance(instance);
             if(oMap.isEmpty()) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
             var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
                 return;
             }
 
             var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
+                sender.sendMessage(Message.notification("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
                 return;
             }
@@ -218,12 +218,12 @@ public final class OwnerCommand extends Command {
             var team = TeamUtil.findById(types, teamId);
 
             if(spawn.removeOwner(team)) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text(
+                sender.sendMessage(Message.notification("Map", Component.text(
                         "Successfully removed team \"" + teamId + "\" from owners for spawn \"" +
                                 spawnId + "\" in map \"" + MapUtil.getFullId(map) + "\".",
                         NamedTextColor.GREEN)));
             } else {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text(
+                sender.sendMessage(Message.notification("Map", Component.text(
                         "There was a problem removing team \"" + teamId + "\" from owners for spawn \"" +
                                 spawnId + "\" in map \"" + MapUtil.getFullId(map) + "\".",
                         NamedTextColor.RED)));
@@ -243,7 +243,7 @@ public final class OwnerCommand extends Command {
         }
 
         private void defaultExecutor(CommandSender sender, CommandContext context) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Usage: /slime spawn owner list <spawnId>", NamedTextColor.GRAY)));
         }
 
@@ -252,7 +252,7 @@ public final class OwnerCommand extends Command {
             if(builder == null) { return; }
 
             if(!builder.isBuilderMode()) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("You need to be in builder mode to execute this command!",
+                sender.sendMessage(Message.notification("Map", Component.text("You need to be in builder mode to execute this command!",
                         NamedTextColor.RED)));
                 return;
             }
@@ -263,21 +263,21 @@ public final class OwnerCommand extends Command {
 
             var oMap = TOOL_MANAGER.getMapByInstance(instance);
             if(oMap.isEmpty()) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
             var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
-                sender.sendMessage(MC.notificationMessage("Map",
+                sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
                 return;
             }
 
             var spawn = handle.getSpawn(spawnId);
             if(spawn == null) {
-                sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
+                sender.sendMessage(Message.notification("Map", Component.text("Spawn doesn't exist! " +
                         "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
                 return;
             }

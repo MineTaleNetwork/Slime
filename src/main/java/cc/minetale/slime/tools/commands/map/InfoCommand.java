@@ -1,7 +1,7 @@
 package cc.minetale.slime.tools.commands.map;
 
 import cc.minetale.buildingtools.Builder;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.utils.MapUtil;
 import cc.minetale.slime.utils.MiscUtil;
@@ -32,7 +32,7 @@ public final class InfoCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(AbstractMap.Type.GAME, instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
@@ -42,7 +42,7 @@ public final class InfoCommand extends Command {
 
         var area = map.getArea();
         //TODO Update and include more info such as spawns...
-        sender.sendMessage(MC.notificationMessage("Map", Component.text()
+        sender.sendMessage(Message.notification("Map", Component.text()
                 .append(MiscUtil.getInformationMessage(
                         "Displaying information for \"" + MapUtil.getFullId(handle) + "\":",
                         Map.ofEntries(

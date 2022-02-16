@@ -8,15 +8,15 @@ import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
 import com.mongodb.client.model.Filters;
+import lombok.experimental.UtilityClass;
 import org.bson.conversions.Bson;
 
 import java.util.*;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
+@UtilityClass
 public final class MapUtil {
-
-    private MapUtil() {}
 
     //TODO Merge these methods through MapResolver within AbstractMap.Type?
     public static boolean isMapInDatabase(AbstractMap.Type type, String gamemode, String id) {

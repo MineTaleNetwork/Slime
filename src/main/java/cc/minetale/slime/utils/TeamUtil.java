@@ -1,17 +1,16 @@
 package cc.minetale.slime.utils;
 
-import cc.minetale.commonlib.util.CollectionsUtil;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.team.TeamProvider;
+import lombok.experimental.UtilityClass;
 
 import java.util.*;
 
+@UtilityClass
 public final class TeamUtil {
-
-    private TeamUtil() {}
 
     public static <T extends ITeamType> T findById(Collection<T> types, String id) {
         for(T type : types) {
@@ -69,7 +68,7 @@ public final class TeamUtil {
 
     /**
      * Creates {@linkplain GameTeam} based on {@linkplain ITeamType}s. <br>
-     * Just like {@linkplain #createTeams(TeamProvider, List, Game, int, int)} it creates enough teams to fill all players and then stops, <br>
+     * Just like {@linkplain #createTeams(TeamProvider, List, Game, int, int)} it creates enough teams to fill all players and then stops,
      * but also allows you to specify different sizes for each team. <br>
      * <br>
      * Keep in mind this method doesn't fill teams from the smallest size to biggest, <br>
@@ -84,7 +83,7 @@ public final class TeamUtil {
      */
     public static List<GameTeam> createTeams(TeamProvider provider, Map<ITeamType, Integer> types, Game game, int players) {
         List<GameTeam> teams = new ArrayList<>();
-        var totalCapacity = CollectionsUtil.addAllInt(types.values());
+        var totalCapacity = types.values().stream().mapToInt(Integer::intValue).sum();
         //How many teams will be created
         var expectedTotal = Math.ceil((double) players / totalCapacity);
         var i = 0;

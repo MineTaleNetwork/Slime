@@ -21,7 +21,7 @@ import java.util.List;
  *     It's also required because a {@linkplain GameSpawn} requires an instance to spawn players on, more can be found at {@linkplain MapSpawn}.</li>
  * </ul>
  */
-public class GameSetupEvent implements GameEvent {
+public class PreGameSetupEvent implements GameEvent {
 
     @Getter private final Game game;
 
@@ -29,7 +29,7 @@ public class GameSetupEvent implements GameEvent {
     @Getter private final List<MapSpawn> mapSpawns;
     @Getter private final List<GameSpawn> gameSpawns;
 
-    public GameSetupEvent(Game game, List<MapSpawn> mapSpawns) {
+    public PreGameSetupEvent(Game game, List<MapSpawn> mapSpawns) {
         this.game = game;
 
         this.mapSpawns = Collections.unmodifiableList(mapSpawns);

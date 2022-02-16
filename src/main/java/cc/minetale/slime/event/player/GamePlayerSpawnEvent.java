@@ -15,7 +15,7 @@ public class GamePlayerSpawnEvent implements GameEvent, GamePlayerEvent {
     private Game game;
     private GamePlayer gamePlayer;
 
-    @Setter private GameSpawn spawn; //Proposed spawnpoint by the SpawnManager and its current SpawnStrategy
+    @Setter private GameSpawn spawn; //Proposed spawn by the SpawnManager and its current SpawnStrategy
 
     public GamePlayerSpawnEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer, @NotNull GameSpawn spawn) {
         this.game = game;

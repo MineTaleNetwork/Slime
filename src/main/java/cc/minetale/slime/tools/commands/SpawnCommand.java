@@ -1,7 +1,7 @@
 package cc.minetale.slime.tools.commands;
 
 import cc.minetale.buildingtools.Builder;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.tools.commands.spawn.*;
@@ -79,7 +79,7 @@ public class SpawnCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Usage: /slime spawn <create|remove|owner|tp|info|list>", NamedTextColor.GRAY)));
     }
 

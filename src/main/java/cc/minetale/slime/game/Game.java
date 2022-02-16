@@ -6,7 +6,8 @@ import cc.minetale.slime.condition.IEndCondition;
 import cc.minetale.slime.core.GameState;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.core.SlimeForwardingAudience;
-import cc.minetale.slime.event.game.GameSetupEvent;
+import cc.minetale.slime.event.game.PostGameSetupEvent;
+import cc.minetale.slime.event.game.PreGameSetupEvent;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
@@ -19,6 +20,7 @@ import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.TeamManager;
+import cc.minetale.slime.utils.ApplyStrategy;
 import cc.minetale.slime.utils.TeamUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -72,16 +74,20 @@ public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IR
         var map = Slime.getActiveGame().getGameMap();
         this.mainInstance = new GameInstance(map);
 
-        var event = new GameSetupEvent(this, new ArrayList<>(map.getSpawns().values()));
-        EventDispatcher.call(event);
+        var preEvent = new PreGameSetupEvent(this, new ArrayList<>(map.getSpawns().values()));
+        EventDispatcher.call(preEvent);
 
-        List<GameSpawn> spawns = event.getGameSpawns();
-        if(spawns.isEmpty()) {
+        List<GameSpawn> spawns = preEvent.getGameSpawns();
+        if(spawns.isEmpty())
             LOGGER.warn("There aren't any spawns converted. Convert MapSpawns to GameSpawns through GameSetupEvent. Expect issues.");
-        }
+
         this.spawnManager.addSpawns(spawns);
 
-        return this.mainInstance.setMap(map);
+        return this.mainInstance.setMap(map)
+                .thenRun(() -> {
+                    var postEvent = new PostGameSetupEvent(this, this.mainInstance);
+                    EventDispatcher.call(postEvent);
+                });
     }
 
     /**
@@ -252,21 +258,29 @@ public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IR
 
     //Rules
     @Override
-    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+    public <T> void setRule(Rule<T> rule, T value, ApplyStrategy strategy, boolean affectChildren) {
         if(rule instanceof GameRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
             return;
         } else if(rule instanceof UniversalRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
         }
 
         if(affectChildren)
-            this.teamManager.getTeams().forEach((id, team) -> team.setRule(rule, value, true));
+            this.teamManager.getTeams().forEach((id, team) -> team.setRule(rule, value, strategy, true));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getRule(Rule<T> rule) {
+    public <R extends Rule<T>, T> T getRule(R rule) {
         return (T) this.rules.get(rule);
     }
 

@@ -39,6 +39,10 @@ java {
     withSourcesJar()
 }
 
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
 shadowJar {
     classifier = null
 }

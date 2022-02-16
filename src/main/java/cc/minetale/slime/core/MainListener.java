@@ -127,24 +127,39 @@ public final class MainListener {
             var game = player.getGame();
             if(game == null) { return; }
 
-            if(player.getRule(PlayerRule.AUTO_LOSE_LIVES))
+            if(player.getRuleOrDefault(PlayerRule.AUTO_LOSE_LIVES))
                 player.setLives(player.getLives() - 1);
 
             //Will the player will be set to spectator?
-            var eliminated = player.getLives() == 0;
+            var eliminated = player.getLives() < 0;
 
             if(!eliminated) {
-                if(player.getRule(PlayerRule.RESPAWN_TIME) > 0) {
-                    if(player.getRule(PlayerRule.AUTO_DEATHCAM))
+                if(player.getRuleOrDefault(PlayerRule.RESPAWN_TIME) > 0) {
+                    if(player.getRuleOrDefault(PlayerRule.AUTO_DEATHCAM))
                         player.setState(PlayerState.DEATHCAM);
                     //TODO Automatic deathcam
 
                     return;
                 }
             } else {
-                if(player.getRule(PlayerRule.AUTO_SPECTATOR))
+                if(player.getRuleOrDefault(PlayerRule.AUTO_SPECTATOR))
                     player.setState(PlayerState.SPECTATE);
                 //TODO Automatic spectator
+            }
+        });
+
+        node.addListener(PlayerMoveEvent.class, event -> {
+            var player = GamePlayer.fromPlayer(event.getPlayer());
+            var freezeType = player.getRuleOrDefault(PlayerRule.FROZEN);
+
+            final var oldPos = player.getPosition();
+            final var newPos = event.getNewPosition();
+
+            switch(freezeType) {
+                case BOTH -> event.setCancelled(true);
+                case POSITION -> event.setNewPosition(oldPos.withView(newPos.yaw(), newPos.pitch()));
+                case ANGLES -> event.setNewPosition(newPos.withView(oldPos.yaw(), oldPos.pitch()));
+                case NONE -> {}
             }
         });
 

@@ -7,6 +7,7 @@ import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.rule.*;
+import cc.minetale.slime.utils.ApplyStrategy;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,21 +79,29 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
 
     //Rules
     @Override
-    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+    public <T> void setRule(Rule<T> rule, T value, ApplyStrategy strategy, boolean affectChildren) {
         if(rule instanceof TeamRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
             return;
         } else if(rule instanceof UniversalRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
         }
 
         if(affectChildren)
-            this.players.forEach(player -> player.setRule(rule, value, affectChildren));
+            this.players.forEach(player -> player.setRule(rule, value, strategy, true));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getRule(Rule<T> rule) {
+    public <R extends Rule<T>, T> T getRule(R rule) {
         return (T) this.rules.get(rule);
     }
 

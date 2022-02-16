@@ -1,7 +1,7 @@
 package cc.minetale.slime.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.utils.MapUtil;
@@ -29,7 +29,7 @@ public final class CreateCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Usage: /slime spawn create <id> [position] [rotation]", NamedTextColor.GRAY)));
     }
 
@@ -45,20 +45,20 @@ public final class CreateCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
 
         if(!(map.getHandle() instanceof GameMap handle)) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
             return;
         }
 
         if(!MapUtil.isSpawnIdAvailable(handle, id)) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Spawn with this ID already exists.\n" +
                             "You can either remove it with \"/slime spawn remove\" or edit it with other commands.", NamedTextColor.RED)));
             return;
@@ -67,7 +67,7 @@ public final class CreateCommand extends Command {
         var spawn = new MapSpawn(id, pos);
         handle.addSpawn(spawn);
 
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Successfully created a spawn with ID \"" + id + "\" for \"" + MapUtil.getFullId(handle) + "\". " +
                                 "At " + MiscUtil.toString(pos), NamedTextColor.GREEN)
                         .append(Component.newline())

@@ -1,6 +1,5 @@
 package cc.minetale.slime.utils.restriction;
 
-import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -48,10 +47,12 @@ public class Greylist<T> extends RestrictionList<T> {
         return this.whitelisted;
     }
 
-    public @NotNull Sets.SetView<T> getAllowedItems() {
+    public @NotNull Set<T> getAllowedItems() {
         synchronized (this.blacklisted) {
             synchronized (this.whitelisted) {
-                return Sets.symmetricDifference(new HashSet<>(this.whitelisted), new HashSet<>(this.blacklisted));
+                Set<T> difference = new HashSet<>(this.whitelisted);
+                difference.removeAll(this.blacklisted);
+                return difference;
             }
         }
     }

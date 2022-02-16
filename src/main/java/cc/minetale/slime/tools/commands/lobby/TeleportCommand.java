@@ -1,6 +1,6 @@
 package cc.minetale.slime.tools.commands.lobby;
 
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.tools.commands.CommonCommands;
 import cc.minetale.slime.tools.commands.LobbyCommand;
@@ -22,7 +22,7 @@ public final class TeleportCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Lobby",
+        sender.sendMessage(Message.notification("Lobby",
                 Component.text("Usage: /slime lobby tp <gamemode> <id>", NamedTextColor.GRAY)));
     }
 

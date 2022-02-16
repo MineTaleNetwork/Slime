@@ -1,5 +1,6 @@
 package cc.minetale.slime.utils;
 
+import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.CommandContext;
@@ -8,9 +9,13 @@ import net.minestom.server.command.builder.arguments.relative.ArgumentRelativeVe
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.inventory.EquipmentHandler;
+import net.minestom.server.item.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 
+@UtilityClass
 public class MiscUtil {
 
     public static String toString(Pos pos) {
@@ -48,6 +53,15 @@ public class MiscUtil {
         }
 
         return builder.build();
+    }
+
+    public static List<ItemStack> getEquipment(EquipmentHandler handler) {
+        return List.of(handler.getItemInMainHand(),
+                handler.getItemInOffHand(),
+                handler.getBoots(),
+                handler.getLeggings(),
+                handler.getChestplate(),
+                handler.getHelmet());
     }
 
 }

@@ -12,8 +12,10 @@ import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.rule.*;
 import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.team.GameTeam;
+import cc.minetale.slime.utils.ApplyStrategy;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.util.TriState;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.inventory.PlayerInventory;
@@ -63,14 +65,23 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
 
         this.state = state;
 
-        setGameMode(state.getGamemode());
+        var gamemode = state.getGamemode();
+        if(gamemode != null)
+            setGameMode(gamemode);
 
-        if(state.showTeam() && this.gameTeam != null) {
+        var showTeam = state.showTeam();
+        if(showTeam == TriState.TRUE && this.gameTeam != null) {
             NameplateHandler.addProvider(this, this.gameTeam.getNameplateProvider());
-        } else {
+        } else if(showTeam == TriState.FALSE) {
             NameplateHandler.removeProvider(this, ProviderType.SLIME);
         }
-        NameplateHandler.reloadPlayer(this);
+
+        if(showTeam != TriState.NOT_SET)
+            NameplateHandler.reloadPlayer(this);
+
+        RuleSet ruleSet = state.getRuleSet();
+        if(ruleSet != null)
+            ruleSet.applyFor(this, state.getRulesApplyStrategy(), state.getRulesAffectChildren());
     }
 
     public final void setCurrentSpawn(@NotNull GameSpawn spawn) {
@@ -82,6 +93,15 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
         return this.lives < 0;
     }
 
+    @Override
+    public void setBoundingBox(double x, double y, double z) {
+        //Doesn't change the actual bounding box, just the one used for picking up items
+        //Changed as Minestom's one is too small
+        super.setBoundingBox(x, y, z);
+        this.expandedBoundingBox = getBoundingBox().expand(2, 1, 2);
+    }
+
+    //Loadouts
     @Override
     public Loadout getLoadout() {
         return this.loadout;
@@ -137,18 +157,26 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
 
     //Rules
     @Override
-    public <T> void setRule(Rule<T> rule, T value, boolean affectChildren) {
+    public <T> void setRule(Rule<T> rule, T value, ApplyStrategy strategy, boolean affectChildren) {
         if(rule instanceof PlayerRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
             return;
         } else if(rule instanceof UniversalRule) {
-            this.rules.put(rule, value);
+            if(strategy == ApplyStrategy.ALWAYS) {
+                this.rules.put(rule, value);
+            } else if(strategy == ApplyStrategy.NOT_SET) {
+                this.rules.putIfAbsent(rule, value);
+            }
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getRule(Rule<T> rule) {
+    public <R extends Rule<T>, T> T getRule(R rule) {
         return (T) this.rules.get(rule);
     }
 }

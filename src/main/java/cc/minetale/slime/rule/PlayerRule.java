@@ -108,10 +108,17 @@ public class PlayerRule<T> extends Rule<T> {
     //Movement
 
     /**
-     * {@linkplain Boolean} <br>
+     * {@linkplain FreezeType} <br>
      * <br>
      * You can't move.
      */
-    public static final PlayerRule<Boolean> FROZEN = new PlayerRule<>(false);
+    public static final PlayerRule<FreezeType> FROZEN = new PlayerRule<>(FreezeType.NONE);
+
+    public enum FreezeType {
+        BOTH,
+        POSITION,
+        ANGLES,
+        NONE
+    }
 
 }

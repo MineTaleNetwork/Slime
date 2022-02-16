@@ -1,7 +1,7 @@
 package cc.minetale.slime.tools.commands.spawn;
 
 import cc.minetale.buildingtools.Builder;
-import cc.minetale.commonlib.util.MC;
+import cc.minetale.commonlib.util.Message;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.utils.MapUtil;
 import net.kyori.adventure.text.Component;
@@ -24,7 +24,7 @@ public final class RemoveCommand extends Command {
     }
 
     private void defaultExecutor(CommandSender sender, CommandContext context) {
-        sender.sendMessage(MC.notificationMessage("Map",
+        sender.sendMessage(Message.notification("Map",
                 Component.text("Usage: /slime spawn remove <id>", NamedTextColor.GRAY)));
     }
 
@@ -36,14 +36,14 @@ public final class RemoveCommand extends Command {
 
         var oMap = TOOL_MANAGER.getMapByInstance(instance);
         if(oMap.isEmpty()) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
         var map = oMap.get();
 
         if(!(map.getHandle() instanceof GameMap handle)) {
-            sender.sendMessage(MC.notificationMessage("Map",
+            sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong, the expected handle wasn't of GameMap.", NamedTextColor.RED)));
             return;
         }
@@ -51,17 +51,17 @@ public final class RemoveCommand extends Command {
         var id = context.get(SPAWN_AUTO_ARG);
 
         if(MapUtil.isSpawnIdAvailable(handle, id)) {
-            sender.sendMessage(MC.notificationMessage("Map", Component.text("Spawn doesn't exist! " +
+            sender.sendMessage(Message.notification("Map", Component.text("Spawn doesn't exist! " +
                     "Make sure you typed in the name correctly and the spawn exists.", NamedTextColor.RED)));
             return;
         }
 
         if(handle.removeSpawn(id) != null) {
-            sender.sendMessage(MC.notificationMessage("Map", Component.text(
+            sender.sendMessage(Message.notification("Map", Component.text(
                     "Successfully removed spawn \"" + id + "\" from " + "\"" + MapUtil.getFullId(map) + "\".",
                     NamedTextColor.GREEN)));
         } else {
-            sender.sendMessage(MC.notificationMessage("Map", Component.text(
+            sender.sendMessage(Message.notification("Map", Component.text(
                     "There was a problem removing spawn \"" + id + "\" from " + "\"" + MapUtil.getFullId(map) + "\".",
                     NamedTextColor.RED)));
         }
