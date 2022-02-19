@@ -1,6 +1,7 @@
 package cc.minetale.slime.tools.commands;
 
 import cc.minetale.commonlib.util.Message;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.tools.commands.lobby.*;
 import net.kyori.adventure.text.Component;
@@ -22,9 +23,8 @@ public final class LobbyCommand extends Command {
                 if(context.has(CommonCommands.GAMEMODE_ARG)) {
                     var gamemode = context.get(CommonCommands.GAMEMODE_ARG);
 
-                    var oGame = TOOL_MANAGER.getGame(gamemode);
-                    if(oGame.isEmpty()) { return; }
-                    var game = oGame.get();
+                    var game = Slime.getRegisteredGame(gamemode);
+                    if(game == null) { return; }
 
                     TOOL_MANAGER.getActiveMapsForGame(AbstractMap.Type.LOBBY, game)
                             .forEach(map -> {

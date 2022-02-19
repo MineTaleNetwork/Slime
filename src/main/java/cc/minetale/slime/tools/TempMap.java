@@ -1,7 +1,8 @@
 package cc.minetale.slime.tools;
 
 import cc.minetale.buildingtools.Selection;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.Slime;
+import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.LobbyMap;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
-import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
 /**
  * Temporary Map used for building purposes.
@@ -27,7 +27,7 @@ import static cc.minetale.slime.Slime.TOOL_MANAGER;
 public class TempMap {
 
     @Getter private AbstractMap handle;
-    @Getter private GameExtension game;
+    @Getter private GameInfo game;
 
     @Getter private InstanceContainer instance;
 
@@ -36,7 +36,7 @@ public class TempMap {
     @Getter private boolean isInDatabase;
     @Getter @Accessors(fluent = true) private boolean hasChanged;
 
-    private TempMap(AbstractMap handle, GameExtension game, boolean isInDatabase) {
+    private TempMap(AbstractMap handle, GameInfo game, boolean isInDatabase) {
         this.handle = handle;
         this.game = game;
 
@@ -49,14 +49,13 @@ public class TempMap {
         this.isInDatabase = isInDatabase;
     }
 
-    public static TempMap ofMap(AbstractMap map, GameExtension game, boolean isInDatabase) {
+    public static TempMap ofMap(AbstractMap map, GameInfo game, boolean isInDatabase) {
         return new TempMap(map, game, isInDatabase);
     }
 
     public static TempMap ofMap(AbstractMap map, boolean isInDatabase) {
-        var oGame = TOOL_MANAGER.getGame(map.getGamemode());
-        if(oGame.isEmpty()) { return null; }
-        var game = oGame.get();
+        var game = Slime.getRegisteredGame(map.getGamemode());
+        if(game == null) { return null; }
 
         return new TempMap(map, game, isInDatabase);
     }

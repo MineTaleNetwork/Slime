@@ -1,14 +1,14 @@
 package cc.minetale.slime.utils;
 
 import cc.minetale.slime.map.GameMap;
-import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
+import cc.minetale.slime.tools.TempMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Predicate;
 
 @AllArgsConstructor
@@ -58,7 +58,7 @@ public final class Requirement<T> {
                         Collection<MapSpawn> spawns = handle.getSpawns().values();
 
                         var game = map.getGame();
-                        Set<ITeamType> teams = game.getTeamTypes();
+                        List<ITeamType> teams = game.getTeamTypes();
 
                         return MapUtil.allTeamsHaveSpawn(spawns, teams, min);
                     });

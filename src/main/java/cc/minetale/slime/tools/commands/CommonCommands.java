@@ -3,7 +3,7 @@ package cc.minetale.slime.tools.commands;
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.buildingtools.Selection;
 import cc.minetale.commonlib.util.Message;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.MapProvider;
 import cc.minetale.slime.map.MapResolver;
@@ -25,7 +25,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.utils.NamespaceID;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +38,7 @@ public class CommonCommands {
 
     public static final ArgumentWord GAMEMODE_ARG = (ArgumentWord) new ArgumentWord("gamemode")
             .setSuggestionCallback((CommandSender sender, CommandContext context, Suggestion suggestion) -> {
-                for(GameExtension game : TOOL_MANAGER.getAvailableGames()) {
+                for(var game : Slime.getRegisteredGames()) {
                     var id = game.getId();
                     suggestion.addEntry(new SuggestionEntry(id, Component.text(id)));
                 }
@@ -57,13 +56,12 @@ public class CommonCommands {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(type, instance);
+        if(map == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         var handle = map.getHandle();
         var result = handle.setStatus(true);
@@ -111,14 +109,13 @@ public class CommonCommands {
             return;
         }
 
-        var oGame = TOOL_MANAGER.getGame(gamemode);
-        if(oGame.isEmpty()) {
+        var game = Slime.getRegisteredGame(gamemode);
+        if(game == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Cannot find the gamemode!" +
                             "Make sure you typed in the name correctly and the gamemode is installed.", NamedTextColor.RED)));
             return;
         }
-        var game = oGame.get();
 
         selection = new Selection(selection);
 
@@ -168,14 +165,13 @@ public class CommonCommands {
             return;
         }
 
-        var oGame = TOOL_MANAGER.getGame(gamemode);
-        if(oGame.isEmpty()) {
+        var game = Slime.getRegisteredGame(gamemode);
+        if(game == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Cannot find the gamemode! " +
                             "Make sure you typed in the name correctly and the gamemode is installed.", NamedTextColor.RED)));
             return;
         }
-        var game = oGame.get();
 
         MapResolver<AbstractMap> resolver = type.getResolver(game);
         MapProvider<AbstractMap> provider = type.getProvider(game);
@@ -206,14 +202,13 @@ public class CommonCommands {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(type, instance);
+        if(map == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " +
                             type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         var handle = map.getHandle();
 
@@ -247,13 +242,12 @@ public class CommonCommands {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(type, instance);
+        if(map == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         var handle = map.getHandle();
         var result = handle.setStatus(true);
@@ -282,13 +276,12 @@ public class CommonCommands {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(type, instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(type, instance);
+        if(map == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Something went wrong when looking up the " + type.getLowercase() + " you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         var settingsFuture = CompletableFuture.completedFuture(TriState.NOT_SET);
         if(saveSettings) {
@@ -356,14 +349,13 @@ public class CommonCommands {
         var builder = Builder.fromSender(sender);
         if(builder == null) { return; }
 
-        Optional<TempMap> oTempMap = TOOL_MANAGER.getMap(type, gamemode, id);
-        if(oTempMap.isEmpty()) {
+        var tempMap = TOOL_MANAGER.getMap(type, gamemode, id);
+        if(tempMap == null) {
             sender.sendMessage(Message.notification(type.getPascalcase(),
                     Component.text("Couldn't find a " + type.getLowercase() +
                             " under this ID, make sure the " + type.getLowercase() + " exists and is loaded.", NamedTextColor.RED)));
             return;
         }
-        var tempMap = oTempMap.get();
 
         builder.setInstance(tempMap.getInstance(), Pos.ZERO)
                 .thenAccept(v -> {

@@ -1,28 +1,24 @@
 package cc.minetale.slime.utils;
 
 import cc.minetale.commonlib.util.CollectionsUtil;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
-import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
+import cc.minetale.slime.tools.TempMap;
 import com.mongodb.client.model.Filters;
 import lombok.experimental.UtilityClass;
 import org.bson.conversions.Bson;
 
 import java.util.*;
 
-import static cc.minetale.slime.Slime.TOOL_MANAGER;
-
 @UtilityClass
 public final class MapUtil {
 
-    //TODO Merge these methods through MapResolver within AbstractMap.Type?
     public static boolean isMapInDatabase(AbstractMap.Type type, String gamemode, String id) {
-        Optional<GameExtension> oGame = TOOL_MANAGER.getGame(gamemode);
-        if(oGame.isEmpty()) { return false; }
-        var game = oGame.get();
+        var game = Slime.getRegisteredGame(gamemode);
+        if(game == null) { return false; }
 
         return type.getResolver(game).isInDatabase(gamemode, id);
     }
@@ -66,7 +62,7 @@ public final class MapUtil {
      * See {@linkplain Requirement.Map#minSpawnsPerTeam(int)}
      * @param spawnsRequired How many spawns should each team have minimum (inclusive)
      */
-    public static boolean allTeamsHaveSpawn(Collection<MapSpawn> spawns, Set<ITeamType> teams, int spawnsRequired) {
+    public static boolean allTeamsHaveSpawn(Collection<MapSpawn> spawns, List<ITeamType> teams, int spawnsRequired) {
         spawns = new ArrayList<>(spawns);
 
         Map<ITeamType, Integer> teamsLeft = new HashMap<>();

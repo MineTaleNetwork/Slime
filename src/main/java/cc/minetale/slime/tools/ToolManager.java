@@ -2,7 +2,7 @@ package cc.minetale.slime.tools;
 
 import cc.minetale.buildingtools.Builder;
 import cc.minetale.slime.Slime;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.*;
 import cc.minetale.slime.tools.commands.*;
@@ -31,8 +31,6 @@ public class ToolManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ToolManager.class);
 
     @Getter private boolean isEnabled;
-
-    private Set<GameExtension> availableGames;
 
     /** Active temporary maps on the server, ones that are loaded, have their own instance and are accessible. */
     private Set<TempMap> activeGameMaps;
@@ -74,46 +72,11 @@ public class ToolManager {
                                     .build(), 3));
                         }));
 
-        this.availableGames = Collections.synchronizedSet(new HashSet<>());
-
         this.activeGameMaps = Collections.synchronizedSet(new HashSet<>());
         this.activeLobbyMaps = Collections.synchronizedSet(new HashSet<>());
 
         //Mark as initialized
         this.isEnabled = true;
-    }
-
-    public Set<GameExtension> getAvailableGames() {
-        return Collections.unmodifiableSet(this.availableGames);
-    }
-
-    public Optional<GameExtension> getGame(String id) {
-        return this.availableGames.stream()
-                .filter(other -> other.getId().equals(id))
-                .findFirst();
-    }
-
-    public GameExtension getGameOrActive(String gamemode) {
-        return this.isEnabled ? getGame(gamemode).orElse(null) : Slime.getActiveGame();
-    }
-
-    public boolean addGame(GameExtension extension) {
-        if(isGameAvailable(extension)) { return false; }
-        this.availableGames.add(extension);
-        return true;
-    }
-
-    public boolean removeGame(GameExtension extension) {
-        return this.availableGames.remove(extension);
-    }
-
-    public boolean isGameAvailable(String id) {
-        return this.availableGames.stream()
-                .anyMatch(other -> Objects.equals(other.getId(), id));
-    }
-
-    private boolean isGameAvailable(GameExtension extension) {
-        return isGameAvailable(extension.getId());
     }
 
     public Set<TempMap> getActiveGameMaps() {
@@ -124,30 +87,31 @@ public class ToolManager {
         return Collections.unmodifiableSet(this.activeLobbyMaps);
     }
 
-    public Optional<TempMap> getMap(AbstractMap.Type type, String gamemode, String id) {
+    public TempMap getMap(AbstractMap.Type type, String gamemode, String id) {
         return getActiveMapsOf(type).stream()
                 .filter(map -> {
                     var handle = map.getHandle();
                     return Objects.equals(handle.getId(), id) && Objects.equals(handle.getGamemode(), gamemode);
-                }).findFirst();
+                })
+                .findFirst()
+                .orElse(null);
     }
 
-    public Optional<TempMap> getMap(AbstractMap.Type type, String id) {
-        return getMap(type, Slime.getActiveGame().getId(), id);
-    }
-
-    public Optional<TempMap> getMapByInstance(AbstractMap.Type type, Instance instance) {
+    public TempMap getMapByInstance(AbstractMap.Type type, Instance instance) {
         return getActiveMapsOf(type).stream()
-                .filter(map -> map.getInstance().equals(instance)).findFirst();
+                .filter(map -> map.getInstance().equals(instance))
+                .findFirst()
+                .orElse(null);
     }
 
     /** If you know what type the map is, use {@linkplain ToolManager#getMapByInstance(AbstractMap.Type, Instance)}. */
-    public Optional<TempMap> getMapByInstance(Instance instance) {
+    public TempMap getMapByInstance(Instance instance) {
         for(AbstractMap.Type type : AbstractMap.Type.values()) {
-            Optional<TempMap> optional = getMapByInstance(type, instance);
-            if(optional.isPresent()) { return optional; }
+            var map = getMapByInstance(type, instance);
+            if(map != null) { return map; }
         }
-        return Optional.empty();
+
+        return null;
     }
 
     /**
@@ -169,11 +133,10 @@ public class ToolManager {
      */
     public TempMap loadMap(AbstractMap.Type type, String gamemode, String id) {
         var otherMap = getMap(type, gamemode, id);
-        if(otherMap.isPresent()) { return otherMap.get(); }
+        if(otherMap != null) { return otherMap; }
 
-        var oGame = getGame(gamemode);
-        if(oGame.isEmpty()) { return null; }
-        var game = oGame.get();
+        var game = Slime.getRegisteredGame(gamemode);
+        if(game == null) { return null; }
 
         MapResolver<AbstractMap> resolver = type.getResolver(game);
         MapProvider<AbstractMap> provider = type.getProvider(game);
@@ -233,7 +196,7 @@ public class ToolManager {
         return false;
     }
 
-    public List<TempMap> getActiveMapsForGame(AbstractMap.Type type, GameExtension game) {
+    public List<TempMap> getActiveMapsForGame(AbstractMap.Type type, GameInfo game) {
         return getActiveMapsOf(type).stream()
                 .filter(map -> map.getGame() == game || Objects.equals(map.getGame().getId(), game.getId()))
                 .toList();

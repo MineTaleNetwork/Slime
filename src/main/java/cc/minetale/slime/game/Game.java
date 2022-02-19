@@ -1,6 +1,5 @@
 package cc.minetale.slime.game;
 
-import cc.minetale.slime.Slime;
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
 import cc.minetale.slime.core.GameState;
@@ -33,17 +32,21 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
+public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
 
     @Getter private final String identifier = "G#" + RandomStringUtils.randomAlphanumeric(6);
+
+    @Getter @Setter(AccessLevel.PACKAGE)
+    private GameManager gameManager; //Parent manager
 
     @Getter @Setter(AccessLevel.PACKAGE)
     protected GameLobby lobby;
@@ -51,7 +54,7 @@ public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IR
     @Getter @Setter(AccessLevel.PACKAGE)
     private GameState state;
 
-    private final Map<Rule<?>, Object> rules;
+    private final Map<Rule<?>, Object> rules = Collections.synchronizedMap(new HashMap<>());
 
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
@@ -59,19 +62,30 @@ public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IR
     @Getter protected final Map<String, GameInstance> instances = new ConcurrentHashMap<>();
 
     @Getter protected final List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
+    @Getter protected int minPlayers;
+    @Getter protected int maxPlayers;
+
+    @Getter protected Duration timelimit;
 
     @Getter protected final SpawnManager spawnManager = new SpawnManager();
     @Getter protected final TeamManager teamManager = new TeamManager();
 
-    protected Game(@NotNull GameState state) {
+    public Game(@NotNull GameManager gameManager, @NotNull GameState state) {
+        //Copy GameManager's settings
+        this.minPlayers = gameManager.getMinPlayers();
+        this.maxPlayers = gameManager.getMaxPlayers();
+
+        this.timelimit = gameManager.getTimelimit();
+
+        this.gameManager = gameManager;
+
+        //Setup state
         state.setGame(this);
         this.state = state;
-
-        this.rules = Collections.synchronizedMap(new HashMap<>());
     }
 
     public CompletableFuture<Void> setup() {
-        var map = Slime.getActiveGame().getGameMap();
+        var map = this.gameManager.getGameMap();
         this.mainInstance = new GameInstance(map);
 
         var preEvent = new PreGameSetupEvent(this, new ArrayList<>(map.getSpawns().values()));
@@ -131,7 +145,7 @@ public abstract class Game implements SlimeForwardingAudience, IRuleWritable, IR
     }
 
     boolean canFitPlayer() {
-        return Slime.getActiveGame().getMaxPlayers() - this.players.size() > 0;
+        return this.maxPlayers - this.players.size() > 0;
     }
 
     /**

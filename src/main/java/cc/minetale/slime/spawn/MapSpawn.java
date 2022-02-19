@@ -1,7 +1,7 @@
 package cc.minetale.slime.spawn;
 
 import cc.minetale.mlib.util.DocumentUtil;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.event.game.PreGameSetupEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.team.GameTeam;
@@ -49,7 +49,7 @@ public final class MapSpawn extends AbstractSpawn implements IOwnableSpawn {
         this.owners = Collections.synchronizedSet(new HashSet<>());
     }
 
-    public static @NotNull MapSpawn fromDocument(Document document, GameExtension game) {
+    public static @NotNull MapSpawn fromDocument(Document document, GameInfo game) {
         var spawn = new MapSpawn();
         spawn.load(document, game);
         return spawn;
@@ -100,7 +100,7 @@ public final class MapSpawn extends AbstractSpawn implements IOwnableSpawn {
         return this.owners.size() > 1;
     }
 
-    private void load(@NotNull Document document, GameExtension game) {
+    private void load(@NotNull Document document, GameInfo game) {
         this.id = document.getString("_id");
 
         for(String teamId : document.getList("owners", String.class)) {

@@ -1,6 +1,5 @@
 package cc.minetale.slime.core;
 
-import cc.minetale.slime.Slime;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.GameManager;
 import cc.minetale.slime.player.GamePlayer;
@@ -87,7 +86,7 @@ public final class MainListener {
                     Component.text(" has joined! (", NamedTextColor.GOLD),
                     Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
                     Component.text("/", NamedTextColor.GOLD),
-                    Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
+                    Component.text(game.getMaxPlayers(), NamedTextColor.YELLOW),
                     Component.text(")", NamedTextColor.GOLD))
             );
         });
@@ -109,7 +108,7 @@ public final class MainListener {
                     Component.text(" has left! (", NamedTextColor.GOLD),
                     Component.text(game.getPlayers().size(), NamedTextColor.YELLOW),
                     Component.text("/", NamedTextColor.GOLD),
-                    Component.text(Slime.getActiveGame().getMaxPlayers(), NamedTextColor.YELLOW),
+                    Component.text(game.getMaxPlayers(), NamedTextColor.YELLOW),
                     Component.text(")", NamedTextColor.GOLD))
             );
         });

@@ -3,6 +3,7 @@ package cc.minetale.slime.map;
 import cc.minetale.commonlib.CommonLib;
 import cc.minetale.magma.MagmaUtils;
 import cc.minetale.mlib.util.DocumentUtil;
+import cc.minetale.slime.Slime;
 import cc.minetale.slime.spawn.MapSpawn;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
@@ -18,8 +19,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
 @Getter
 public class GameMap extends AbstractMap {
@@ -105,7 +104,9 @@ public class GameMap extends AbstractMap {
         this.minPos = DocumentUtil.documentToVector(document.get("minPos", Document.class));
         this.maxPos = DocumentUtil.documentToVector(document.get("maxPos", Document.class));
 
-        var game = TOOL_MANAGER.getGameOrActive(this.gamemode);
+        var game = Slime.getRegisteredGame(this.gamemode);
+        if(game == null) { return; }
+
         for(Map.Entry<String, Object> ent : document.get("spawns", Document.class).entrySet()) {
             this.spawns.put(ent.getKey(), MapSpawn.fromDocument((Document) ent.getValue(), game));
         }

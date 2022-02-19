@@ -1,7 +1,7 @@
 package cc.minetale.slime.map;
 
 import cc.minetale.magma.MagmaLoader;
-import cc.minetale.slime.core.GameExtension;
+import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.utils.MapUtil;
 import com.mongodb.client.result.UpdateResult;
 import lombok.AllArgsConstructor;
@@ -55,25 +55,25 @@ public abstract class AbstractMap {
     @AllArgsConstructor
     public enum Type {
         GAME("Map", "map",
-                GameExtension::getGameMapProvider,
-                GameExtension::getGameMapResolver),
+                GameInfo::getGameMapProvider,
+                GameInfo::getGameMapResolver),
 
         LOBBY("Lobby", "lobby",
-                GameExtension::getLobbyMapProvider,
-                GameExtension::getLobbyMapResolver);
+                GameInfo::getLobbyMapProvider,
+                GameInfo::getLobbyMapResolver);
 
         @Getter private final String pascalcase;
         @Getter private final String lowercase;
 
         //TODO This is kinda cursed?
-        private final Function<GameExtension, MapProvider<? extends AbstractMap>> provider;
-        private final Function<GameExtension, MapResolver<? extends AbstractMap>> resolver;
+        private final Function<GameInfo, MapProvider<? extends AbstractMap>> provider;
+        private final Function<GameInfo, MapResolver<? extends AbstractMap>> resolver;
 
-        public <T extends AbstractMap> MapProvider<T> getProvider(GameExtension game) {
+        public <T extends AbstractMap> MapProvider<T> getProvider(GameInfo game) {
             return (MapProvider<T>) this.provider.apply(game);
         }
 
-        public <T extends AbstractMap> MapResolver<T> getResolver(GameExtension game) {
+        public <T extends AbstractMap> MapResolver<T> getResolver(GameInfo game) {
             return (MapResolver<T>) this.resolver.apply(game);
         }
 

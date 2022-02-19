@@ -33,13 +33,12 @@ public final class TeleportCommand extends Command {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(instance);
+        if(map == null) {
             sender.sendMessage(Message.notification("Map",
                     Component.text("Couldn't find a map under this ID, make sure the map exists and is loaded.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         if(!(map.getHandle() instanceof GameMap handle)) {
             sender.sendMessage(Message.notification("Map",

@@ -30,13 +30,12 @@ public final class InfoCommand extends Command {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(AbstractMap.Type.GAME, instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(AbstractMap.Type.GAME, instance);
+        if(map == null) {
             sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         var handle = map.getHandle();
 

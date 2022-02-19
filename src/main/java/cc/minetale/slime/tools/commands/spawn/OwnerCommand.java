@@ -16,6 +16,7 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
@@ -29,9 +30,8 @@ public final class OwnerCommand extends Command {
 
                 var instance = builder.getInstance();
 
-                var oMap = TOOL_MANAGER.getMapByInstance(instance);
-                if(oMap.isEmpty()) { return; }
-                var map = oMap.get();
+                var map = TOOL_MANAGER.getMapByInstance(instance);
+                if(map == null) { return; }
 
                 if(context.has(SpawnCommand.SPAWN_ARG)) {
                     if(!(map.getHandle() instanceof GameMap handle)) { return; }
@@ -59,9 +59,8 @@ public final class OwnerCommand extends Command {
 
                 var instance = builder.getInstance();
 
-                var oMap = TOOL_MANAGER.getMapByInstance(instance);
-                if(oMap.isEmpty()) { return; }
-                var map = oMap.get();
+                var map = TOOL_MANAGER.getMapByInstance(instance);
+                if(map == null) { return; }
 
                 if(context.has(SpawnCommand.SPAWN_ARG)) {
                     if(!(map.getHandle() instanceof GameMap handle)) { return; }
@@ -124,13 +123,12 @@ public final class OwnerCommand extends Command {
 
             var instance = builder.getInstance();
 
-            var oMap = TOOL_MANAGER.getMapByInstance(instance);
-            if(oMap.isEmpty()) {
+            var map = TOOL_MANAGER.getMapByInstance(instance);
+            if(map == null) {
                 sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
-            var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
                 sender.sendMessage(Message.notification("Map",
@@ -145,7 +143,7 @@ public final class OwnerCommand extends Command {
                 return;
             }
 
-            Set<? extends ITeamType> types = map.getGame().getTeamTypes();
+            List<ITeamType> types = map.getGame().getTeamTypes();
             var team = TeamUtil.findById(types, teamId);
 
             if(spawn.addOwner(team)) {
@@ -193,13 +191,12 @@ public final class OwnerCommand extends Command {
 
             var instance = builder.getInstance();
 
-            var oMap = TOOL_MANAGER.getMapByInstance(instance);
-            if(oMap.isEmpty()) {
+            var map = TOOL_MANAGER.getMapByInstance(instance);
+            if(map == null) {
                 sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
-            var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
                 sender.sendMessage(Message.notification("Map",
@@ -214,7 +211,7 @@ public final class OwnerCommand extends Command {
                 return;
             }
 
-            Set<? extends ITeamType> types = map.getGame().getTeamTypes();
+            List<ITeamType> types = map.getGame().getTeamTypes();
             var team = TeamUtil.findById(types, teamId);
 
             if(spawn.removeOwner(team)) {
@@ -261,13 +258,12 @@ public final class OwnerCommand extends Command {
 
             var instance = builder.getInstance();
 
-            var oMap = TOOL_MANAGER.getMapByInstance(instance);
-            if(oMap.isEmpty()) {
+            var map = TOOL_MANAGER.getMapByInstance(instance);
+            if(map == null) {
                 sender.sendMessage(Message.notification("Map",
                         Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
                 return;
             }
-            var map = oMap.get();
 
             if(!(map.getHandle() instanceof GameMap handle)) {
                 sender.sendMessage(Message.notification("Map",

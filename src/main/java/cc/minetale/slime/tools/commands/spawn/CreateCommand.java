@@ -43,13 +43,12 @@ public final class CreateCommand extends Command {
 
         var instance = builder.getInstance();
 
-        var oMap = TOOL_MANAGER.getMapByInstance(instance);
-        if(oMap.isEmpty()) {
+        var map = TOOL_MANAGER.getMapByInstance(instance);
+        if(map == null) {
             sender.sendMessage(Message.notification("Map",
                     Component.text("Something went wrong when looking up the map you're currently in.", NamedTextColor.RED)));
             return;
         }
-        var map = oMap.get();
 
         if(!(map.getHandle() instanceof GameMap handle)) {
             sender.sendMessage(Message.notification("Map",

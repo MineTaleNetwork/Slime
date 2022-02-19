@@ -1,6 +1,5 @@
 package cc.minetale.slime.lobby;
 
-import cc.minetale.slime.Slime;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.game.Game;
@@ -47,7 +46,9 @@ public class GameLobby implements SlimeForwardingAudience {
     }
 
     public CompletableFuture<Void> setup() {
-        var map = Slime.getActiveGame().getLobbyMap();
+        final var gameManager = this.game.getGameManager();
+
+        var map = gameManager.getLobbyMap();
         this.instance = new GameInstance(map);
 
         return this.instance.setMap(map);
@@ -94,7 +95,7 @@ public class GameLobby implements SlimeForwardingAudience {
     }
 
     protected void startCountdown() {
-        if(this.players.size() < Slime.getActiveGame().getMaxPlayers()) { return; }
+        if(this.players.size() < this.game.getMaxPlayers()) { return; }
 
         var state = this.game.getState();
         if(state.getStage() == Stage.STARTING) { return; }
@@ -117,7 +118,7 @@ public class GameLobby implements SlimeForwardingAudience {
     /** Pauses the countdown, hardcoded the message because that's usually why it happens. */
     public void pauseCountdown() {
         if(this.countdown == null) { return; }
-        if(this.players.size() >= Slime.getActiveGame().getMinPlayers() || this.countdown.isPaused()) { return; }
+        if(this.players.size() >= this.game.getMinPlayers() || this.countdown.isPaused()) { return; }
 
         this.countdown.pause();
         this.countdown.getInvolved().forEach(obj -> {

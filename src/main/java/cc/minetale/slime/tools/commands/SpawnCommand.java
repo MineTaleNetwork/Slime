@@ -15,7 +15,7 @@ import net.minestom.server.command.builder.arguments.number.ArgumentFloat;
 import net.minestom.server.command.builder.arguments.relative.ArgumentRelativeVec3;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-import java.util.Set;
+import java.util.List;
 
 import static cc.minetale.slime.Slime.TOOL_MANAGER;
 
@@ -29,9 +29,8 @@ public class SpawnCommand extends Command {
 
                 var instance = builder.getInstance();
 
-                var oMap = TOOL_MANAGER.getMapByInstance(instance);
-                if(oMap.isEmpty()) { return; }
-                var map = oMap.get();
+                var map = TOOL_MANAGER.getMapByInstance(instance);
+                if(map == null) { return; }
 
                 if(!(map.getHandle() instanceof GameMap handle)) { return; }
 
@@ -48,12 +47,11 @@ public class SpawnCommand extends Command {
 
                 var instance = builder.getInstance();
 
-                var oMap = TOOL_MANAGER.getMapByInstance(instance);
-                if(oMap.isEmpty()) { return; }
-                var map = oMap.get();
+                var map = TOOL_MANAGER.getMapByInstance(instance);
+                if(map == null) { return; }
 
                 var game = map.getGame();
-                Set<? extends ITeamType> types = game.getTeamTypes();
+                List<ITeamType> types = game.getTeamTypes();
 
                 for(ITeamType team : types) {
                     var teamId = team.getId();
