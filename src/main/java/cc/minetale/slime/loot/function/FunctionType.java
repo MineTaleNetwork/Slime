@@ -17,7 +17,7 @@ public enum FunctionType {
     COPY_STATE(CopyStateFunction.class),
     ENCHANT_RANDOMLY(EnchantRandomlyFunction.class),
     ENCHANT_WITH_LEVELS(EnchantWithLevelsFunction.class),
-    EXPLORATION_MAP(null),
+    EXPLORATION_MAP(ExplorationMapFunction.class),
     EXPLOSION_DECAY(ExplosionDecayFunction.class),
     FURNACE_SMELT(null),
     FILL_PLAYER_HEAD(null),
@@ -33,7 +33,7 @@ public enum FunctionType {
     SET_LORE(null),
     SET_NAME(null),
     SET_NBT(null),
-    SET_POTION(null),
+    SET_POTION(SetPotionFunction.class),
     SET_STEW_EFFECT(SetStewEffectFunction.class);
 
     @JsonValue private final NamespaceID id;

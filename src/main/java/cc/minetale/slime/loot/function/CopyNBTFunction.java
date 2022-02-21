@@ -129,16 +129,17 @@ public class CopyNBTFunction extends LootFunction {
 
     public static class Serializers {
 
-        public static class CopyNBTFunctionSerializer extends StdSerializer<CopyNBTFunction> {
-            public CopyNBTFunctionSerializer() {
+        public static class Serializer extends StdSerializer<CopyNBTFunction> {
+            public Serializer() {
                 this(null);
             }
 
-            public CopyNBTFunctionSerializer(Class<CopyNBTFunction> t) {
+            public Serializer(Class<CopyNBTFunction> t) {
                 super(t);
             }
 
-            @Override public void serialize(CopyNBTFunction value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+            @Override
+            public void serialize(CopyNBTFunction value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 jgen.writeStartObject();
 
                 final var source = value.getSource();
@@ -156,19 +157,20 @@ public class CopyNBTFunction extends LootFunction {
             }
         }
 
-        public static class CopyNBTFunctionDeserializer extends StdDeserializer<CopyNBTFunction> {
+        public static class Deserializer extends StdDeserializer<CopyNBTFunction> {
             private static final TypeReference<List<Operation>> OPERATIONS_TYPE = new TypeReference<>() {};
             private static final TypeReference<List<LootPredicate>> CONDITIONS_TYPE = new TypeReference<>() {};
 
-            public CopyNBTFunctionDeserializer() {
+            public Deserializer() {
                 this(null);
             }
 
-            public CopyNBTFunctionDeserializer(Class<?> vc) {
+            public Deserializer(Class<?> vc) {
                 super(vc);
             }
 
-            @Override public CopyNBTFunction deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+            @Override
+            public CopyNBTFunction deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
                 final var codec = jp.getCodec();
 
                 final var node = codec.readTree(jp);

@@ -11,6 +11,10 @@ import java.util.stream.IntStream;
 
 @Getter
 public abstract class NumberProvider {
+    public static final NumberProvider ZERO = new NumberProvider(NumberProviderType.CONSTANT) {
+        @Override public float get() { return 0; }
+    };
+
     @Nullable NumberProviderType type;
 
     protected NumberProvider(NumberProviderType type) {

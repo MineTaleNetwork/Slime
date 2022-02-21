@@ -18,7 +18,7 @@ public enum EntryType {
     ALTERNATIVES(AlternativesEntry.class),
     SEQUENCE(null),
     DYNAMIC(null),
-    EMPTY(null);
+    EMPTY(EmptyEntry.class);
 
     @JsonValue
     private final NamespaceID id = NamespaceID.from("minecraft", name().toLowerCase(Locale.ROOT));

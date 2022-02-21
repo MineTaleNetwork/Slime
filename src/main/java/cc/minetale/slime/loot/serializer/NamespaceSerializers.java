@@ -3,7 +3,6 @@ package cc.minetale.slime.loot.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -13,12 +12,12 @@ import java.io.IOException;
 
 public final class NamespaceSerializers {
 
-    public static class NamespaceSerializer extends StdSerializer<NamespaceID> {
-        public NamespaceSerializer() {
+    public static class Serializer extends StdSerializer<NamespaceID> {
+        public Serializer() {
             this(null);
         }
 
-        public NamespaceSerializer(Class<NamespaceID> t) {
+        public Serializer(Class<NamespaceID> t) {
             super(t);
         }
 
@@ -27,12 +26,12 @@ public final class NamespaceSerializers {
         }
     }
 
-    public static class NamespaceDeserializer extends StdDeserializer<NamespaceID> {
-        public NamespaceDeserializer() {
+    public static class Deserializer extends StdDeserializer<NamespaceID> {
+        public Deserializer() {
             this(null);
         }
 
-        public NamespaceDeserializer(Class<?> vc) {
+        public Deserializer(Class<?> vc) {
             super(vc);
         }
 
@@ -43,7 +42,7 @@ public final class NamespaceSerializers {
         }
     }
 
-    public static class NamespaceKeyDeserializer extends KeyDeserializer {
+    public static class KeyDeserializer extends com.fasterxml.jackson.databind.KeyDeserializer {
         @Override public Object deserializeKey(String s, DeserializationContext ctxt) {
             return NamespaceID.from(s);
         }

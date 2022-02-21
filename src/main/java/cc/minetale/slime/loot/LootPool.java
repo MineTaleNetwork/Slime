@@ -41,8 +41,16 @@ public class LootPool {
                 new ArrayList<>(Objects.requireNonNullElse(functions, Collections.emptyList())));
     }
 
-    public LootPool(NumberProvider rolls, NumberProvider bonusRolls) {
-        this(rolls, bonusRolls, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+    public static LootPool of(NumberProvider rolls, NumberProvider bonusRolls, List<LootEntry> entries) {
+        return new LootPool(rolls, bonusRolls, entries, null, null);
+    }
+
+    public static LootPool of(NumberProvider rolls, NumberProvider bonusRolls, LootEntry... entries) {
+        return LootPool.of(rolls, bonusRolls, List.of(entries));
+    }
+
+    public static LootPool empty(NumberProvider rolls, NumberProvider bonusRolls) {
+        return LootPool.of(rolls, bonusRolls, Collections.emptyList());
     }
 
     public List<ItemStack> generateLoot(LootContext ctx) {
@@ -74,5 +82,25 @@ public class LootPool {
             loot = function.apply(ctx, loot);
 
         return loot;
+    }
+
+    public LootPool addCondition(LootPredicate condition) {
+        this.conditions.add(condition);
+        return this;
+    }
+
+    public LootPool removeCondition(LootPredicate condition) {
+        this.conditions.remove(condition);
+        return this;
+    }
+
+    public LootPool addFunction(LootFunction function) {
+        this.functions.add(function);
+        return this;
+    }
+
+    public LootPool removePool(LootFunction function) {
+        this.functions.remove(function);
+        return this;
     }
 }

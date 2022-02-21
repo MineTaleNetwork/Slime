@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 
 @Getter @Setter
 public class ApplyBonusFunction extends LootFunction {
-    private NamespaceID enchantment;
+    private Enchantment enchantment;
     private Formula formula;
     private Parameters parameters;
 
     @JsonCreator
-    protected ApplyBonusFunction(NamespaceID enchantment, Formula formula, Parameters parameters, List<LootPredicate> conditions) {
+    protected ApplyBonusFunction(Enchantment enchantment, Formula formula, Parameters parameters, List<LootPredicate> conditions) {
         super(FunctionType.APPLY_BONUS, conditions);
         this.enchantment = enchantment;
         this.formula = formula;
@@ -37,17 +37,16 @@ public class ApplyBonusFunction extends LootFunction {
     @Override public @Nullable List<ItemStack> apply(LootContext ctx, List<ItemStack> loot) {
         if(!(ctx instanceof LootContext.BlockCtx blockCtx)) { return loot; }
 
-        final var enchantment = Enchantment.fromNamespaceId(this.enchantment);
         final var tool = blockCtx.getTool();
 
         var meta = tool.getMeta();
-        var level = meta.getEnchantmentMap().get(enchantment);
+        var level = meta.getEnchantmentMap().get(this.enchantment);
         if(level == null) { return loot; }
 
         return loot
                 .stream()
                 .map(itemStack -> {
-                    IntUnaryOperator operator = previous -> previous;
+                    IntUnaryOperator operator = IntUnaryOperator.identity();
 
                     switch(this.formula) {
                         case BINOMIAL_WITH_BONUS_COUNT -> {

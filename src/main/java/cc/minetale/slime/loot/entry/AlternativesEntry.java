@@ -16,8 +16,8 @@ public class AlternativesEntry extends LootEntry {
     private List<LootEntry> children;
 
     @JsonCreator
-    protected AlternativesEntry(List<LootEntry> children) {
-        super(EntryType.ALTERNATIVES);
+    protected AlternativesEntry(List<LootEntry> children, int weight) {
+        super(EntryType.ALTERNATIVES, weight);
         this.children = Collections.synchronizedList(
                 new ArrayList<>(Objects.requireNonNullElse(children, Collections.emptyList())));
     }

@@ -10,12 +10,12 @@ import java.io.IOException;
 
 public class LootFunctionSerializers {
 
-    public static class LootFunctionDeserializer extends StdDeserializer<LootFunction> {
-        public LootFunctionDeserializer() {
+    public static class Deserializer extends StdDeserializer<LootFunction> {
+        public Deserializer() {
             this(null);
         }
 
-        public LootFunctionDeserializer(Class<?> vc) {
+        public Deserializer(Class<?> vc) {
             super(vc);
         }
 

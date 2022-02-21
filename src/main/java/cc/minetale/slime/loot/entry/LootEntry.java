@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.item.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,15 +22,15 @@ public abstract class LootEntry {
     private final List<LootPredicate> conditions;
     private final List<LootFunction> functions;
 
-    private final Integer weight;
+    private final int weight;
 
-    protected LootEntry(EntryType type) {
+    protected LootEntry(EntryType type, int weight) {
         this.type = type;
 
         this.conditions = Collections.synchronizedList(new ArrayList<>());
         this.functions = Collections.synchronizedList(new ArrayList<>());
 
-        this.weight = 0;
+        this.weight = weight;
     }
 
     public abstract @Nullable List<ItemStack> generateLoot(LootContext ctx);
@@ -48,8 +48,28 @@ public abstract class LootEntry {
         return loot;
     }
 
-    public static ItemEntry item(NamespaceID itemId) {
-        return new ItemEntry(itemId);
+    public LootEntry addCondition(LootPredicate condition) {
+        this.conditions.add(condition);
+        return this;
+    }
+
+    public LootEntry removeCondition(LootPredicate condition) {
+        this.conditions.remove(condition);
+        return this;
+    }
+
+    public LootEntry addFunction(LootFunction function) {
+        this.functions.add(function);
+        return this;
+    }
+
+    public LootEntry removePool(LootFunction function) {
+        this.functions.remove(function);
+        return this;
+    }
+
+    public static ItemEntry item(int weight, Material material) {
+        return new ItemEntry(material, weight);
     }
 
     public static LootEntry tag() {
@@ -67,8 +87,12 @@ public abstract class LootEntry {
         throw new UnsupportedOperationException();
     }
 
-    public static AlternativesEntry alternatives(List<LootEntry> entries) {
-        return new AlternativesEntry(entries);
+    public static AlternativesEntry alternatives(int weight, List<LootEntry> entries) {
+        return new AlternativesEntry(entries, weight);
+    }
+
+    public static AlternativesEntry alternatives(int weight, LootEntry... entries) {
+        return LootEntry.alternatives(weight, List.of(entries));
     }
 
     public static LootEntry sequence() {
@@ -81,8 +105,7 @@ public abstract class LootEntry {
         throw new UnsupportedOperationException();
     }
 
-    public static LootEntry empty() {
-        //TODO
-        throw new UnsupportedOperationException();
+    public static EmptyEntry empty(int weight) {
+        return new EmptyEntry(weight);
     }
 }

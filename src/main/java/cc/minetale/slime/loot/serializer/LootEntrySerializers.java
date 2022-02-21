@@ -10,16 +10,17 @@ import java.io.IOException;
 
 public class LootEntrySerializers {
 
-    public static class LootEntryDeserializer extends StdDeserializer<LootEntry> {
-        public LootEntryDeserializer() {
+    public static class Deserializer extends StdDeserializer<LootEntry> {
+        public Deserializer() {
             this(null);
         }
 
-        public LootEntryDeserializer(Class<?> vc) {
+        public Deserializer(Class<?> vc) {
             super(vc);
         }
 
-        @Override public LootEntry deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        @Override
+        public LootEntry deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             final var codec = jp.getCodec();
             final var node = codec.readTree(jp);
 

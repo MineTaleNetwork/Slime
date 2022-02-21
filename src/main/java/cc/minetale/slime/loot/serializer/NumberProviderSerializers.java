@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class NumberProviderSerializers {
 
-    public static class NumberProviderModifier extends BeanSerializerModifier {
+    public static class Modifier extends BeanSerializerModifier {
         @Override
         public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription desc, JsonSerializer<?> serializer) {
             if (NumberProvider.class.isAssignableFrom(desc.getBeanClass())) {
@@ -51,12 +51,12 @@ public class NumberProviderSerializers {
         }
     }
 
-    public static class NumberProviderDeserializer extends StdDeserializer<NumberProvider> {
-        public NumberProviderDeserializer() {
+    public static class Deserializer extends StdDeserializer<NumberProvider> {
+        public Deserializer() {
             this(null);
         }
 
-        public NumberProviderDeserializer(Class<?> vc) {
+        public Deserializer(Class<?> vc) {
             super(vc);
         }
 

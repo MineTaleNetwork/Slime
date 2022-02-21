@@ -48,4 +48,24 @@ public class Loot {
 
         return loot;
     }
+
+    public Loot addPool(LootPool pool) {
+        this.pools.add(pool);
+        return this;
+    }
+
+    public Loot removePool(LootPool pool) {
+        this.pools.remove(pool);
+        return this;
+    }
+
+    public Loot addFunction(LootFunction function) {
+        this.functions.add(function);
+        return this;
+    }
+
+    public Loot removePool(LootFunction function) {
+        this.functions.remove(function);
+        return this;
+    }
 }
