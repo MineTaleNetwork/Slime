@@ -141,7 +141,7 @@ public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadab
         this.lobby.remove();
         this.lobby = null;
 
-        this.state.setStage(Stage.PRE_GAME);
+        this.state.nextStage();
     }
 
     boolean canFitPlayer() {

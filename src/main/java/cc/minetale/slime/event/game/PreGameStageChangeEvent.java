@@ -2,7 +2,7 @@ package cc.minetale.slime.event.game;
 
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.game.Game;
-import cc.minetale.slime.game.IStage;
+import cc.minetale.slime.game.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -16,10 +16,10 @@ public class PreGameStageChangeEvent implements GameEvent, CancellableEvent {
     private boolean cancelled;
 
     @Getter private final Game game;
-    @Getter private final IStage previousStage;
-    @Getter @Setter private IStage newStage;
+    @Getter private final Stage previousStage;
+    @Getter @Setter private Stage newStage;
 
-    public PreGameStageChangeEvent(Game game, IStage previousStage, IStage newStage) {
+    public PreGameStageChangeEvent(Game game, Stage previousStage, Stage newStage) {
         this.game = game;
         this.previousStage = previousStage;
         this.newStage = newStage;

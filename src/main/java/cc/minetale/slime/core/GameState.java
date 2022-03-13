@@ -3,7 +3,6 @@ package cc.minetale.slime.core;
 import cc.minetale.slime.event.game.PostGameStageChangeEvent;
 import cc.minetale.slime.event.game.PreGameStageChangeEvent;
 import cc.minetale.slime.game.Game;
-import cc.minetale.slime.game.IStage;
 import cc.minetale.slime.game.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +12,9 @@ public class GameState {
 
     @Getter @Setter private Game game;
 
-    @Getter protected IStage stage = Stage.IN_LOBBY;
+    @Getter protected Stage stage = Stage.IN_LOBBY;
 
-    public void setStage(IStage stage) {
+    public void setStage(Stage stage) {
         var preEvent = new PreGameStageChangeEvent(game, this.stage, stage);
         EventDispatcher.call(preEvent);
 
@@ -25,6 +24,14 @@ public class GameState {
             var postEvent = new PostGameStageChangeEvent(game, this.stage, stage);
             EventDispatcher.call(postEvent);
         }
+    }
+
+    public void nextStage() {
+        setStage(this.stage.getNext());
+    }
+
+    public void previousStage() {
+        setStage(this.stage.getPrevious());
     }
 
     public boolean inLobby() {

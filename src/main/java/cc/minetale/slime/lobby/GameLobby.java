@@ -100,7 +100,7 @@ public class GameLobby implements SlimeForwardingAudience {
         var state = this.game.getState();
         if(state.getStage() == Stage.STARTING) { return; }
 
-        state.setStage(Stage.STARTING);
+        state.nextStage();
 
         if(this.countdown != null && this.countdown.isPaused()) {
             this.countdown.resume();
@@ -129,7 +129,7 @@ public class GameLobby implements SlimeForwardingAudience {
             );
         });
 
-        this.game.getState().setStage(Stage.IN_LOBBY);
+        this.game.getState().previousStage();
     }
 
     public void resumeCountdown() {

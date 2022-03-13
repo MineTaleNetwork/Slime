@@ -2,7 +2,7 @@ package cc.minetale.slime.event.game;
 
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.game.Game;
-import cc.minetale.slime.game.IStage;
+import cc.minetale.slime.game.Stage;
 import lombok.Getter;
 
 /**
@@ -13,10 +13,10 @@ import lombok.Getter;
 public class PostGameStageChangeEvent implements GameEvent {
 
     @Getter private final Game game;
-    @Getter private final IStage previousStage;
-    @Getter private final IStage newStage;
+    @Getter private final Stage previousStage;
+    @Getter private final Stage newStage;
 
-    public PostGameStageChangeEvent(Game game, IStage previousStage, IStage newStage) {
+    public PostGameStageChangeEvent(Game game, Stage previousStage, Stage newStage) {
         this.game = game;
         this.previousStage = previousStage;
         this.newStage = newStage;
