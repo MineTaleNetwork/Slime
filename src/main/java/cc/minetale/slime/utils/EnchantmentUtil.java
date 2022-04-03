@@ -32,7 +32,8 @@ public class EnchantmentUtil {
     public static List<Enchantment> getIncompatibleEnchantments(Enchantment enchantment) {
         var registry = enchantment.registry();
 
-        var incompatData = registry.getString("incompatibleEnchantments");
+        var incompatData = registry.custom()
+                .getString("incompatibleEnchantments");
 
         String[] incompatIds = JsonUtil.readFromJson(incompatData, String[].class);
         if(incompatIds == null || incompatIds.length == 0) { return Collections.emptyList(); }

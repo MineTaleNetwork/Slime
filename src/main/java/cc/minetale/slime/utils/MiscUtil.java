@@ -27,7 +27,7 @@ public class MiscUtil {
     }
 
     /**
-     * Creates a {@linkplain Pos} from the given arguments if all (position and rotation [yaw & pitch]) are optional.
+     * Creates a {@linkplain Pos} from the given arguments if all (position and rotation [yaw &amp; pitch]) are optional.
      * If an argument is present/provided then it'll use the value from it, otherwise it'll use the player's value (like Y value or pitch).
      */
     public static Pos getOptionalPosition(CommandContext context, Entity executor,

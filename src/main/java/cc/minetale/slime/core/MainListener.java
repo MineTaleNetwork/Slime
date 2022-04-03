@@ -62,6 +62,8 @@ public final class MainListener {
             }
 
             event.setSpawningInstance(game.getSpawnInstance(player));
+            player.setRespawnPoint(new Pos(0, 64, 0));
+//            event.getPlayer().scheduleNextTick(futurePlayer -> futurePlayer.teleport()); TODO
         });
         
         node.addListener(PlayerSpawnEvent.class, event -> {
@@ -113,11 +115,9 @@ public final class MainListener {
             );
         });
 
+        //TODO Not needed? (Previously used for setting respawn point)
         node.addListener(PlayerRespawnEvent.class, event -> {
             var player = event.getPlayer();
-
-            player.setRespawnPoint(new Pos(0, 64, 0));
-//            event.getPlayer().scheduleNextTick(futurePlayer -> futurePlayer.teleport()); TODO
         });
 
         node.addListener(PlayerDeathEvent.class, event -> {

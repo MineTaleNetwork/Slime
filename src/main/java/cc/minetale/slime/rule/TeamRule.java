@@ -26,7 +26,7 @@ public class TeamRule<T> extends Rule<T> {
     public static final TeamRule<Boolean> ATTACK_ALLIES = new TeamRule<>(false);
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Material}> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Material}&gt; <br>
      * <br>
      * You can only attack players from teams that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */

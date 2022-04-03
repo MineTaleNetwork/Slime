@@ -44,8 +44,11 @@ public class PredicateBlock {
         }
 
         if(this.nbt != null) {
-            var snbt = block.getTag(net.minestom.server.tag.Tag.SNBT);
-            if(snbt == null || this.nbt.equals(snbt)) { return false; }
+            var nbt = block.nbt();
+            if(nbt == null) { return false; }
+
+            var snbt = nbt.toSNBT();
+            if(this.nbt.equals(snbt)) { return false; }
         }
 
         return this.state.entrySet()

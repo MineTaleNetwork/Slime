@@ -6,7 +6,9 @@ import cc.minetale.slime.core.GameState;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.core.SlimeForwardingAudience;
 import cc.minetale.slime.event.game.PostGameSetupEvent;
+import cc.minetale.slime.event.game.PostInstanceSetupEvent;
 import cc.minetale.slime.event.game.PreGameSetupEvent;
+import cc.minetale.slime.event.game.PreInstanceSetupEvent;
 import cc.minetale.slime.event.player.GamePlayerJoinEvent;
 import cc.minetale.slime.event.player.GamePlayerLeaveEvent;
 import cc.minetale.slime.event.player.GamePlayerSpawnEvent;
@@ -85,22 +87,29 @@ public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadab
     }
 
     public CompletableFuture<Void> setup() {
+        var preGameSetupEvent = new PreGameSetupEvent(this);
+        EventDispatcher.call(preGameSetupEvent);
+
         var map = this.gameManager.getGameMap();
-        this.mainInstance = new GameInstance(map);
 
-        var preEvent = new PreGameSetupEvent(this, new ArrayList<>(map.getSpawns().values()));
-        EventDispatcher.call(preEvent);
+        var preMapSetupEvent = new PreInstanceSetupEvent(this, map);
+        EventDispatcher.call(preMapSetupEvent);
 
-        List<GameSpawn> spawns = preEvent.getGameSpawns();
-        if(spawns.isEmpty())
-            LOGGER.warn("There aren't any spawns converted. Convert MapSpawns to GameSpawns through GameSetupEvent. Expect issues.");
-
-        this.spawnManager.addSpawns(spawns);
+        this.mainInstance = new GameInstance(map, preMapSetupEvent.getDimension());
 
         return this.mainInstance.setMap(map)
                 .thenRun(() -> {
-                    var postEvent = new PostGameSetupEvent(this, this.mainInstance);
-                    EventDispatcher.call(postEvent);
+                    var postMapSetupEvent = new PostInstanceSetupEvent(this, map, this.mainInstance);
+                    EventDispatcher.call(postMapSetupEvent);
+
+                    List<GameSpawn> spawns = postMapSetupEvent.getGameSpawns();
+                    if(spawns.isEmpty())
+                        LOGGER.warn("There aren't any spawns converted. Convert MapSpawns to GameSpawns through PostInstanceSetupEvent. Expect issues.");
+
+                    this.spawnManager.addSpawns(spawns);
+
+                    var postGameSetupEvent = new PostGameSetupEvent(this);
+                    EventDispatcher.call(postGameSetupEvent);
                 });
     }
 

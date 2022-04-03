@@ -14,14 +14,16 @@ import net.minestom.server.entity.metadata.AgeableMobMeta;
 import net.minestom.server.entity.metadata.other.FishingHookMeta;
 import net.minestom.server.entity.metadata.other.LightningBoltMeta;
 import net.minestom.server.inventory.EquipmentHandler;
-import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Getter @Setter
 public class PredicateEntityProps {
@@ -110,7 +112,10 @@ public class PredicateEntityProps {
         }
 
         if(this.nbt != null) {
-            var nbt = entity.getTag(Tag.SNBT);
+            var nbt = entity.tagHandler()
+                            .asCompound()
+                            .toSNBT();
+
             if(!this.nbt.equals(nbt)) { return false; }
         }
 

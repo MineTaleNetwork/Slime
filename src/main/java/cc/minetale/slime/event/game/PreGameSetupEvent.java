@@ -3,13 +3,9 @@ package cc.minetale.slime.event.game;
 import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.game.Stage;
-import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.spawn.GameSpawn;
+import cc.minetale.slime.spawn.MapSpawn;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This event should be listened to and is called during {@linkplain Stage#SETUP}.<br>
@@ -25,15 +21,8 @@ public class PreGameSetupEvent implements GameEvent {
 
     @Getter private final Game game;
 
-    //Spawns
-    @Getter private final List<MapSpawn> mapSpawns;
-    @Getter private final List<GameSpawn> gameSpawns;
-
-    public PreGameSetupEvent(Game game, List<MapSpawn> mapSpawns) {
+    public PreGameSetupEvent(Game game) {
         this.game = game;
-
-        this.mapSpawns = Collections.unmodifiableList(mapSpawns);
-        this.gameSpawns = new ArrayList<>();
     }
 
 }

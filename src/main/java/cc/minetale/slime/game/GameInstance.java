@@ -1,9 +1,9 @@
 package cc.minetale.slime.game;
 
 import cc.minetale.slime.map.AbstractMap;
-import cc.minetale.slime.map.GameMap;
 import lombok.Getter;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.world.DimensionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -30,10 +30,29 @@ public class GameInstance extends InstanceContainer {
     }
 
     /**
-     * Creates a GameInstance, automatically sets the {@linkplain GameMap} and registers it.
+     * Creates a GameInstance, automatically sets the {@linkplain AbstractMap} and registers it. <br>
+     * Additionally overrides map's dimension with the provided one.
+     */
+    public GameInstance(@NotNull UUID uniqueId, @NotNull AbstractMap map, @NotNull DimensionType dimension) {
+        super(uniqueId, dimension);
+        INSTANCE_MANAGER.registerInstance(this);
+
+        this.map = map;
+    }
+
+    /**
+     * Creates a GameInstance, automatically sets the {@linkplain AbstractMap} and registers it.
      */
     public GameInstance(@NotNull AbstractMap map) {
         this(UUID.randomUUID(), map);
+    }
+
+    /**
+     * Creates a GameInstance, automatically sets the {@linkplain AbstractMap} and registers it. <br>
+     * Additionally overrides map's dimension with the provided one.
+     */
+    public GameInstance(@NotNull AbstractMap map, @NotNull DimensionType dimension) {
+        this(UUID.randomUUID(), map, dimension);
     }
 
     public void clear() {

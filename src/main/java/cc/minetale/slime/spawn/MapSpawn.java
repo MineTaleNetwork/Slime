@@ -2,7 +2,7 @@ package cc.minetale.slime.spawn;
 
 import cc.minetale.mlib.util.DocumentUtil;
 import cc.minetale.slime.core.GameInfo;
-import cc.minetale.slime.event.game.PreGameSetupEvent;
+import cc.minetale.slime.event.game.PreInstanceSetupEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.ITeamType;
@@ -22,7 +22,7 @@ import java.util.*;
  * and makes coding and managing map creation easier because this isn't dependent on {@linkplain Game} which doesn't exist during map creation,
  * for example due to this requiring {@linkplain ITeamType} and not {@linkplain GameTeam} as owners or not requiring an instance. <br>
  * <br>
- * Also see: {@linkplain PreGameSetupEvent}
+ * Also see: {@linkplain PreInstanceSetupEvent}
  */
 @Getter
 public final class MapSpawn extends AbstractSpawn implements IOwnableSpawn {

@@ -26,17 +26,15 @@ public enum EnchantmentCategory implements IEnchantmentMarker<Enchantment> {
 
     static {
         for(var category : EnchantmentCategory.values()) {
-            Set<Enchantment> enchantments = Enchantment.values().stream()
+            category.enchantments = Enchantment.values().stream()
                     .filter(enchantment -> {
                         var registry = enchantment.registry();
-                        var categoryId = registry.getString("category");
+                        var categoryId = registry.category();
 
                         var enchantmentCategory = EnchantmentCategory.valueOf(categoryId);
                         return enchantmentCategory == category;
                     })
                     .collect(Collectors.toCollection(() -> Collections.synchronizedSet(new HashSet<>())));
-
-            category.enchantments = enchantments;
         }
     }
 

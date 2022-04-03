@@ -60,14 +60,14 @@ public class PlayerRule<T> extends Rule<T> {
     //Blocks
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Block}> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Block}&gt; <br>
      * <br>
      * You can only place blocks that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */
     public static final PlayerRule<RestrictionList<Block>> PLACE_BLOCKS = new PlayerRule<>(Blacklist.empty());
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Block}> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Block}&gt; <br>
      * <br>
      * You can only break blocks that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */
@@ -83,7 +83,7 @@ public class PlayerRule<T> extends Rule<T> {
     public static final PlayerRule<Boolean> ATTACK_PLAYERS = new PlayerRule<>(true);
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Class}<? extends {@linkplain Entity}>> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Class}&lt;? extends {@linkplain Entity}&gt;&gt; <br>
      * <br>
      * You can only attack entities that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */
@@ -92,14 +92,14 @@ public class PlayerRule<T> extends Rule<T> {
     //Interactions
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Block}> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Block}&gt; <br>
      * <br>
      * You can only interact with blocks that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */
     public static final PlayerRule<RestrictionList<Block>> INTERACT_WITH = new PlayerRule<>(Blacklist.empty());
 
     /**
-     * {@linkplain RestrictionList}<{@linkplain Material}> <br>
+     * {@linkplain RestrictionList}&lt;{@linkplain Material}&gt; <br>
      * <br>
      * You can only interact with blocks using items that aren't restricted ({@linkplain RestrictionList#isRestricted(Object)}).
      */
