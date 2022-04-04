@@ -1,5 +1,7 @@
 package cc.minetale.slime.utils;
 
+import cc.minetale.slime.core.GameInfo;
+import cc.minetale.slime.core.TeamStyle;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.team.GameTeam;
@@ -33,9 +35,7 @@ public final class TeamUtil {
     public static List<GameTeam> createTeams(TeamProvider provider, List<ITeamType> types, Game game, int teamSize) {
         List<GameTeam> teams = new ArrayList<>();
         for(ITeamType type : types) {
-            var team = provider.createTeam(game, type.getId(), teamSize, type);
-            team.setType(type);
-            team.setSize(teamSize);
+            var team = provider.create(game, type.getId(), teamSize, type);
             teams.add(team);
         }
         return teams;
@@ -57,9 +57,7 @@ public final class TeamUtil {
         var expectedTotal = Math.ceil((double) players / teamSize);
         var i = 0;
         for(ITeamType type : types) {
-            var team = provider.createTeam(game, type.getId(), teamSize, type);
-            team.setType(type);
-            team.setSize(teamSize);
+            var team = provider.create(game, type.getId(), teamSize, type);
             teams.add(team);
             if(++i >= expectedTotal) { break; }
         }
@@ -91,11 +89,29 @@ public final class TeamUtil {
             var type = ent.getKey();
             var teamSize = ent.getValue();
 
-            var team = provider.createTeam(game, type.getId(), teamSize, type);
-            team.setType(type);
-            team.setSize(teamSize);
+            var team = provider.create(game, type.getId(), teamSize, type);
             teams.add(team);
             if(++i >= expectedTotal) { break; }
+        }
+        return teams;
+    }
+
+    /**
+     * Creates {@linkplain GameTeam} <strong>not</strong> based on {@linkplain ITeamType}s. <br>
+     * Should be used when {@linkplain GameInfo}#teamStyle is set to {@linkplain TeamStyle#ANONYMOUS}. <br>
+     * This is the preferred way to create teams.
+     * @param game Game to create all teams for.
+     * @param teamSize Maximum amount of players for each team created (can be changed for any team after creating them).
+     * @param players Amount of players that these teams are created for. <br>
+     *                Stops creating teams after all currently created teams can accommodate all players.
+     */
+    public static List<GameTeam> createAnonymousTeams(TeamProvider provider, Game game, int teamSize, int players) {
+        List<GameTeam> teams = new ArrayList<>();
+        //How many teams will be created
+        var expectedTotal = Math.ceil((double) players / teamSize);
+        for(int i = 0; i < expectedTotal; i++) {
+            var team = provider.createAnonymous(game, String.valueOf(i), teamSize);
+            teams.add(team);
         }
         return teams;
     }

@@ -4,6 +4,7 @@ import cc.minetale.mlib.nametag.NameplateProvider;
 import cc.minetale.mlib.nametag.ProviderType;
 import cc.minetale.slime.core.SlimeAudience;
 import cc.minetale.slime.core.SlimeForwardingAudience;
+import cc.minetale.slime.core.TeamStyle;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.rule.*;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -24,22 +26,30 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
     @Setter(AccessLevel.PACKAGE)
     private Game game;
 
+    /** Can be null if the team is anonymous. Check {@linkplain TeamStyle}. */
     @Setter(AccessLevel.PACKAGE)
-    private Team handle;
+    private @Nullable Team handle;
 
-    private final Map<Rule<?>, Object> rules;
+    /** Check {@linkplain TeamStyle}. */
+    private boolean anonymous;
 
     private final String id;
 
+    private final Map<Rule<?>, Object> rules;
+
     @Setter protected int size;
-    @Setter protected ITeamType type;
+
+    /** Can be null if the team is anonymous. Check {@linkplain TeamStyle}. */
+    @Setter protected @Nullable ITeamType type;
+    /** Can be null if the team is anonymous. Check {@linkplain TeamStyle}. */
+    protected @Nullable NameplateProvider nameplateProvider;
 
     List<GamePlayer> players = Collections.synchronizedList(new ArrayList<>());
 
-    private NameplateProvider nameplateProvider;
+    public GameTeam(Game game, String id, int size, @NotNull ITeamType type) {
+        this(game, id, size);
+        this.anonymous = false;
 
-    public GameTeam(Game game, String id, int size, ITeamType type) {
-        this.game = game;
         this.handle = TEAM_MANAGER.createTeam(
                 type.getId(),
                 type.getDisplayName(),
@@ -47,10 +57,18 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
                 type.getColor(),
                 type.getSuffix());
 
-        this.id = id;
-        this.size = size;
         this.type = type;
         this.nameplateProvider = new NameplateProvider(this.handle, ProviderType.SLIME);
+    }
+
+    //Anonymous
+    public GameTeam(Game game, String id, int size) {
+        this.anonymous = true;
+
+        this.game = game;
+
+        this.id = id;
+        this.size = size;
 
         this.rules = Collections.synchronizedMap(new HashMap<>());
     }

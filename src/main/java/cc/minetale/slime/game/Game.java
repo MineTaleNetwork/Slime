@@ -2,9 +2,7 @@ package cc.minetale.slime.game;
 
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
-import cc.minetale.slime.core.GameState;
-import cc.minetale.slime.core.SlimeAudience;
-import cc.minetale.slime.core.SlimeForwardingAudience;
+import cc.minetale.slime.core.*;
 import cc.minetale.slime.event.game.PostGameSetupEvent;
 import cc.minetale.slime.event.game.PostInstanceSetupEvent;
 import cc.minetale.slime.event.game.PreGameSetupEvent;
@@ -256,6 +254,22 @@ public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadab
         var teams = event.getTeams();
         if(teams.isEmpty())
             throw new IllegalStateException("Assigned teams is empty. Please provide at least one team to assign players to on GameSetupTeamsEvent.");
+
+        var gameManager = this.getGameManager();
+        var gameInfo = gameManager.getGameInfo();
+        var teamStyle = gameInfo.getTeamStyle();
+
+        if(teamStyle == TeamStyle.SPECIFIED) {
+            for(GameTeam team : teams) {
+                if(team.isAnonymous())
+                    throw new IllegalStateException("Team \"" + team.getId() + "\" is anonymous when GameInfo has TeamStyle of SPECIFIED.");
+            }
+        } else if(teamStyle == TeamStyle.ANONYMOUS) {
+            for(GameTeam team : teams) {
+                if(!team.isAnonymous())
+                    throw new IllegalStateException("Team \"" + team.getId() + "\" isn't anonymous when GameInfo has TeamStyle of ANONYMOUS.");
+            }
+        }
 
         //TODO Move assignment to TeamManager
         Map<GameTeam, Set<GamePlayer>> assignedTeams = assigner.assign(this, teams, players);

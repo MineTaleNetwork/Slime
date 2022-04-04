@@ -12,6 +12,8 @@ import cc.minetale.slime.utils.Requirement;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.network.PlayerProvider;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +35,18 @@ public class GameInfo {
     private MapProvider<? extends LobbyMap> lobbyMapProvider;
     private MapResolver<? extends LobbyMap> lobbyMapResolver;
 
+    //Settings for anonymous team style
+    private TeamStyle teamStyle;
+
+    private NamedTextColor anonymousSelfColor = NamedTextColor.GREEN, anonymousOthersColor = NamedTextColor.RED;
+
+    private Component anonymousSelfPrefix = Component.text("", NamedTextColor.GREEN),
+            anonymousOthersPrefix = Component.text("", NamedTextColor.RED),
+            anonymousSelfSuffix = Component.empty(),
+            anonymousOthersSuffix = Component.empty();
+
+    //Settings for specified team style
+    /** Only used when {@linkplain #teamStyle} is set to {@linkplain TeamStyle#SPECIFIED}. **/
     private List<ITeamType> teamTypes;
 
     /**

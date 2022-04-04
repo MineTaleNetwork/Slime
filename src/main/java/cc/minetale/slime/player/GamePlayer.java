@@ -3,28 +3,36 @@ package cc.minetale.slime.player;
 import cc.minetale.flame.util.FlamePlayer;
 import cc.minetale.mlib.nametag.NameplateHandler;
 import cc.minetale.mlib.nametag.ProviderType;
+import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.core.SlimeAudience;
+import cc.minetale.slime.core.TeamStyle;
 import cc.minetale.slime.event.player.GamePlayerStateChangeEvent;
 import cc.minetale.slime.game.Game;
+import cc.minetale.slime.game.GameManager;
 import cc.minetale.slime.loadout.ILoadoutHolder;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.rule.*;
 import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.team.GameTeam;
+import cc.minetale.slime.team.TeamManager;
 import cc.minetale.slime.utils.ApplyStrategy;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.util.TriState;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.inventory.PlayerInventory;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static cc.minetale.slime.Slime.TEAM_MANAGER;
 
 @Getter
 public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHolder, IRuleReadable, IRuleWritable {
@@ -58,26 +66,61 @@ public class GamePlayer extends FlamePlayer implements SlimeAudience, ILoadoutHo
 
     @Override
     public void setState(IPlayerState state) {
+        GameManager gameManager = this.game.getGameManager();
+        GameInfo gameInfo = gameManager.getGameInfo();
+
         var event = new GamePlayerStateChangeEvent(this.game, this, this.state, state);
         EventDispatcher.call(event);
 
         state = event.getNewState();
-
         this.state = state;
 
         var gamemode = state.getGamemode();
         if(gamemode != null)
             setGameMode(gamemode);
 
+        TeamStyle teamStyle = gameInfo.getTeamStyle();
+
         var showTeam = state.showTeam();
         if(showTeam == TriState.TRUE && this.gameTeam != null) {
-            NameplateHandler.addProvider(this, this.gameTeam.getNameplateProvider());
+            if(teamStyle == TeamStyle.SPECIFIED) {
+                NameplateHandler.addProvider(this, this.gameTeam.getNameplateProvider());
+                NameplateHandler.reloadPlayer(this);
+            } else if(teamStyle == TeamStyle.ANONYMOUS) {
+                MinecraftServer.getConnectionManager().getOnlinePlayers().forEach(player -> player.setTeam(null));
+
+                Collection<String> selfAllMembers = this.gameTeam.getPlayers().stream()
+                        .map(Player::getUsername)
+                        .toList();
+
+                TeamManager teamManager = this.game.getTeamManager();
+
+                Map<String, GameTeam> otherTeams = new HashMap<>(teamManager.getTeams());
+                otherTeams.remove(this.gameTeam.getId());
+
+                Collection<String> otherAllMembers = new LinkedList<>();
+                for(Map.Entry<String, GameTeam> ent : otherTeams.entrySet()) {
+                    GameTeam enemyTeam = ent.getValue();
+                    Collection<String> otherMembers = enemyTeam.getPlayers().stream()
+                            .map(Player::getUsername)
+                            .toList();
+
+                    otherAllMembers.addAll(otherMembers);
+                }
+
+                TeamsPacket selfCreatePacket = TEAM_MANAGER.getTeam("anonymous-self").createTeamsCreationPacket();
+                TeamsPacket othersCreatePacket = TEAM_MANAGER.getTeam("anonymous-others").createTeamsCreationPacket();
+
+                TeamsPacket selfPacket = new TeamsPacket("anonymous-self", new TeamsPacket.AddEntitiesToTeamAction(selfAllMembers));
+                TeamsPacket othersPacket = new TeamsPacket("anonymous-others", new TeamsPacket.AddEntitiesToTeamAction(otherAllMembers));
+
+                sendPackets(selfCreatePacket, othersCreatePacket,
+                        selfPacket, othersPacket);
+            }
         } else if(showTeam == TriState.FALSE) {
             NameplateHandler.removeProvider(this, ProviderType.SLIME);
-        }
-
-        if(showTeam != TriState.NOT_SET)
             NameplateHandler.reloadPlayer(this);
+        }
 
         RuleSet ruleSet = state.getRuleSet();
         if(ruleSet != null)

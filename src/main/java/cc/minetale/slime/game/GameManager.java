@@ -1,9 +1,6 @@
 package cc.minetale.slime.game;
 
-import cc.minetale.slime.core.GameInfo;
-import cc.minetale.slime.core.MainListener;
-import cc.minetale.slime.core.SlimeAudience;
-import cc.minetale.slime.core.SlimeForwardingAudience;
+import cc.minetale.slime.core.*;
 import cc.minetale.slime.event.game.GameCreateEvent;
 import cc.minetale.slime.event.game.GameRemoveEvent;
 import cc.minetale.slime.lobby.GameLobby;
@@ -24,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+
+import static cc.minetale.slime.Slime.TEAM_MANAGER;
 
 public final class GameManager implements SlimeForwardingAudience {
 
@@ -52,6 +51,14 @@ public final class GameManager implements SlimeForwardingAudience {
 
         this.gameProvider = gameProvider;
         this.lobbyProvider = Objects.requireNonNullElse(lobbyProvider, GameLobby::new);
+
+        //Anonymous Teams
+        if(this.gameInfo.getTeamStyle() == TeamStyle.ANONYMOUS) {
+            TEAM_MANAGER.createTeam("anonymous-self",
+                    this.gameInfo.getAnonymousSelfPrefix(), this.gameInfo.getAnonymousSelfColor(), this.gameInfo.getAnonymousSelfSuffix());
+            TEAM_MANAGER.createTeam("anonymous-others",
+                    this.gameInfo.getAnonymousOthersPrefix(), this.gameInfo.getAnonymousOthersColor(), this.gameInfo.getAnonymousOthersSuffix());
+        }
     }
 
     public static GameManager create(GameInfo gameInfo,
