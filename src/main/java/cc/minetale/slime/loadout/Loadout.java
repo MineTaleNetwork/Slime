@@ -18,8 +18,6 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Getter
 public final class Loadout implements TagReadable, TagWritable {
@@ -35,21 +33,14 @@ public final class Loadout implements TagReadable, TagWritable {
 
     private final List<ItemStack> items;
 
-    //Can be used to set events for the player/inventory/hotbar
-
-    private @Nullable Consumer<ILoadoutHolder> onApply;
-    private @Nullable Consumer<ILoadoutHolder> onRemove;
-
-    private final @Nullable Function<ILoadoutHolder, List<ItemStack>> modifier;
+    private final LoadoutHandlers handlers;
 
     @Builder
     public Loadout(String id,
                    String displayName,
                    ItemStack displayItem,
                    List<ItemStack> items,
-                   @Nullable Consumer<ILoadoutHolder> onApply,
-                   @Nullable Consumer<ILoadoutHolder> onRemove,
-                   @Nullable Function<ILoadoutHolder, List<ItemStack>> modifier) {
+                   LoadoutHandlers handlers) {
 
         if(items.size() > PlayerInventory.INVENTORY_SIZE)
             throw new IllegalArgumentException("Loadout's items list size is too big for player's inventory");
@@ -61,10 +52,7 @@ public final class Loadout implements TagReadable, TagWritable {
 
         this.items = List.copyOf(items);
 
-        this.onApply = onApply;
-        this.onRemove = onRemove;
-
-        this.modifier = modifier;
+        this.handlers = Objects.requireNonNullElse(handlers, LoadoutHandlers.empty());
     }
 
     public Loadout register() {
@@ -72,19 +60,11 @@ public final class Loadout implements TagReadable, TagWritable {
         return this;
     }
 
-    private void applyToHolder(ILoadoutHolder holder, boolean isReplacing) {
-        List<ItemStack> items = this.items;
-        if(this.modifier != null)
-            items = this.modifier.apply(holder);
+    private void applyToHolder(ILoadoutHolder holder) {
+        List<ItemStack> items = this.handlers.dynamicallySupply(holder, new ArrayList<>(this.items));
+        this.handlers.onApply(holder);
 
-        if(this.onApply != null)
-            this.onApply.accept(holder);
-
-        if(!isReplacing) {
-            holder.applyLoadout0(this, items);
-        } else {
-            holder.replaceLoadout0(this, items);
-        }
+        holder.applyLoadout0(this, items);
 
         this.holders.add(holder);
     }
@@ -108,7 +88,7 @@ public final class Loadout implements TagReadable, TagWritable {
         if(event.isCancelled()) { return false; }
 
         var loadout = event.getLoadout();
-        loadout.applyToHolder(holder, false);
+        loadout.applyToHolder(holder);
 
         return true;
     }
@@ -127,7 +107,7 @@ public final class Loadout implements TagReadable, TagWritable {
         removeIfAny(holder, false);
 
         var loadout = event.getNewLoadout(); //The event might change the loadout to apply
-        loadout.applyToHolder(holder, true);
+        loadout.applyToHolder(holder);
 
         return oldLoadout;
     }
@@ -157,9 +137,7 @@ public final class Loadout implements TagReadable, TagWritable {
             if(event.isCancelled()) { return null; }
         }
 
-        Consumer<ILoadoutHolder> onRemove = loadout.getOnRemove();
-        if(onRemove != null)
-            onRemove.accept(holder);
+        loadout.getHandlers().onRemove(holder);
 
         holder.removeLoadout0();
 

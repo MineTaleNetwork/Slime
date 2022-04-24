@@ -4,6 +4,7 @@ import cc.minetale.commonlib.util.CollectionsUtil;
 import cc.minetale.slime.Slime;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
+import cc.minetale.slime.misc.Requirement;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.tools.TempMap;

@@ -4,7 +4,7 @@ import cc.minetale.slime.event.trait.GameEvent;
 import cc.minetale.slime.event.trait.GamePlayerEvent;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
-import cc.minetale.slime.player.IPlayerState;
+import cc.minetale.slime.player.PlayerState;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -18,10 +18,10 @@ public class GamePlayerStateChangeEvent implements GameEvent, GamePlayerEvent, C
     @Getter private Game game;
     @Getter private GamePlayer gamePlayer;
 
-    @Getter @Nullable private IPlayerState previousState;
-    @Getter @Setter @NotNull private IPlayerState newState;
+    @Getter @Nullable private PlayerState previousState;
+    @Getter @Setter @NotNull private PlayerState newState;
 
-    public GamePlayerStateChangeEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer, IPlayerState previousState, IPlayerState newState) {
+    public GamePlayerStateChangeEvent(@NotNull Game game, @NotNull GamePlayer gamePlayer, PlayerState previousState, PlayerState newState) {
         this.game = game;
         this.gamePlayer = gamePlayer;
 

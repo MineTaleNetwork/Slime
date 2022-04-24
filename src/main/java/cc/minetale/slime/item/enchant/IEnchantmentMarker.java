@@ -1,6 +1,6 @@
 package cc.minetale.slime.item.enchant;
 
-import cc.minetale.slime.utils.IMarker;
+import cc.minetale.slime.misc.IMarker;
 import net.minestom.server.item.Enchantment;
 
 import java.util.Collection;

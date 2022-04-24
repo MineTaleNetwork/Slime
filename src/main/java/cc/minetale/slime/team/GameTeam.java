@@ -8,7 +8,6 @@ import cc.minetale.slime.core.TeamStyle;
 import cc.minetale.slime.game.Game;
 import cc.minetale.slime.player.GamePlayer;
 import cc.minetale.slime.rule.*;
-import cc.minetale.slime.utils.ApplyStrategy;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +20,7 @@ import java.util.*;
 import static cc.minetale.slime.Slime.TEAM_MANAGER;
 
 @Getter
-public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
+public class GameTeam implements SlimeForwardingAudience, IRulable {
 
     @Setter(AccessLevel.PACKAGE)
     private Game game;
@@ -35,7 +34,7 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
 
     private final String id;
 
-    private final Map<Rule<?>, Object> rules;
+    private final RuleSet ruleSet = RuleSet.empty();
 
     @Setter protected int size;
 
@@ -69,8 +68,10 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
 
         this.id = id;
         this.size = size;
+    }
 
-        this.rules = Collections.synchronizedMap(new HashMap<>());
+    public boolean isPlayerInTeam(GamePlayer player) {
+        return this.players.contains(player);
     }
 
     public boolean addPlayer(GamePlayer player) {
@@ -97,30 +98,8 @@ public class GameTeam implements SlimeForwardingAudience, IRuleWritable, IRuleRe
 
     //Rules
     @Override
-    public <T> void setRule(Rule<T> rule, T value, ApplyStrategy strategy, boolean affectChildren) {
-        if(rule instanceof TeamRule) {
-            if(strategy == ApplyStrategy.ALWAYS) {
-                this.rules.put(rule, value);
-            } else if(strategy == ApplyStrategy.NOT_SET) {
-                this.rules.putIfAbsent(rule, value);
-            }
-            return;
-        } else if(rule instanceof UniversalRule) {
-            if(strategy == ApplyStrategy.ALWAYS) {
-                this.rules.put(rule, value);
-            } else if(strategy == ApplyStrategy.NOT_SET) {
-                this.rules.putIfAbsent(rule, value);
-            }
-        }
-
-        if(affectChildren)
-            this.players.forEach(player -> player.setRule(rule, value, strategy, true));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <R extends Rule<T>, T> T getRule(R rule) {
-        return (T) this.rules.get(rule);
+    public RuleSet getRuleSet() {
+        return this.ruleSet;
     }
 
     //Audiences

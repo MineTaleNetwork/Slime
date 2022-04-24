@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils.sequence;
+package cc.minetale.slime.misc.sequence;
 
 import cc.minetale.mlib.util.MathUtil;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils.restriction;
+package cc.minetale.slime.misc.restriction;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -2,7 +2,10 @@ package cc.minetale.slime.game;
 
 import cc.minetale.slime.condition.EndCondition;
 import cc.minetale.slime.condition.IEndCondition;
-import cc.minetale.slime.core.*;
+import cc.minetale.slime.core.GameState;
+import cc.minetale.slime.core.SlimeAudience;
+import cc.minetale.slime.core.SlimeForwardingAudience;
+import cc.minetale.slime.core.TeamStyle;
 import cc.minetale.slime.event.game.PostGameSetupEvent;
 import cc.minetale.slime.event.game.PostInstanceSetupEvent;
 import cc.minetale.slime.event.game.PreGameSetupEvent;
@@ -14,12 +17,12 @@ import cc.minetale.slime.event.team.GameSetupTeamsEvent;
 import cc.minetale.slime.loadout.Loadout;
 import cc.minetale.slime.lobby.GameLobby;
 import cc.minetale.slime.player.GamePlayer;
-import cc.minetale.slime.rule.*;
+import cc.minetale.slime.rule.IRulable;
+import cc.minetale.slime.rule.RuleSet;
 import cc.minetale.slime.spawn.GameSpawn;
 import cc.minetale.slime.spawn.SpawnManager;
 import cc.minetale.slime.team.GameTeam;
 import cc.minetale.slime.team.TeamManager;
-import cc.minetale.slime.utils.ApplyStrategy;
 import cc.minetale.slime.utils.TeamUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static cc.minetale.slime.Slime.INSTANCE_MANAGER;
 
-public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadable {
+public class Game implements SlimeForwardingAudience, IRulable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
 
@@ -54,7 +57,7 @@ public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadab
     @Getter @Setter(AccessLevel.PACKAGE)
     private GameState state;
 
-    private final Map<Rule<?>, Object> rules = Collections.synchronizedMap(new HashMap<>());
+    private final RuleSet ruleSet = RuleSet.empty();
 
     @Getter @Setter protected IEndCondition endCondition = EndCondition.LAST_ALIVE;
 
@@ -295,30 +298,8 @@ public class Game implements SlimeForwardingAudience, IRuleWritable, IRuleReadab
 
     //Rules
     @Override
-    public <T> void setRule(Rule<T> rule, T value, ApplyStrategy strategy, boolean affectChildren) {
-        if(rule instanceof GameRule) {
-            if(strategy == ApplyStrategy.ALWAYS) {
-                this.rules.put(rule, value);
-            } else if(strategy == ApplyStrategy.NOT_SET) {
-                this.rules.putIfAbsent(rule, value);
-            }
-            return;
-        } else if(rule instanceof UniversalRule) {
-            if(strategy == ApplyStrategy.ALWAYS) {
-                this.rules.put(rule, value);
-            } else if(strategy == ApplyStrategy.NOT_SET) {
-                this.rules.putIfAbsent(rule, value);
-            }
-        }
-
-        if(affectChildren)
-            this.teamManager.getTeams().forEach((id, team) -> team.setRule(rule, value, strategy, true));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <R extends Rule<T>, T> T getRule(R rule) {
-        return (T) this.rules.get(rule);
+    public RuleSet getRuleSet() {
+        return this.ruleSet;
     }
 
     //Audiences

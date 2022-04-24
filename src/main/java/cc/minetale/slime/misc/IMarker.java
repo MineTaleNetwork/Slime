@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils;
+package cc.minetale.slime.misc;
 
 import cc.minetale.slime.item.category.ICategorized;
 import cc.minetale.slime.item.category.ICategory;

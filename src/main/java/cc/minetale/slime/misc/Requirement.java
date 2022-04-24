@@ -1,9 +1,10 @@
-package cc.minetale.slime.utils;
+package cc.minetale.slime.misc;
 
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.spawn.MapSpawn;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.tools.TempMap;
+import cc.minetale.slime.utils.MapUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

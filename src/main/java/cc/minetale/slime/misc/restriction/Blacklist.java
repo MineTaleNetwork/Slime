@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils.restriction;
+package cc.minetale.slime.misc.restriction;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,8 @@ public class Blacklist<T> extends RestrictionList<T> {
         return new Blacklist<>(elements);
     }
 
-    public static <T> Blacklist<T> of(T[] elements) {
+    @SafeVarargs
+    public static <T> Blacklist<T> of(T... elements) {
         return new Blacklist<>(Set.of(elements));
     }
 

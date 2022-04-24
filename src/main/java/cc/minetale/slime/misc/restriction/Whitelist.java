@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils.restriction;
+package cc.minetale.slime.misc.restriction;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,8 @@ public class Whitelist<T> extends RestrictionList<T> {
         return new Whitelist<>(elements);
     }
 
-    public static <T> Whitelist<T> of(T[] elements) {
+    @SafeVarargs
+    public static <T> Whitelist<T> of(T... elements) {
         return new Whitelist<>(Set.of(elements));
     }
 

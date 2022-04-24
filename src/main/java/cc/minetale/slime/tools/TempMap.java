@@ -6,7 +6,7 @@ import cc.minetale.slime.core.GameInfo;
 import cc.minetale.slime.map.AbstractMap;
 import cc.minetale.slime.map.GameMap;
 import cc.minetale.slime.map.LobbyMap;
-import cc.minetale.slime.utils.Requirement;
+import cc.minetale.slime.misc.Requirement;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.result.UpdateResult;

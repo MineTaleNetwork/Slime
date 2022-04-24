@@ -1,6 +1,6 @@
-package cc.minetale.slime.utils.sequence;
+package cc.minetale.slime.misc.sequence;
 
-import cc.minetale.slime.utils.sequence.SequenceBuilder.Executor;
+import cc.minetale.slime.misc.sequence.SequenceBuilder.Executor;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

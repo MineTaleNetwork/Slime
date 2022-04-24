@@ -25,9 +25,6 @@ import cc.minetale.slime.utils.jackson.serializer.MaterialSerializers;
 import cc.minetale.slime.utils.jackson.serializer.PotionTypeSerializers;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.github.bloepiloepi.pvp.PvpExtension;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.coordinate.Point;
@@ -171,9 +168,6 @@ public final class Slime extends Extension {
         if(EXTENSION_MANAGER.hasExtension("buildingtools")) {
             LOGGER.info("Building Tools has been detected. Loading Slime as tooling.");
             TOOL_MANAGER.initialize();
-        } else {
-            PvpExtension.init();
-            MinecraftServer.getGlobalEventHandler().addChild(PvpExtension.events());
         }
 
         return LoadStatus.SUCCESS;

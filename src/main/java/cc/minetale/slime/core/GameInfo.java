@@ -8,7 +8,7 @@ import cc.minetale.slime.map.MapResolver;
 import cc.minetale.slime.team.ITeamType;
 import cc.minetale.slime.team.TeamProvider;
 import cc.minetale.slime.tools.TempMap;
-import cc.minetale.slime.utils.Requirement;
+import cc.minetale.slime.misc.Requirement;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -35,9 +35,9 @@ public class GameInfo {
     private MapProvider<? extends LobbyMap> lobbyMapProvider;
     private MapResolver<? extends LobbyMap> lobbyMapResolver;
 
-    //Settings for anonymous team style
     private TeamStyle teamStyle;
 
+    //Settings for anonymous team style
     private NamedTextColor anonymousSelfColor = NamedTextColor.GREEN, anonymousOthersColor = NamedTextColor.RED;
 
     private Component anonymousSelfPrefix = Component.text("", NamedTextColor.GREEN),

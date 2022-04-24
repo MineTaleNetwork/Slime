@@ -4,7 +4,7 @@ import cc.minetale.slime.item.category.ICategorizedTiered;
 import cc.minetale.slime.item.category.ICategory;
 import cc.minetale.slime.item.category.ITieredCategory;
 import cc.minetale.slime.item.tier.ITieredItem;
-import cc.minetale.slime.utils.IMarker;
+import cc.minetale.slime.misc.IMarker;
 
 import java.util.Collection;
 import java.util.HashSet;

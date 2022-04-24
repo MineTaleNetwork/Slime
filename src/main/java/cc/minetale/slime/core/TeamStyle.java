@@ -1,5 +1,7 @@
 package cc.minetale.slime.core;
 
+import cc.minetale.slime.perceive.PerceiveTeam;
+
 /**
  * Determines if the players in teams should be grouped by specified teams (e.g. red, blue, zombies) <br>
  * or not (e.g. every opposite team appears a different color). <br>
@@ -9,5 +11,6 @@ package cc.minetale.slime.core;
  */
 public enum TeamStyle {
     SPECIFIED,
+    /** Backed by {@linkplain PerceiveTeam} */
     ANONYMOUS
 }

@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils.sequence;
+package cc.minetale.slime.misc.sequence;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;

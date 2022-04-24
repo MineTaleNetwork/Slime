@@ -1,4 +1,4 @@
-package cc.minetale.slime.utils;
+package cc.minetale.slime.misc;
 
 public enum ApplyStrategy {
     ALWAYS,

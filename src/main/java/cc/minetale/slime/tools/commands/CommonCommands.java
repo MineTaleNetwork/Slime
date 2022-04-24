@@ -9,7 +9,7 @@ import cc.minetale.slime.map.MapProvider;
 import cc.minetale.slime.map.MapResolver;
 import cc.minetale.slime.tools.TempMap;
 import cc.minetale.slime.utils.MapUtil;
-import cc.minetale.slime.utils.Requirement;
+import cc.minetale.slime.misc.Requirement;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
